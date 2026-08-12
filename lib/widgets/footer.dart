@@ -57,7 +57,7 @@ class Footer extends StatelessWidget {
                     ],
                   ),
 
-                  // WhatsApp quick link
+                  // WhatsApp quick link with updated phone number
                   InkWell(
                     onTap: () => WhatsAppHelper.launchWhatsApp(),
                     child: const Row(
@@ -65,7 +65,7 @@ class Footer extends StatelessWidget {
                         Icon(Icons.chat_rounded, color: AppTheme.primary, size: 20),
                         SizedBox(width: 6),
                         Text(
-                          '01142466903 (واتساب المبيعات)',
+                          '00201093706027 (واتساب المبيعات)',
                           style: TextStyle(
                             color: AppTheme.textWhite,
                             fontSize: 14,

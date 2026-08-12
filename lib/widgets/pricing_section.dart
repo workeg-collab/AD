@@ -1,0 +1,215 @@
+import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+
+class PricingSection extends StatelessWidget {
+  final VoidCallback onOpenOrderModal;
+
+  const PricingSection({
+    super.key,
+    required this.onOpenOrderModal,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
+    final List<String> packageItems = [
+      'صفحة تعريفية كاملة متوافقة مع الأيفون والجوال والكمبيوتر',
+      'دومين خاص باسم نشاطك التجاري (.site / .online / .xyz) مجاناً أول سنة',
+      'تسليم النسخة الأولى والمعاينة المباشرة خلال 6 ساعات فقط',
+      '3 جولات تعديل مجانية شاملة للنصوص والصور والألوان',
+      'أزرار اتصال وواتساب مباشرة لتحويل الزوار إلى مبيعات',
+      'ربط خريطة موقع المحل/الشركة وحسابات التواصل الاجتماعي',
+      'كتالوج المنتجات أو الخدمات مع تفاصيل الأسعار',
+      'استضافة سريعة ومؤمنة مجاناً بدون أي مصاريف شهرياً',
+    ];
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
+      color: AppTheme.surfaceDark,
+      child: Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 900),
+          child: Column(
+            children: [
+              // Badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.accentGold.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppTheme.accentGold, width: 1),
+                ),
+                child: const Text(
+                  '🏷️ العرض الأكثر طلباً بالسعودية',
+                  style: TextStyle(
+                    color: AppTheme.accentGold,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'باقة الصفحة التعريفية الشاملة',
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textWhite,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'حل متكامل دون مصاريف خفية أو تجديدات معقدة',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppTheme.textMuted,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(height: 40),
+
+              // Pricing Card
+              Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.cardDark,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AppTheme.primary, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primary.withValues(alpha: 0.1),
+                      blurRadius: 30,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(isMobile ? 24 : 40),
+                  child: Column(
+                    children: [
+                      // Price Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          const Text(
+                            '299',
+                            style: TextStyle(
+                              fontSize: 56,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'ريال سعودي',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textWhite,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '/ دفعة واحدة',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppTheme.textMuted.withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+                      const Text(
+                        'شاملة الدومين التأسيسي والتسليم خلال 6 ساعات',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.accentGold,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+                      const Divider(color: AppTheme.borderDark),
+                      const SizedBox(height: 32),
+
+                      // Included Items List
+                      Column(
+                        children: packageItems.map((item) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.check_rounded,
+                                    color: Colors.black,
+                                    size: 14,
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Text(
+                                    item,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: AppTheme.textWhite,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+
+                      const SizedBox(height: 36),
+
+                      // Order Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: onOpenOrderModal,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primary,
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            elevation: 8,
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.flash_on_rounded, size: 22),
+                              SizedBox(width: 8),
+                              Text(
+                                'ابتدئ طلبك الآن واستلم موقعك اليوم',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

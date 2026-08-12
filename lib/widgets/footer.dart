@@ -18,15 +18,38 @@ class Footer extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Brand
-                  const Row(
+                  // Brand with POM Agency Logo
+                  Row(
                     children: [
-                      Icon(Icons.rocket_launch_rounded, color: AppTheme.primary, size: 24),
-                      SizedBox(width: 8),
-                      Text(
-                        'AD Web Solutions',
+                      Container(
+                        height: 36,
+                        width: 36,
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: AppTheme.cardDark,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4), width: 1),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.asset(
+                            'assets/images/pom_logo.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.rocket_launch_rounded,
+                                color: AppTheme.primary,
+                                size: 20,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'POM Agency | AD Web Solutions',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: AppTheme.textWhite,
                         ),
@@ -60,7 +83,7 @@ class Footer extends StatelessWidget {
               const SizedBox(height: 24),
 
               const Text(
-                '🇸🇦 خدمة خاصة ومخصصة لشركات ومحلات المملكة العربية السعودية | تطوير بواسطة Flutter Web ومستضاف على Vercel',
+                '🇸🇦 خدمة خاصة ومخصصة لشركات ومحلات المملكة العربية السعودية | إحدى خدمات POM Agency | تطوير بواسطة Flutter Web ومستضاف على Vercel',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.textMuted,
@@ -70,7 +93,7 @@ class Footer extends StatelessWidget {
 
               const SizedBox(height: 12),
               const Text(
-                '© 2026 AD Web Solutions. جميع الحقوق محفوظة.',
+                '© 2026 POM Agency - AD Web Solutions. جميع الحقوق محفوظة.',
                 style: TextStyle(
                   color: AppTheme.textMuted,
                   fontSize: 12,

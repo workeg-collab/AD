@@ -19,7 +19,7 @@ class Navbar extends StatelessWidget {
     final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
       decoration: const BoxDecoration(
         color: AppTheme.surfaceDark,
         border: Border(
@@ -32,21 +32,31 @@ class Navbar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Brand Logo
+              // Brand Logo with POM Agency Logo Image
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    height: 46,
+                    width: 46,
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppTheme.primary, AppTheme.secondary],
-                      ),
+                      color: AppTheme.cardDark,
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4), width: 1.5),
                     ),
-                    child: const Icon(
-                      Icons.rocket_launch_rounded,
-                      color: Colors.black,
-                      size: 24,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        'assets/images/pom_logo.png',
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(
+                            Icons.rocket_launch_rounded,
+                            color: AppTheme.primary,
+                            size: 24,
+                          );
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -57,12 +67,12 @@ class Navbar extends StatelessWidget {
                       Row(
                         children: [
                           const Text(
-                            'AD',
+                            'POM AD',
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: 20,
                               fontWeight: FontWeight.w900,
                               color: AppTheme.primary,
-                              letterSpacing: 1.2,
+                              letterSpacing: 1.1,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -85,7 +95,7 @@ class Navbar extends StatelessWidget {
                         ],
                       ),
                       const Text(
-                        'حلول ويب سريعة للشركات',
+                        'POM Agency | حلول ويب سريعة',
                         style: TextStyle(
                           fontSize: 11,
                           color: AppTheme.textMuted,

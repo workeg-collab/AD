@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../utils/whatsapp_helper.dart';
 import '../widgets/navbar.dart';
 import '../widgets/hero_section.dart';
 import '../widgets/features_section.dart';
 import '../widgets/demo_switcher.dart';
 import '../widgets/pricing_section.dart';
 import '../widgets/order_modal.dart';
+import '../widgets/floating_whatsapp_3d.dart';
 import '../widgets/footer.dart';
 
 class HomePage extends StatefulWidget {
@@ -83,19 +83,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => WhatsAppHelper.launchWhatsApp(),
-          backgroundColor: const Color(0xFF25D366),
-          icon: const Icon(Icons.chat_rounded, color: Colors.white, size: 24),
-          label: const Text(
-            'تواصل واتساب',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-            ),
-          ),
-        ),
+        floatingActionButton: const FloatingWhatsApp3D(),
       ),
     );
   }

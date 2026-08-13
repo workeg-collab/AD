@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Brand Colors
-  static const Color primary = Color(0xFF00C853); // Fresh Emerald Green
-  static const Color primaryDark = Color(0xFF009624);
-  static const Color secondary = Color(0xFF0288D1); // Vibrant Sky Blue Accent
-  static const Color accentGold = Color(0xFFE65100); // Premium Warm Accent
+  // Brand Colors (Vibrant Dazzling Palette)
+  static const Color primary = Color(0xFF10B981); // Emerald Green
+  static const Color primaryDark = Color(0xFF059669);
+  static const Color secondary = Color(0xFF2563EB); // Vibrant Royal Blue
+  static const Color accentGold = Color(0xFFF59E0B); // Vibrant 24K Gold Accent
 
   // Light Theme Tokens (Default High Brightness White)
   static const Color bgLight = Color(0xFFF8FAFC);

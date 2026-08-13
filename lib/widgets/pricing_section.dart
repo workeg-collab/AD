@@ -19,13 +19,13 @@ class PricingSection extends StatelessWidget {
     final textColor = theme.textTheme.bodyLarge?.color;
 
     final List<String> packageItems = [
-      'تصميم مخصص فائق الأناقة متوافق مع كافة الجوالات والأجهزة',
-      'اسم دومين خاص لمجالك (.site / .online / .xyz) مجاناً للسنة الأولى',
-      'إدراج منتجاتك، صورك، نصوصك، ومعلومات التواصل كاملة',
-      'زر طلب وتواصل مباشر يوجه العملاء فوراً إلى رقم الواتساب الخاص بك',
-      'ربط موقع المحل/الشركة على خرائط قوقل لتسهيل وصول العملاء',
-      '3 جولات تعديل مجانية بعد الاستلام لضمان الرضا التام 100%',
-      'تسليم كامل للموقع مع الرابط المباشر خلال 6 ساعات من الاتفاق',
+      AppTranslations.tr('price_item_1'),
+      AppTranslations.tr('price_item_2'),
+      AppTranslations.tr('price_item_3'),
+      AppTranslations.tr('price_item_4'),
+      AppTranslations.tr('price_item_5'),
+      AppTranslations.tr('price_item_6'),
+      AppTranslations.tr('price_item_7'),
     ];
 
     return Container(
@@ -129,9 +129,9 @@ class PricingSection extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 8),
-                      const Text(
-                        'شاملة الدومين التأسيسي والتسليم خلال 6 ساعات',
-                        style: TextStyle(
+                      Text(
+                        AppTranslations.tr('price_includes'),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: AppTheme.accentGold,
                           fontWeight: FontWeight.w600,
@@ -191,14 +191,14 @@ class PricingSection extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(vertical: 20),
                             elevation: 8,
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.flash_on_rounded, size: 22),
-                              SizedBox(width: 8),
+                              const Icon(Icons.flash_on_rounded, size: 22),
+                              const SizedBox(width: 8),
                               Text(
-                                'ابتدئ طلبك الآن واستلم موقعك اليوم',
-                                style: TextStyle(
+                                AppTranslations.tr('price_cta_btn'),
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),

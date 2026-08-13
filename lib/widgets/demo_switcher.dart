@@ -276,7 +276,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'الدومين التجريبي المقترح: ${currentVariant.demoUrl}',
+                                  '${AppTranslations.tr('demo_domain_prefix')}${currentVariant.demoUrl}',
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: isDark ? currentVariant.themeColor : AppTheme.primaryDark,
@@ -354,7 +354,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                             );
                           },
                           icon: const Icon(Icons.chat_bubble_rounded),
-                          label: Text('اطلب ${currentVariant.name} بـ 299 ريال شامل الدومين'),
+                          label: Text(AppTranslations.tr('demo_order_btn')),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: currentVariant.themeColor,
                             foregroundColor: Colors.black,

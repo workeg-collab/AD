@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/template_model.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_translations.dart';
 import '../utils/whatsapp_helper.dart';
 import 'shape_preview_widget.dart';
 
@@ -63,7 +64,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
               const SizedBox(height: 16),
 
               Text(
-                'استكشف نماذج وأشكال القوالب المتاحة',
+                AppTranslations.tr('demo_title'),
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -72,9 +73,9 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              const Text(
-                'اختر قسمك التجاري ثم تصفح الـ 4 أشكال والتصاميم المتاحة لاختيار النمط المناسب لهويتك',
-                style: TextStyle(
+              Text(
+                AppTranslations.tr('demo_sub'),
+                style: const TextStyle(
                   fontSize: 16,
                   color: AppTheme.textMuted,
                 ),
@@ -92,6 +93,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                     (index) {
                       final item = TemplateModel.sampleTemplates[index];
                       final isSelected = _selectedCategoryIndex == index;
+                      final translatedCatName = AppTranslations.tr('cat_${item.id}_name');
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -103,7 +105,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                             size: 18,
                           ),
                           label: Text(
-                            item.category,
+                            translatedCatName.isNotEmpty ? translatedCatName : item.category,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,

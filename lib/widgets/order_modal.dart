@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_translations.dart';
 import '../utils/whatsapp_helper.dart';
 
 class OrderModal extends StatefulWidget {
@@ -48,11 +49,15 @@ class _OrderModalState extends State<OrderModal> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = theme.textTheme.bodyLarge?.color;
+
     return Dialog(
-      backgroundColor: AppTheme.surfaceDark,
+      backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: AppTheme.borderDark, width: 1),
+        side: BorderSide(color: isDark ? AppTheme.borderDark : AppTheme.borderLight, width: 1),
       ),
       child: Container(
         padding: const EdgeInsets.all(28),
@@ -68,16 +73,16 @@ class _OrderModalState extends State<OrderModal> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.edit_document, color: AppTheme.primary, size: 24),
-                        SizedBox(width: 10),
+                        const Icon(Icons.edit_document, color: AppTheme.primary, size: 24),
+                        const SizedBox(width: 10),
                         Text(
-                          'تعبئة تفاصيل الطلب السريع',
+                          AppTranslations.tr('modal_title'),
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 17,
                             fontWeight: FontWeight.bold,
-                            color: AppTheme.textWhite,
+                            color: textColor,
                           ),
                         ),
                       ],
@@ -90,9 +95,9 @@ class _OrderModalState extends State<OrderModal> {
                 ),
 
                 const SizedBox(height: 6),
-                const Text(
-                  'أدخل البيانات الأولية لتحويلها مباشرة للواتساب والبدء بالتنفيذ خلال 6 ساعات',
-                  style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                Text(
+                  AppTranslations.tr('modal_sub'),
+                  style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
                 ),
 
                 const SizedBox(height: 24),
@@ -100,15 +105,14 @@ class _OrderModalState extends State<OrderModal> {
                 // Business Name Input
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'اسم المحل / الشركة *',
-                    hintText: 'مثال: متجر المها للعبايات',
-                    prefixIcon: Icon(Icons.store_rounded, color: AppTheme.primary),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppTranslations.tr('lbl_name'),
+                    prefixIcon: const Icon(Icons.store_rounded, color: AppTheme.primary),
+                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'يرجى كتابة اسم النشاط التجاري';
+                      return 'يرجى كتابة الاسم';
                     }
                     return null;
                   },
@@ -124,11 +128,11 @@ class _OrderModalState extends State<OrderModal> {
                     prefixIcon: Icon(Icons.category_rounded, color: AppTheme.secondary),
                     border: OutlineInputBorder(),
                   ),
-                  dropdownColor: AppTheme.cardDark,
+                  dropdownColor: isDark ? AppTheme.cardDark : Colors.white,
                   items: _categories.map((cat) {
                     return DropdownMenuItem(
                       value: cat,
-                      child: Text(cat, style: const TextStyle(color: AppTheme.textWhite)),
+                      child: Text(cat, style: TextStyle(color: textColor)),
                     );
                   }).toList(),
                   onChanged: (val) {
@@ -142,27 +146,13 @@ class _OrderModalState extends State<OrderModal> {
 
                 const SizedBox(height: 16),
 
-                // Domain Suggestion Input
-                TextFormField(
-                  controller: _domainController,
-                  decoration: const InputDecoration(
-                    labelText: 'الدومين المقترح (اختياري)',
-                    hintText: 'مثال: almaha-store.site',
-                    prefixIcon: Icon(Icons.language_rounded, color: AppTheme.accentGold),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
                 // Notes Input
                 TextFormField(
                   controller: _notesController,
                   maxLines: 2,
-                  decoration: const InputDecoration(
-                    labelText: 'ملاحظات أو روابط نصوص وصور (اختياري)',
-                    hintText: 'أية طلبات خاصة أو تفاصيل إضافية...',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppTranslations.tr('lbl_notes'),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
 
@@ -174,7 +164,7 @@ class _OrderModalState extends State<OrderModal> {
                   child: ElevatedButton.icon(
                     onPressed: _submitOrder,
                     icon: const Icon(Icons.send_rounded, size: 20),
-                    label: const Text('إرسال وبدء التنفيذ عبر الواتساب (299 ريال)'),
+                    label: Text(AppTranslations.tr('btn_submit_order')),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 18),
                     ),

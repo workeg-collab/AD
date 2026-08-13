@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_translations.dart';
 import '../utils/whatsapp_helper.dart';
 import '../main.dart';
+import 'language_selector_button.dart';
 
 class Navbar extends StatelessWidget {
   final VoidCallback onOrderTap;
@@ -129,7 +131,7 @@ class Navbar extends StatelessWidget {
                     TextButton(
                       onPressed: onFeaturesTap,
                       child: Text(
-                        'المميزات والضمان',
+                        AppTranslations.tr('nav_features'),
                         style: TextStyle(color: navTextColor, fontSize: 15),
                       ),
                     ),
@@ -137,24 +139,29 @@ class Navbar extends StatelessWidget {
                     TextButton(
                       onPressed: onDemosTap,
                       child: Text(
-                        'قوالب المعاينة',
+                        AppTranslations.tr('nav_demos'),
                         style: TextStyle(color: navTextColor, fontSize: 15),
                       ),
                     ),
                     const SizedBox(width: 16),
                     TextButton(
                       onPressed: onOrderTap,
-                      child: const Text(
-                        'تفاصيل العرض (299 ريال)',
-                        style: TextStyle(color: AppTheme.accentGold, fontSize: 15, fontWeight: FontWeight.bold),
+                      child: Text(
+                        AppTranslations.tr('nav_pricing'),
+                        style: const TextStyle(color: AppTheme.accentGold, fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
                 ),
 
-              // Action CTA & Tiny Dark Mode Icon
+              // Action CTA, Language Selector & Theme Toggle Icon
               Row(
                 children: [
+                  // Small Language Selector Button
+                  const LanguageSelectorButton(),
+
+                  const SizedBox(width: 8),
+
                   // Theme Mode Toggle Icon Button
                   ValueListenableBuilder<ThemeMode>(
                     valueListenable: themeNotifier,
@@ -194,10 +201,10 @@ class Navbar extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () => WhatsAppHelper.launchWhatsApp(),
                     icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
-                    label: Text(isMobile ? 'اطلب الآن' : 'تواصل واتساب مباشر'),
+                    label: Text(isMobile ? AppTranslations.tr('nav_order') : AppTranslations.tr('whatsapp_btn_top')),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 16 : 24,
+                        horizontal: isMobile ? 14 : 20,
                         vertical: 14,
                       ),
                     ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
+import '../utils/app_translations.dart';
+
 class FeaturesSection extends StatelessWidget {
   const FeaturesSection({super.key});
 
@@ -65,7 +67,7 @@ class FeaturesSection extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'لماذا تختار خدمة SA لتطوير موقعك؟',
+                AppTranslations.tr('feat_title'),
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -74,9 +76,9 @@ class FeaturesSection extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              const Text(
-                'نوفر لك حلولاً سريعة واقتصادية دون التنازل عن الجودة والأناقة',
-                style: TextStyle(
+              Text(
+                AppTranslations.tr('feat_sub'),
+                style: const TextStyle(
                   fontSize: 16,
                   color: AppTheme.textMuted,
                 ),

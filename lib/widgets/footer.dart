@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_translations.dart';
 import '../utils/whatsapp_helper.dart';
 
 class Footer extends StatelessWidget {
@@ -86,10 +87,10 @@ class Footer extends StatelessWidget {
               Divider(color: isDark ? AppTheme.borderDark : AppTheme.borderLight),
               const SizedBox(height: 24),
 
-              const Text(
-                '🇸🇦 خدمة خاصة ومخصصة لشركات ومحلات المملكة العربية السعودية | إحدى خدمات POM Agency | تطوير بواسطة Flutter Web ومستضاف على Vercel',
+              Text(
+                AppTranslations.tr('footer_sub'),
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppTheme.textMuted,
                   fontSize: 13,
                 ),

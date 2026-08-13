@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
+import '../utils/app_translations.dart';
+
 class HeroSection extends StatefulWidget {
   final VoidCallback onOrderTap;
   final VoidCallback onDemosTap;
@@ -95,14 +97,14 @@ class _HeroSectionState extends State<HeroSection>
                         ),
                       ],
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.bolt_rounded, color: AppTheme.primary, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(Icons.bolt_rounded, color: AppTheme.primary, size: 20),
+                        const SizedBox(width: 8),
                         Text(
-                          'تسليم خلال 6 ساعات من الاتفاق + دومين مجاني لسنة كاملة!',
-                          style: TextStyle(
+                          AppTranslations.tr('hero_badge'),
+                          style: const TextStyle(
                             color: AppTheme.primaryDark,
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -116,7 +118,7 @@ class _HeroSectionState extends State<HeroSection>
 
                   // Main Headline
                   Text(
-                    'صفحة تعريفية لمنتجاتك وخدماتك\nتزيد مبيعاتك وثقة عملائك بـ 299 ريال فقط!',
+                    AppTranslations.tr('hero_title'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: isMobile ? 26 : 46,
@@ -132,7 +134,7 @@ class _HeroSectionState extends State<HeroSection>
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 750),
                     child: Text(
-                      'انقل عملك التجاري، محلك، أو مصنعك إلى العالم الرقمي بدون تكاليف باهظة. احصل على موقع ويب احترافي فائق السرعة، متوافق مع كافة الجوالات، مربوط برقم الواتساب الخاص بك.',
+                      AppTranslations.tr('hero_sub'),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: isMobile ? 15 : 18,
@@ -150,10 +152,10 @@ class _HeroSectionState extends State<HeroSection>
                     runSpacing: 16,
                     alignment: WrapAlignment.center,
                     children: [
-                      _buildBenefitChip(context, Icons.domain_rounded, 'دومين مجاني (سنة أولى)', isDark),
-                      _buildBenefitChip(context, Icons.timer_outlined, 'استلام خلال 6 ساعات', isDark),
-                      _buildBenefitChip(context, Icons.edit_note_rounded, '3 تعديلات مجانية', isDark),
-                      _buildBenefitChip(context, Icons.flash_on_rounded, 'مطور بـ Flutter Web', isDark),
+                      _buildBenefitChip(context, Icons.domain_rounded, AppTranslations.tr('chip_domain'), isDark),
+                      _buildBenefitChip(context, Icons.timer_outlined, AppTranslations.tr('chip_delivery'), isDark),
+                      _buildBenefitChip(context, Icons.edit_note_rounded, AppTranslations.tr('chip_edits'), isDark),
+                      _buildBenefitChip(context, Icons.flash_on_rounded, AppTranslations.tr('chip_tech'), isDark),
                     ],
                   ),
 
@@ -183,14 +185,14 @@ class _HeroSectionState extends State<HeroSection>
                                 borderRadius: BorderRadius.circular(16),
                               ),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.rocket_launch_rounded, size: 22, color: Colors.white),
-                                SizedBox(width: 10),
+                                const Icon(Icons.rocket_launch_rounded, size: 22, color: Colors.white),
+                                const SizedBox(width: 10),
                                 Text(
-                                  'اطلب موقعك الآن (299 ريال)',
-                                  style: TextStyle(
+                                  AppTranslations.tr('btn_order'),
+                                  style: const TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
@@ -231,7 +233,7 @@ class _HeroSectionState extends State<HeroSection>
                                 ),
                                 const SizedBox(width: 10),
                                 Text(
-                                  'استعرض نماذج القوالب',
+                                  AppTranslations.tr('btn_demos'),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,

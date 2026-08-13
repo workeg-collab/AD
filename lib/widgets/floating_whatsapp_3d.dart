@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_translations.dart';
 import '../utils/whatsapp_helper.dart';
 
 class FloatingWhatsApp3D extends StatefulWidget {
@@ -131,10 +132,10 @@ class _FloatingWhatsApp3DState extends State<FloatingWhatsApp3D>
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
-                      'تواصل مباشر',
-                      style: TextStyle(
+                      AppTranslations.tr('whatsapp_btn_top'),
+                      style: const TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFFECFDF5),
@@ -142,8 +143,8 @@ class _FloatingWhatsApp3DState extends State<FloatingWhatsApp3D>
                       ),
                     ),
                     Text(
-                      'واتساب المبيعات 💬',
-                      style: TextStyle(
+                      AppTranslations.tr('whatsapp_btn_main'),
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,

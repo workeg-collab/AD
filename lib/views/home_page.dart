@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/app_translations.dart';
 import '../widgets/navbar.dart';
 import '../widgets/hero_section.dart';
 import '../widgets/features_section.dart';
@@ -48,43 +49,48 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        body: SingleChildScrollView(
-          controller: _scrollController,
-          child: Column(
-            children: [
-              Navbar(
-                onOrderTap: () => _scrollToKey(_pricingKey),
-                onDemosTap: () => _scrollToKey(_demosKey),
-                onFeaturesTap: () => _scrollToKey(_featuresKey),
+    return ValueListenableBuilder<AppLanguage>(
+      valueListenable: currentLanguageNotifier,
+      builder: (context, currentLang, child) {
+        return Directionality(
+          textDirection: currentLang.isRtl ? TextDirection.rtl : TextDirection.ltr,
+          child: Scaffold(
+            body: SingleChildScrollView(
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  Navbar(
+                    onOrderTap: () => _scrollToKey(_pricingKey),
+                    onDemosTap: () => _scrollToKey(_demosKey),
+                    onFeaturesTap: () => _scrollToKey(_featuresKey),
+                  ),
+
+                  HeroSection(
+                    key: _heroKey,
+                    onOrderTap: _openOrderModal,
+                    onDemosTap: () => _scrollToKey(_demosKey),
+                  ),
+
+                  FeaturesSection(key: _featuresKey),
+
+                  DemoSwitcher(
+                    key: _demosKey,
+                    onSelectTemplate: _openOrderModal,
+                  ),
+
+                  PricingSection(
+                    key: _pricingKey,
+                    onOpenOrderModal: _openOrderModal,
+                  ),
+
+                  const Footer(),
+                ],
               ),
-
-              HeroSection(
-                key: _heroKey,
-                onOrderTap: _openOrderModal,
-                onDemosTap: () => _scrollToKey(_demosKey),
-              ),
-
-              FeaturesSection(key: _featuresKey),
-
-              DemoSwitcher(
-                key: _demosKey,
-                onSelectTemplate: _openOrderModal,
-              ),
-
-              PricingSection(
-                key: _pricingKey,
-                onOpenOrderModal: _openOrderModal,
-              ),
-
-              const Footer(),
-            ],
+            ),
+            floatingActionButton: const FloatingWhatsApp3D(),
           ),
-        ),
-        floatingActionButton: const FloatingWhatsApp3D(),
-      ),
+        );
+      },
     );
   }
 }

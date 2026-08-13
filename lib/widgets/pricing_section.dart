@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
+import '../utils/app_translations.dart';
+
 class PricingSection extends StatelessWidget {
   final VoidCallback onOpenOrderModal;
 
@@ -41,9 +43,9 @@ class PricingSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppTheme.accentGold, width: 1),
                 ),
-                child: const Text(
-                  '🏷️ العرض الأكثر طلباً بالسعودية',
-                  style: TextStyle(
+                child: Text(
+                  AppTranslations.tr('price_badge'),
+                  style: const TextStyle(
                     color: AppTheme.accentGold,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
@@ -52,7 +54,7 @@ class PricingSection extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'باقة الصفحة التعريفية الشاملة',
+                AppTranslations.tr('price_title'),
                 style: TextStyle(
                   fontSize: 34,
                   fontWeight: FontWeight.bold,
@@ -61,9 +63,9 @@ class PricingSection extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              const Text(
-                'حل متكامل دون مصاريف خفية أو تجديدات معقدة',
-                style: TextStyle(
+              Text(
+                AppTranslations.tr('price_sub'),
+                style: const TextStyle(
                   fontSize: 16,
                   color: AppTheme.textMuted,
                 ),
@@ -98,9 +100,9 @@ class PricingSection extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
                         children: [
-                          const Text(
-                            '299',
-                            style: TextStyle(
+                          Text(
+                            AppTranslations.tr('price_amount'),
+                            style: const TextStyle(
                               fontSize: 56,
                               fontWeight: FontWeight.w900,
                               color: AppTheme.primaryDark,
@@ -108,7 +110,7 @@ class PricingSection extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'ريال سعودي',
+                            AppTranslations.tr('price_currency'),
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -117,7 +119,7 @@ class PricingSection extends StatelessWidget {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            '/ دفعة واحدة',
+                            AppTranslations.tr('price_period'),
                             style: TextStyle(
                               fontSize: 14,
                               color: AppTheme.textMuted.withValues(alpha: 0.8),

@@ -59,7 +59,7 @@ class FeaturesSection extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                'لماذا تختار خدمة AD لتطوير موقعك؟',
+                'لماذا تختار خدمة SA لتطوير موقعك؟',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,

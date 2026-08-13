@@ -83,7 +83,7 @@ class Navbar extends StatelessWidget {
                       Row(
                         children: [
                           const Text(
-                            'POM AD',
+                            'POM SA',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w900,

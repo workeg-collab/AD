@@ -1,6 +1,6 @@
 {
-    "name": "ad_landing",
-    "short_name": "ad_landing",
+    "name": "sa_landing",
+    "short_name": "sa_landing",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

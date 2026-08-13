@@ -6,11 +6,11 @@ final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier<ThemeMode>(ThemeMod
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ADApp());
+  runApp(const SAApp());
 }
 
-class ADApp extends StatelessWidget {
-  const ADApp({super.key});
+class SAApp extends StatelessWidget {
+  const SAApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class ADApp extends StatelessWidget {
       valueListenable: themeNotifier,
       builder: (context, currentMode, child) {
         return MaterialApp(
-          title: 'AD Web Solutions | صفحات تعريفية خلال 6 ساعات بالسعودية بـ 299 ريال',
+          title: 'SA Web Solutions | صفحات تعريفية خلال 6 ساعات بالسعودية بـ 299 ريال',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,

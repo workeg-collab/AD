@@ -51,7 +51,7 @@ class Footer extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'POM Agency | AD Web Solutions',
+                        'POM Agency | SA Web Solutions',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -97,7 +97,7 @@ class Footer extends StatelessWidget {
 
               const SizedBox(height: 12),
               const Text(
-                '© 2026 POM Agency - AD Web Solutions. جميع الحقوق محفوظة.',
+                '© 2026 POM Agency - SA Web Solutions. جميع الحقوق محفوظة.',
                 style: TextStyle(
                   color: AppTheme.textMuted,
                   fontSize: 12,

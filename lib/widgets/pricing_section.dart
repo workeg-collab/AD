@@ -12,21 +12,22 @@ class PricingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 768;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = theme.textTheme.bodyLarge?.color;
 
     final List<String> packageItems = [
-      'صفحة تعريفية كاملة متوافقة مع الأيفون والجوال والكمبيوتر',
-      'دومين خاص باسم نشاطك التجاري (.site / .online / .xyz) مجاناً أول سنة',
-      'تسليم النسخة الأولى والمعاينة المباشرة خلال 6 ساعات فقط',
-      '3 جولات تعديل مجانية شاملة للنصوص والصور والألوان',
-      'أزرار اتصال وواتساب مباشرة لتحويل الزوار إلى مبيعات',
-      'ربط خريطة موقع المحل/الشركة وحسابات التواصل الاجتماعي',
-      'كتالوج المنتجات أو الخدمات مع تفاصيل الأسعار',
-      'استضافة سريعة ومؤمنة مجاناً بدون أي مصاريف شهرياً',
+      'تصميم مخصص فائق الأناقة متوافق مع كافة الجوالات والأجهزة',
+      'اسم دومين خاص لمجالك (.site / .online / .xyz) مجاناً للسنة الأولى',
+      'إدراج منتجاتك، صورك، نصوصك، ومعلومات التواصل كاملة',
+      'زر طلب وتواصل مباشر يوجه العملاء فوراً إلى رقم الواتساب الخاص بك',
+      'ربط موقع المحل/الشركة على خرائط قوقل لتسهيل وصول العملاء',
+      '3 جولات تعديل مجانية بعد الاستلام لضمان الرضا التام 100%',
+      'تسليم كامل للموقع مع الرابط المباشر خلال 6 ساعات من الاتفاق',
     ];
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
-      color: AppTheme.surfaceDark,
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 900),
@@ -50,12 +51,12 @@ class PricingSection extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'باقة الصفحة التعريفية الشاملة',
                 style: TextStyle(
                   fontSize: 34,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textWhite,
+                  color: textColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -74,12 +75,14 @@ class PricingSection extends StatelessWidget {
               // Pricing Card
               Container(
                 decoration: BoxDecoration(
-                  color: AppTheme.cardDark,
+                  color: isDark ? AppTheme.cardDark : Colors.white,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: AppTheme.primary, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.primary.withValues(alpha: 0.1),
+                      color: isDark
+                          ? AppTheme.primary.withValues(alpha: 0.1)
+                          : Colors.black.withValues(alpha: 0.08),
                       blurRadius: 30,
                       spreadRadius: 5,
                     ),
@@ -100,16 +103,16 @@ class PricingSection extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 56,
                               fontWeight: FontWeight.w900,
-                              color: AppTheme.primary,
+                              color: AppTheme.primaryDark,
                             ),
                           ),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'ريال سعودي',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.textWhite,
+                              color: textColor,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -134,7 +137,7 @@ class PricingSection extends StatelessWidget {
                       ),
 
                       const SizedBox(height: 32),
-                      const Divider(color: AppTheme.borderDark),
+                      Divider(color: isDark ? AppTheme.borderDark : AppTheme.borderLight),
                       const SizedBox(height: 32),
 
                       // Included Items List
@@ -147,12 +150,12 @@ class PricingSection extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: const BoxDecoration(
-                                    color: AppTheme.primary,
+                                    color: AppTheme.primaryDark,
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
                                     Icons.check_rounded,
-                                    color: Colors.black,
+                                    color: Colors.white,
                                     size: 14,
                                   ),
                                 ),
@@ -160,9 +163,9 @@ class PricingSection extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     item,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 15,
-                                      color: AppTheme.textWhite,
+                                      color: textColor,
                                       height: 1.4,
                                     ),
                                   ),

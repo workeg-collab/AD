@@ -15,6 +15,8 @@ class HeroSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 768;
+    final theme = Theme.of(context);
+    final textColor = theme.textTheme.bodyLarge?.color;
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -42,7 +44,7 @@ class HeroSection extends StatelessWidget {
                     Text(
                       'تسليم خلال 6 ساعات من الاتفاق + دومين مجاني لسنة كاملة!',
                       style: TextStyle(
-                        color: AppTheme.primary,
+                        color: AppTheme.primaryDark,
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
@@ -61,7 +63,7 @@ class HeroSection extends StatelessWidget {
                   fontSize: isMobile ? 26 : 46,
                   fontWeight: FontWeight.w900,
                   height: 1.3,
-                  color: AppTheme.textWhite,
+                  color: textColor,
                 ),
               ),
 
@@ -89,10 +91,10 @@ class HeroSection extends StatelessWidget {
                 runSpacing: 16,
                 alignment: WrapAlignment.center,
                 children: [
-                  _buildBenefitChip(Icons.domain_rounded, 'دومين مجاني (سنة أولى)'),
-                  _buildBenefitChip(Icons.timer_outlined, 'استلام خلال 6 ساعات'),
-                  _buildBenefitChip(Icons.edit_note_rounded, '3 تعديلات مجانية'),
-                  _buildBenefitChip(Icons.flash_on_rounded, 'مطور بـ Flutter Web'),
+                  _buildBenefitChip(context, Icons.domain_rounded, 'دومين مجاني (سنة أولى)'),
+                  _buildBenefitChip(context, Icons.timer_outlined, 'استلام خلال 6 ساعات'),
+                  _buildBenefitChip(context, Icons.edit_note_rounded, '3 تعديلات مجانية'),
+                  _buildBenefitChip(context, Icons.flash_on_rounded, 'مطور بـ Flutter Web'),
                 ],
               ),
 
@@ -148,23 +150,35 @@ class HeroSection extends StatelessWidget {
     );
   }
 
-  Widget _buildBenefitChip(IconData icon, String label) {
+  Widget _buildBenefitChip(BuildContext context, IconData icon, String label) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: theme.cardTheme.color ?? (isDark ? AppTheme.surfaceDark : Colors.white),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.borderDark),
+        border: Border.all(color: isDark ? AppTheme.borderDark : AppTheme.borderLight),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: AppTheme.secondary, size: 18),
+          Icon(icon, color: AppTheme.primary, size: 18),
           const SizedBox(width: 8),
           Text(
             label,
-            style: const TextStyle(
-              color: AppTheme.textWhite,
+            style: TextStyle(
+              color: theme.textTheme.bodyMedium?.color,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),

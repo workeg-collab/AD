@@ -7,11 +7,14 @@ class FeaturesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 768;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = theme.textTheme.bodyLarge?.color;
 
     final List<Map<String, dynamic>> features = [
       {
         'icon': Icons.bolt_rounded,
-        'color': AppTheme.primary,
+        'color': AppTheme.primaryDark,
         'title': 'تسليم رائع خلال 6 ساعات',
         'desc': 'بدون انتظار أسابيع، استلم رابط موقعك المعاين وجاهز للنشر في نفس اليوم بعد إرسال بياناتك.',
       },
@@ -49,18 +52,18 @@ class FeaturesSection extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
-      color: AppTheme.surfaceDark,
+      color: isDark ? AppTheme.surfaceDark : const Color(0xFFF1F5F9),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
-              const Text(
+              Text(
                 'لماذا تختار خدمة AD لتطوير موقعك؟',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textWhite,
+                  color: textColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -109,10 +112,10 @@ class FeaturesSection extends StatelessWidget {
                           const SizedBox(height: 16),
                           Text(
                             item['title'] as String,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: AppTheme.textWhite,
+                              color: textColor,
                             ),
                           ),
                           const SizedBox(height: 8),

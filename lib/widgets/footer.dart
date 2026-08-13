@@ -7,9 +7,13 @@ class Footer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final textColor = theme.textTheme.bodyLarge?.color;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-      color: AppTheme.bgDark,
+      color: isDark ? AppTheme.bgDark : Colors.grey.shade100,
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -26,7 +30,7 @@ class Footer extends StatelessWidget {
                         width: 36,
                         padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
-                          color: AppTheme.cardDark,
+                          color: isDark ? AppTheme.cardDark : Colors.white,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4), width: 1),
                         ),
@@ -38,7 +42,7 @@ class Footer extends StatelessWidget {
                             errorBuilder: (context, error, stackTrace) {
                               return const Icon(
                                 Icons.rocket_launch_rounded,
-                                color: AppTheme.primary,
+                                color: AppTheme.primaryDark,
                                 size: 20,
                               );
                             },
@@ -46,12 +50,12 @@ class Footer extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Text(
+                      Text(
                         'POM Agency | AD Web Solutions',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.textWhite,
+                          color: textColor,
                         ),
                       ),
                     ],
@@ -60,14 +64,14 @@ class Footer extends StatelessWidget {
                   // WhatsApp quick link with updated phone number
                   InkWell(
                     onTap: () => WhatsAppHelper.launchWhatsApp(),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.chat_rounded, color: AppTheme.primary, size: 20),
-                        SizedBox(width: 6),
+                        const Icon(Icons.chat_rounded, color: AppTheme.primaryDark, size: 20),
+                        const SizedBox(width: 6),
                         Text(
                           '00201093706027 (واتساب المبيعات)',
                           style: TextStyle(
-                            color: AppTheme.textWhite,
+                            color: textColor,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
@@ -79,7 +83,7 @@ class Footer extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-              const Divider(color: AppTheme.borderDark),
+              Divider(color: isDark ? AppTheme.borderDark : AppTheme.borderLight),
               const SizedBox(height: 24),
 
               const Text(

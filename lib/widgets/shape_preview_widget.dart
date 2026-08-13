@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_translations.dart';
 
 class ShapePreviewWidget extends StatelessWidget {
   final String variantId;
@@ -95,7 +96,7 @@ class ShapePreviewWidget extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'معاينة حية',
+                            AppTranslations.tr('demo_live_preview'),
                             style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: isDark ? themeColor : AppTheme.primaryDark),
                           ),
                         ),

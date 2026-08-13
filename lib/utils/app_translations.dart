@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/template_model.dart';
 
 class AppLanguage {
   final String code;
@@ -47,7 +48,8 @@ class AppTranslations {
       'whatsapp_btn_top': 'تواصل مباشر',
       'whatsapp_btn_main': 'واتساب المبيعات 💬',
 
-      // Demo Switcher
+      // Demo Switcher Header
+      'demo_badge_header': '4 أشكال عصرية لكل نوع قالب',
       'demo_title': 'نماذج وقوالب جاهزة للمعاينة الحية',
       'demo_sub': 'اختر المجال واكتشف الأشكال والتصاميم المختلفة المتاحة لشركتك',
       'demo_select_btn': 'اطلب هذا التصميم لموقعك 🚀',
@@ -55,6 +57,8 @@ class AppTranslations {
       'demo_included_title': 'تشمل هذه الباقة:',
       'demo_domain_prefix': 'الدومين التجريبي المقترح: ',
       'demo_order_btn': 'اطلب هذا القالب بـ 299 ريال شامل الدومين',
+
+      // Categories
       'cat_retail_name': 'محلات ومتاجر تجزئة',
       'cat_retail_desc': 'صفحات هبوط مخصصة لمتاجر العطور، الساعات، الملابس، والمنتجات الفيزيائية.',
       'cat_corp_name': 'شركات ومؤسسات',
@@ -63,6 +67,138 @@ class AppTranslations {
       'cat_serv_desc': 'مثالية للمكاتب الاستشارية، المحاماة، العيادات، والعقارات.',
       'cat_cafe_name': 'كافيهات ومطاعم',
       'cat_cafe_desc': 'منيو إلكتروني تفاعلي مع عرض الأطباق اليومية وحجز الطاولات.',
+
+      // Retail Variants
+      'v_retail-modern_name': 'الشكل 1: المتجر الحديث والمودرن',
+      'v_retail-modern_badge': 'الأكثر طلباً 🔥',
+      'v_retail-modern_desc': 'عرض منتجات بنظام كروت تفاعلية زجاجية، زر طلب واتساب مباشر، وربط مع الموقع الجغرافي للمحل.',
+      'v_retail-modern_h0': 'معرض منتجات تفاعلي عالي الدقة',
+      'v_retail-modern_h1': 'زر اطلب عبر الواتساب لكل منتج',
+      'v_retail-modern_h2': 'تكامل كامل مع موقع المحل على قوقل ماب',
+      'v_retail-modern_h3': 'مريح وسريع جداً على شاشات الجوال',
+
+      'v_retail-grid_name': 'الشكل 2: المعرض الشبكي الديناميكي',
+      'v_retail-grid_badge': 'مناسب للمجموعات 🛍️',
+      'v_retail-grid_desc': 'تنسيق شبكي منظم لعرض عشرات المنتجات والتصنيفات المتعددة مع إمكانية التصفح السريع.',
+      'v_retail-grid_h0': 'تنسيق شبكي متعدد الأقسام',
+      'v_retail-grid_h1': 'فلترة وسرعة تصفح فائقة',
+      'v_retail-grid_h2': 'صور مكبرة بتفاصيل زووم عالية',
+      'v_retail-grid_h3': 'زر الشراء المباشر الفوري',
+
+      'v_retail-express_name': 'الشكل 3: الكتالوج السريع البسيط',
+      'v_retail-express_badge': 'خيار السرعة ⚡',
+      'v_retail-express_desc': 'صفحة واحدة خفيفة جداً تهدف للوصول السريع لزر الشراء بدون أي تعقيدات وبأقل وقت تحميل.',
+      'v_retail-express_h0': 'تحميل فوري في أقل من ثانية',
+      'v_retail-express_h1': 'تركيز مباشر على المنتج البطل',
+      'v_retail-express_h2': 'أزرار واتساب واتصال ضخمة وبارزة',
+      'v_retail-express_h3': 'تصميم مثالي للحملات الإعلانية',
+
+      'v_retail-luxury_name': 'الشكل 4: الهوية الفاخرة والعصرية',
+      'v_retail-luxury_badge': 'للماركات الفاخرة 💎',
+      'v_retail-luxury_desc': 'خلفيات داكنة وتأثيرات مذهبة تناسب متاجر العطور، الساعات، المجوهرات، والعبايات الراعية.',
+      'v_retail-luxury_h0': 'هوية داكنة وتأثيرات ذهبية راقية',
+      'v_retail-luxury_h1': 'معرض فيديو وصور سينمائية',
+      'v_retail-luxury_h2': 'قسم قصة العلامة التجارية ورسالتها',
+      'v_retail-luxury_h3': 'زر تواصل فاخر ومخصص',
+
+      // Corporate Variants
+      'v_corp-classic_name': 'الشكل 1: الهوية المؤسسية الرسمية',
+      'v_corp-classic_badge': 'النمط الرسمي 🏢',
+      'v_corp-classic_desc': 'تبرز رؤية وقيم الشركة، خدماتها المؤسسية، مع زر مخصص لتحميل الكتالوج التسويقي PDF.',
+      'v_corp-classic_h0': 'قسم من نحن ورؤية الشركة المستقبلية',
+      'v_corp-classic_h1': 'كتالوج PDF للتحميل المباشر بنقرة واحدة',
+      'v_corp-classic_h2': 'نموذج طلب تسعير وتواصل رسمي',
+      'v_corp-classic_h3': 'عرض الشركاء واعتمادات الجودة',
+
+      'v_corp-industrial_name': 'الشكل 2: العرض الصناعي واللوجستي',
+      'v_corp-industrial_badge': 'للمصانع وخطوط الإنتاج 🏭',
+      'v_corp-industrial_desc': 'استعراض خطوط الإنتاج والحلول اللوجستية بالصور التوضيحية والأرقام والمواصفات الفنية.',
+      'v_corp-industrial_h0': 'جدول المواصفات والقدرة الإنتاجية',
+      'v_corp-industrial_h1': 'عرض المعايير والشهادات الدولية',
+      'v_corp-industrial_h2': 'خرائط الفروع ومواقع المصانع',
+      'v_corp-industrial_h3': 'زر طلب توريد بالكميات والجملة',
+
+      'v_corp-tech_name': 'الشكل 3: النمط التكنولوجي والمؤسسي',
+      'v_corp-tech_badge': 'عصري وحديث 🚀',
+      'v_corp-tech_desc': 'واجهة ذات أنماط عصرية تناسب شركات التقنية، البرمجيات، والمؤسسات الاستثمارية الحديثة.',
+      'v_corp-tech_h0': 'عرض الخدمات والحلول الذكية',
+      'v_corp-tech_h1': 'إحصائيات تفاعلية وأرقام إنجازات',
+      'v_corp-tech_h2': 'تكامل مع البريد ووسائل التواصل',
+      'v_corp-tech_h3': 'نموذج حجز اجتماعات واستشارات',
+
+      'v_corp-express_name': 'الشكل 4: البروفايل السريع للشركة',
+      'v_corp-express_badge': 'مناسب للحملات 🎯',
+      'v_corp-express_desc': 'صفحة تعريفية مختصرة وأنيقة تضمن وصول العميل لبيانات التواصل والسجل التجاري في ثوانٍ.',
+      'v_corp-express_h0': 'ملخص الكيان والإنجازات بسرعة',
+      'v_corp-express_h1': 'روابط السجل التجاري والاعتمادات',
+      'v_corp-express_h2': 'أزرار الاتصال بمدراء المبيعات مباشرة',
+      'v_corp-express_h3': 'تحميل البطاقة الرقمية الذكية',
+
+      // Services Variants
+      'v_serv-advisory_name': 'الشكل 1: حجز الاستشارات التنفيذية',
+      'v_serv-advisory_badge': 'للمكاتب والخبراء 💼',
+      'v_serv-advisory_desc': 'مخصص للمحامين والمستشارين الماليين والهندسيين لحجز المواعيد والاستشارات الفورية.',
+      'v_serv-advisory_h0': 'حجز مواعيد واستشارات فوري عبر الواتساب',
+      'v_serv-advisory_h1': 'عرض مؤهلات وخبرات فريق العمل',
+      'v_serv-advisory_h2': 'جدول أسعار الباقات الاستشارية',
+      'v_serv-advisory_h3': 'آراء العملاء والتقييمات الموثقة',
+
+      'v_serv-portfolio_name': 'الشكل 2: المعرض المكتبي المهني',
+      'v_serv-portfolio_badge': 'للمكاتب الهندسية والديكور 📐',
+      'v_serv-portfolio_desc': 'مناسب للمكاتب الهندسية وتصاميم الديكور لعرض المشاريع السابقة بصور مكبرة وجذابة.',
+      'v_serv-portfolio_h0': 'معرض أعمال ومشاريع منجزة عالية الجودة',
+      'v_serv-portfolio_h1': 'مقارنة قبل وبعد التنفيذ',
+      'v_serv-portfolio_h2': 'حاسبة التكلفة المبدئية للخدمة',
+      'v_serv-portfolio_h3': 'زر طلب معاينة أو زيارة ميدانية',
+
+      'v_serv-quick_name': 'الشكل 3: بطاقة الخدمة المباشرة',
+      'v_serv-quick_badge': 'خدمات فورية ⚡',
+      'v_serv-quick_desc': 'مخصص لخدمات الصيانة، الفنيين، والخدمات الميدانية مع زر طلب الفني فوراً.',
+      'v_serv-quick_h0': 'طلب الخدمة في 30 ثانية',
+      'v_serv-quick_h1': 'تحديد نطاقات الخدمة والمحافظات',
+      'v_serv-quick_h2': 'توضيح أسعار الكشفية والخدمات',
+      'v_serv-quick_h3': 'أزرار اتصال واتساب وطوارئ مباشرة',
+
+      'v_serv-branding_name': 'الشكل 4: الهوية الشخصية للخبراء',
+      'v_serv-branding_badge': 'للعلامات الشخصية 🌟',
+      'v_serv-branding_desc': 'يسلط الضوء على الخبير أو المستشار الفردي مع نبذة شخصية وإنجازات ومواعيد التواصل.',
+      'v_serv-branding_h0': 'السيرة الذاتية والإنجازات البارزة',
+      'v_serv-branding_h1': 'روابط وسائل التواصل والمحتوى',
+      'v_serv-branding_h2': 'حجز جلسات استشارية زوم أو واتساب',
+      'v_serv-branding_h3': 'معرض نماذج الأعمال الشخصية',
+
+      // Cafe Variants
+      'v_cafe-smart_name': 'الشكل 1: المنيو التفاعلي الذكي',
+      'v_cafe-smart_badge': 'الأحدث بالمنطقة 🍕',
+      'v_cafe-smart_desc': 'منيو إلكتروني ملون بالأصناف والأسعار مخصص لفتح الباركود QR Code داخل المطعم.',
+      'v_cafe-smart_h0': 'منيو سريع الفتح عبر QR Code',
+      'v_cafe-smart_h1': 'تصنيف الأطعمة والمشروبات بسهولة',
+      'v_cafe-smart_h2': 'عرض المكونات والسعرات الحرارية',
+      'v_cafe-smart_h3': 'زر الطلب والتوصيل المباشر',
+
+      'v_cafe-lounge_name': 'الشكل 2: نمط اللاونج الداكن والأنيق',
+      'v_cafe-lounge_badge': 'فخم ورائع ☕',
+      'v_cafe-lounge_desc': 'طراز راقي وأجواء دافئة مخصصة للكافيهات والمطاعم الفاخرة للاونج وجلسات العوائل.',
+      'v_cafe-lounge_h0': 'صور وفيديوهات سينمائية للأجواء',
+      'v_cafe-lounge_h1': 'حجز الطاولات والجلسات الخاصة',
+      'v_cafe-lounge_h2': 'قائمة المشروبات المختصة',
+      'v_cafe-lounge_h3': 'خريطة الموقع والمواقف التفصيلية',
+
+      'v_cafe-fastfood_name': 'الشكل 3: الوجبات السريعة والتوصيل',
+      'v_cafe-fastfood_badge': 'الأكثر مبيعاً 🍔',
+      'v_cafe-fastfood_desc': 'إبراز الوجبات الأكثر طلباً والعروض اليومية مع زر الطلب الفوري وتأكيد الفرع.',
+      'v_cafe-fastfood_h0': 'عرض العروض اليومية والباقات العائلية',
+      'v_cafe-fastfood_h1': 'ربط مباشر مع منصات التوصيل',
+      'v_cafe-fastfood_h2': 'طلب سريع ومباشر عبر الواتساب',
+      'v_cafe-fastfood_h3': 'أوقات العمل وفروع المطعم',
+
+      'v_cafe-bakery_name': 'الشكل 4: الكافيه العصري والحلويات',
+      'v_cafe-bakery_badge': 'تصميم مميز 🍰',
+      'v_cafe-bakery_desc': 'ألوان مبهجة وعرض شهي للحلويات، المخبوزات والقهوة المختصة مع خيار طلب التورتات.',
+      'v_cafe-bakery_h0': 'قسم مخصص لطلبات كيك المناسبات',
+      'v_cafe-bakery_h1': 'قائمة القهوة المختصة والمحمصة',
+      'v_cafe-bakery_h2': 'أوقات الدوام ورابط الحجز',
+      'v_cafe-bakery_h3': 'روابط انستغرام وتيك توك المباشرة',
 
       // Features Section
       'feat_title': 'لماذا تختار خدمة SA لتطوير موقعك؟',
@@ -126,12 +262,17 @@ class AppTranslations {
       'whatsapp_btn_top': 'Direct Chat',
       'whatsapp_btn_main': 'Sales WhatsApp 💬',
 
-      // Demo Switcher
+      // Demo Switcher Header
+      'demo_badge_header': '4 Modern 3D Shapes Per Template Category',
       'demo_title': 'Live Interactive Template Demos',
       'demo_sub': 'Select your industry and discover unique 3D designs for your business',
       'demo_select_btn': 'Order This Design Now 🚀',
       'demo_live_preview': 'Free Live Preview ✨',
       'demo_included_title': 'Package Includes:',
+      'demo_domain_prefix': 'Suggested Demo Domain: ',
+      'demo_order_btn': 'Order This Template for 299 SAR (Domain Included)',
+
+      // Categories
       'cat_retail_name': 'Retail & Shops',
       'cat_retail_desc': 'Custom landing pages for perfumes, watches, apparel, and physical products.',
       'cat_corp_name': 'Corporate & Industry',
@@ -140,6 +281,138 @@ class AppTranslations {
       'cat_serv_desc': 'Ideal for consultancy firms, law offices, medical clinics, and real estate.',
       'cat_cafe_name': 'Cafes & Restaurants',
       'cat_cafe_desc': 'Interactive digital menu showcasing daily specials & table bookings.',
+
+      // Retail Variants
+      'v_retail-modern_name': 'Shape 1: Modern Store Showcase',
+      'v_retail-modern_badge': 'Most Popular 🔥',
+      'v_retail-modern_desc': 'Interactive glass card product grid, direct WhatsApp order button, and Google Maps integration.',
+      'v_retail-modern_h0': 'High-resolution interactive product showcase',
+      'v_retail-modern_h1': 'Direct WhatsApp order button per product',
+      'v_retail-modern_h2': 'Full Google Maps store location integration',
+      'v_retail-modern_h3': 'Ultra-fast & seamless on mobile screens',
+
+      'v_retail-grid_name': 'Shape 2: Dynamic Grid Showcase',
+      'v_retail-grid_badge': 'Great for Collections 🛍️',
+      'v_retail-grid_desc': 'Organized grid layout for displaying multi-category products with quick browsing.',
+      'v_retail-grid_h0': 'Multi-category grid layout',
+      'v_retail-grid_h1': 'Ultra-fast filtering & browsing',
+      'v_retail-grid_h2': 'High-res zoom product images',
+      'v_retail-grid_h3': 'Instant direct buy button',
+
+      'v_retail-express_name': 'Shape 3: Express Quick Catalog',
+      'v_retail-express_badge': 'Speed Choice ⚡',
+      'v_retail-express_desc': 'Lightweight single-page design for instant purchase access with sub-second loading.',
+      'v_retail-express_h0': 'Sub-second instant load speed',
+      'v_retail-express_h1': 'Direct hero product focus',
+      'v_retail-express_h2': 'Prominent call & WhatsApp CTA buttons',
+      'v_retail-express_h3': 'Ideal for ad campaigns',
+
+      'v_retail-luxury_name': 'Shape 4: Luxury Brand Identity',
+      'v_retail-luxury_badge': 'Luxury Brands 💎',
+      'v_retail-luxury_desc': 'Dark background with gold accents suitable for perfumes, watches, jewelry & luxury wear.',
+      'v_retail-luxury_h0': 'Dark premium identity & gold accents',
+      'v_retail-luxury_h1': 'Cinematic image & video gallery',
+      'v_retail-luxury_h2': 'Brand story & heritage section',
+      'v_retail-luxury_h3': 'Custom luxury contact button',
+
+      // Corporate Variants
+      'v_corp-classic_name': 'Shape 1: Official Corporate Identity',
+      'v_corp-classic_badge': 'Official Style 🏢',
+      'v_corp-classic_desc': 'Highlights company vision, values, services, and a dedicated PDF catalog download.',
+      'v_corp-classic_h0': 'About Us & company vision section',
+      'v_corp-classic_h1': 'One-click direct PDF catalog download',
+      'v_corp-classic_h2': 'Official RFQ & contact form',
+      'v_corp-classic_h3': 'Partners & quality accreditations showcase',
+
+      'v_corp-industrial_name': 'Shape 2: Industrial & Logistics',
+      'v_corp-industrial_badge': 'Factories & Plants 🏭',
+      'v_corp-industrial_desc': 'Showcases production lines and logistics solutions with specs and technical numbers.',
+      'v_corp-industrial_h0': 'Production capacity & specs table',
+      'v_corp-industrial_h1': 'International standards & ISO showcase',
+      'v_corp-industrial_h2': 'Plant locations & branch map',
+      'v_corp-industrial_h3': 'Wholesale & B2B order button',
+
+      'v_corp-tech_name': 'Shape 3: Tech & Enterprise',
+      'v_corp-tech_badge': 'Modern & Tech 🚀',
+      'v_corp-tech_desc': 'Modern interface for tech companies, software firms, and investment institutions.',
+      'v_corp-tech_h0': 'Smart solutions & tech services display',
+      'v_corp-tech_h1': 'Interactive stats & achievement counters',
+      'v_corp-tech_h2': 'Email & social media integration',
+      'v_corp-tech_h3': 'Meeting & consultation booking form',
+
+      'v_corp-express_name': 'Shape 4: Express Company Profile',
+      'v_corp-express_badge': 'Great for Campaigns 🎯',
+      'v_corp-express_desc': 'Concise profile ensuring clients reach contact data and commercial registry in seconds.',
+      'v_corp-express_h0': 'Rapid entity summary & achievements',
+      'v_corp-express_h1': 'CR & registration certificate links',
+      'v_corp-express_h2': 'Direct sales managers call buttons',
+      'v_corp-express_h3': 'Digital vCard download',
+
+      // Services Variants
+      'v_serv-advisory_name': 'Shape 1: Executive Advisory Booking',
+      'v_serv-advisory_badge': 'For Experts & Offices 💼',
+      'v_serv-advisory_desc': 'Tailored for lawyers, financial & engineering consultants for instant booking.',
+      'v_serv-advisory_h0': 'Instant consultation booking via WhatsApp',
+      'v_serv-advisory_h1': 'Team expertise & credentials section',
+      'v_serv-advisory_h2': 'Consulting package pricing table',
+      'v_serv-advisory_h3': 'Verified client testimonials & reviews',
+
+      'v_serv-portfolio_name': 'Shape 2: Professional Portfolio Showcase',
+      'v_serv-portfolio_badge': 'Engineering & Interiors 📐',
+      'v_serv-portfolio_desc': 'Ideal for engineering firms & interior design studios to feature past projects.',
+      'v_serv-portfolio_h0': 'High-res completed projects portfolio',
+      'v_serv-portfolio_h1': 'Before & after execution sliders',
+      'v_serv-portfolio_h2': 'Initial service cost estimation calculator',
+      'v_serv-portfolio_h3': 'On-site inspection request button',
+
+      'v_serv-quick_name': 'Shape 3: Direct On-Demand Service',
+      'v_serv-quick_badge': 'Instant Services ⚡',
+      'v_serv-quick_desc': 'Designed for maintenance, technicians & field services with instant dispatch.',
+      'v_serv-quick_h0': '30-second rapid service request',
+      'v_serv-quick_h1': 'Service coverage area & zones map',
+      'v_serv-quick_h2': 'Transparent pricing & service fees',
+      'v_serv-quick_h3': 'Emergency & direct WhatsApp call buttons',
+
+      'v_serv-branding_name': 'Shape 4: Expert Personal Branding',
+      'v_serv-branding_badge': 'Personal Brands 🌟',
+      'v_serv-branding_desc': 'Highlights individual consultants & experts with biography and achievements.',
+      'v_serv-branding_h0': 'Biography & key achievements',
+      'v_serv-branding_h1': 'Social media & content channels',
+      'v_serv-branding_h2': 'Zoom & WhatsApp consultation booking',
+      'v_serv-branding_h3': 'Personal work portfolio gallery',
+
+      // Cafe Variants
+      'v_cafe-smart_name': 'Shape 1: Smart Interactive QR Menu',
+      'v_cafe-smart_badge': 'Latest Trend 🍕',
+      'v_cafe-smart_desc': 'Vibrant digital menu for in-restaurant QR code scanning.',
+      'v_cafe-smart_h0': 'Instant QR code digital menu access',
+      'v_cafe-smart_h1': 'Easy food & beverage categorization',
+      'v_cafe-smart_h2': 'Calorie & ingredient breakdown',
+      'v_cafe-smart_h3': 'Direct order & delivery button',
+
+      'v_cafe-lounge_name': 'Shape 2: Luxury Dark Lounge',
+      'v_cafe-lounge_badge': 'Premium & Chic ☕',
+      'v_cafe-lounge_desc': 'Sophisticated dark theme for luxury lounges, specialty coffee & fine dining.',
+      'v_cafe-lounge_h0': 'Cinematic ambience photos & videos',
+      'v_cafe-lounge_h1': 'Private seating & table reservations',
+      'v_cafe-lounge_h2': 'Specialty coffee & drinks menu',
+      'v_cafe-lounge_h3': 'Detailed location map & valet info',
+
+      'v_cafe-fastfood_name': 'Shape 3: Fast Food & Express Delivery',
+      'v_cafe-fastfood_badge': 'Best Seller 🍔',
+      'v_cafe-fastfood_desc': 'Highlights best sellers & daily deals with instant branch order button.',
+      'v_cafe-fastfood_h0': 'Daily deals & family combos display',
+      'v_cafe-fastfood_h1': 'Direct link to delivery apps',
+      'v_cafe-fastfood_h2': 'Instant WhatsApp direct ordering',
+      'v_cafe-fastfood_h3': 'Working hours & branch locations',
+
+      'v_cafe-bakery_name': 'Shape 4: Bakery & Modern Cafe',
+      'v_cafe-bakery_badge': 'Charming Design 🍰',
+      'v_cafe-bakery_desc': 'Charming visual design for pastries, cakes & specialty roasters.',
+      'v_cafe-bakery_h0': 'Custom occasion cake order section',
+      'v_cafe-bakery_h1': 'Specialty roastery & coffee list',
+      'v_cafe-bakery_h2': 'Opening hours & booking links',
+      'v_cafe-bakery_h3': 'Direct Instagram & TikTok integration',
 
       // Features Section
       'feat_title': 'Why Choose SA Web Solutions?',
@@ -164,6 +437,8 @@ class AppTranslations {
       'price_amount': '299',
       'price_currency': 'SAR',
       'price_period': '/ One-time fee',
+      'price_includes': 'Includes custom domain & 6-hour delivery',
+      'price_cta_btn': 'Start Your Order Now & Get Your Site Today',
       'price_item_1': 'Ultra-elegant custom design responsive on all mobile & desktop screens',
       'price_item_2': 'Custom brand domain name (.site / .online / .xyz) free for 1st year',
       'price_item_3': 'Full inclusion of your products, images, texts & contact info',
@@ -183,385 +458,42 @@ class AppTranslations {
       // Footer
       'footer_sub': '🇸🇦 Dedicated web service for Saudi Arabian businesses & stores | A POM Agency service | Powered by Flutter Web & Vercel',
     },
-    'tr': {
-      // Navbar & Hero
-      'hero_badge': '6 Saatte Teslimat + 1 Yıl Ücretsiz Alan Adı!',
-      'hero_title': 'İşletmeniz ve Hizmetleriniz İçin Açılış Sayfası\nSatışlarınızı Sadece 299 SAR\'a Artırın!',
-      'hero_sub': 'Yüksek maliyetler olmadan işletmenizi dijitale taşıyın. Mobil uyumlu, süper hızlı ve doğrudan WhatsApp\'ınıza bağlı profesyonel bir web sitesine sahip olun.',
-      'btn_order': 'Hemen Sipariş Verin (299 SAR)',
-      'btn_demos': 'Şablonları İnceleyin',
-      'chip_domain': 'Ücretsiz Domain (1. Yıl)',
-      'chip_delivery': '6 Saatte Teslimat',
-      'chip_edits': '3 Ücretsiz Revizyon',
-      'chip_tech': 'Flutter Web ile Geliştirildi',
-      'nav_features': 'Özellikler',
-      'nav_demos': 'Şablonlar',
-      'nav_pricing': 'Fiyatlandırma',
-      'nav_order': 'Sipariş Ver',
-      'whatsapp_btn_top': 'Doğrudan İletişim',
-      'whatsapp_btn_main': 'Satış WhatsApp 💬',
-
-      // Demo Switcher
-      'demo_title': 'Canlı İnteraktif Şablon Demoları',
-      'demo_sub': 'Sektörünüzü seçin ve işletmeniz için özel 3D tasarımları keşfedin',
-      'demo_select_btn': 'Bu Tasarımı Sipariş Et 🚀',
-      'demo_live_preview': 'Ücretsiz Canlı Önizleme ✨',
-      'demo_included_title': 'Paket İçeriği:',
-      'cat_retail_name': 'Mağazalar ve Perakende',
-      'cat_retail_desc': 'Parfüm, saat, giyim ve fiziksel ürün mağazaları için özel açılış sayfaları.',
-      'cat_corp_name': 'Şirketler ve Kurumsal',
-      'cat_corp_desc': 'Güçlü marka kimliğini, fabrikaları ve lojistiği yansıtan resmi tasarımlar.',
-      'cat_serv_name': 'Hizmetler ve Danışmanlık',
-      'cat_serv_desc': 'Danışmanlık firmaları, hukuk büroları, klinikler ve gayrimenkul için ideal.',
-      'cat_cafe_name': 'Kafeler ve Restoranlar',
-      'cat_cafe_desc': 'Günlük spesiyalleri ve masa rezervasyonlarını gösteren dijital menü.',
-
-      // Features Section
-      'feat_title': 'Neden SA Web Çözümlerini Seçmelisiniz?',
-      'feat_sub': 'Zarafet ve kaliteden ödün vermeden hızlı ve ekonomik çözümler',
-      'feat_1_title': '6 Saatte Hızlı Teslimat',
-      'feat_1_desc': 'Haftalarca beklemeyin! Bilgilerinizi gönderdikten sonra canlı önizlemeniz aynı gün hazır.',
-      'feat_2_title': 'Ücretsiz Domain (1. Yıl)',
-      'feat_2_desc': 'Markanız için özel alan adını (.site / .online / .xyz) ücretsiz olarak satın alıp bağlıyoruz.',
-      'feat_3_title': '3 Ücretsiz Revizyon',
-      'feat_3_desc': '%100 memnun kalana kadar metin, görsel ve renkleri ayarlama özgürlüğü.',
-      'feat_4_title': 'Flutter Web Gücüyle',
-      'feat_4_desc': 'iPhone, Android ve PC\'de sorunsuz çalışan ultra hızlı performans.',
-      'feat_5_title': 'Doğrudan WhatsApp Satışları',
-      'feat_5_desc': 'Müşterilerin anında bilgi almasını ve satın almasını sağlayan WhatsApp bağlantıları.',
-      'feat_6_title': 'Vercel Süper Sunucu',
-      'feat_6_desc': 'Ücretsiz SSL ve ışık hızında yükleme sunan dünya standartlarında sunucularda barındırma.',
-
-      // Pricing Section
-      'price_badge': '🏷️ Suudi Arabistan\'daki En Popüler Teklif',
-      'price_title': 'Kapsamlı Açılış Sayfası Paketi',
-      'price_sub': 'Gizli ücret içermeyen eksiksiz çözüm',
-      'price_amount': '299',
-      'price_currency': 'SAR',
-      'price_period': '/ Tek seferlik ödeme',
-      'price_item_1': 'Tüm mobil ve masaüstü ekranlara uyumlu son derece şık özel tasarım',
-      'price_item_2': 'İlk yıl ücretsiz özel marka alan adı (.site / .online / .xyz)',
-      'price_item_3': 'Ürünlerinizin, görsellerinizin, metinlerinizin ve iletişim bilgilerinizin eksiksiz eklenmesi',
-      'price_item_4': 'Müşterileri doğrudan WhatsApp hattınıza yönlendiren sipariş butonları',
-      'price_item_5': 'Müşterilerin konumunuza kolayca ulaşması için Google Haritalar entegrasyonu',
-      'price_item_6': '%100 memnuniyet garantili teslimat sonrası 3 ücretsiz revizyon turu',
-      'price_item_7': 'Anlaşmadan itibaren 6 saat içinde doğrudan web bağlantısı ile eksiksiz teslimat',
-
-      // Order Modal
-      'modal_title': 'Web Sitenizi 6 Saatte Sipariş Edin 🚀',
-      'modal_sub': 'Bilgilerinizi girin, ekibimiz teslimat için hemen WhatsApp üzerinden sizinle iletişime geçsin',
-      'lbl_name': 'Ad Soyad / İşletme Adı',
-      'lbl_phone': 'WhatsApp Numarası (Teslimat için)',
-      'lbl_notes': 'Notlar veya Sektör Türü (İsteğe Bağlı)',
-      'btn_submit_order': 'Siparişi WhatsApp Üzerinden Onayla 💬',
-
-      // Footer
-      'footer_sub': '🇸🇦 Suudi Arabistan işletmelerine özel web hizmeti | POM Agency hizmeti | Flutter Web & Vercel altyapısıyla',
-    },
-    'fr': {
-      // Navbar & Hero
-      'hero_badge': 'Livraison en 6h + Nom de domaine gratuit 1 an !',
-      'hero_title': 'Page de présentation pour votre entreprise\nAugmentez vos ventes pour seulement 299 SAR !',
-      'hero_sub': 'Digitalisez votre commerce sans frais exorbitants. Obtenez un site web professionnel ultra-rapide, 100% mobile et relié directement à votre WhatsApp.',
-      'btn_order': 'Commander votre site (299 SAR)',
-      'btn_demos': 'Voir les modèles',
-      'chip_domain': 'Domaine gratuit (1 an)',
-      'chip_delivery': 'Livré en 6 heures',
-      'chip_edits': '3 révisions gratuites',
-      'chip_tech': 'Développé avec Flutter Web',
-      'nav_features': 'Fonctionnalités',
-      'nav_demos': 'Modèles',
-      'nav_pricing': 'Tarifs',
-      'nav_order': 'Commander',
-      'whatsapp_btn_top': 'Contact Direct',
-      'whatsapp_btn_main': 'WhatsApp Ventes 💬',
-
-      // Demo Switcher
-      'demo_title': 'Démonstrations de Modèles Interactifs',
-      'demo_sub': 'Choisissez votre secteur et découvrez des designs 3D uniques pour votre entreprise',
-      'demo_select_btn': 'Commander ce Design 🚀',
-      'demo_live_preview': 'Aperçu En Direct Gratuit ✨',
-      'demo_included_title': 'Ce pack comprend :',
-      'cat_retail_name': 'Commerces & Boutiques',
-      'cat_retail_desc': 'Pages de présentation sur mesure pour parfums, montres, vêtements et produits physiques.',
-      'cat_corp_name': 'Entreprises & Industrie',
-      'cat_corp_desc': 'Designs officiels reflétant une forte identité de marque, usines et logistique.',
-      'cat_serv_name': 'Services & Conseils',
-      'cat_serv_desc': 'Idéal pour cabinets de conseil, avocats, cliniques médicales et immobilier.',
-      'cat_cafe_name': 'Cafés & Restaurants',
-      'cat_cafe_desc': 'Menu numérique interactif présentant les plats du jour et la réservation de tables.',
-
-      // Features Section
-      'feat_title': 'Pourquoi choisir SA Web Solutions ?',
-      'feat_sub': 'Des solutions rapides et économiques sans compromis sur la qualité',
-      'feat_1_title': 'Livraison Rapide en 6h',
-      'feat_1_desc': 'Pas d\'attente inutile ! Votre lien d\'aperçu en direct est prêt le jour même.',
-      'feat_2_title': 'Domaine Gratuit (1ère Année)',
-      'feat_2_desc': 'Nous achetons et connectons gratuitement votre domaine personnalisé (.site / .online / .xyz).',
-      'feat_3_title': '3 Révisions Gratuites',
-      'feat_3_desc': 'Liberté totale d\'ajuster textes, images et couleurs jusqu\'à satisfaction à 100%.',
-      'feat_4_title': 'Propulsé par Flutter Web',
-      'feat_4_desc': 'Performance ultra-réactive fonctionnant parfaitement sur iPhone, Android et PC.',
-      'feat_5_title': 'Conversion Directe WhatsApp',
-      'feat_5_desc': 'Boutons WhatsApp directs permettant à vos clients de commander instantanément.',
-      'feat_6_title': 'Hébergement Vercel Super-Rapide',
-      'feat_6_desc': 'Hébergé sur des serveurs mondiaux avec SSL gratuit et chargement en moins d\'une seconde.',
-
-      // Pricing Section
-      'price_badge': '🏷️ L\'offre la plus demandée en Arabie Saoudite',
-      'price_title': 'Pack Page de Présentation Complète',
-      'price_sub': 'Solution clé en main sans aucun frais caché',
-      'price_amount': '299',
-      'price_currency': 'SAR',
-      'price_period': '/ Paiement unique',
-      'price_item_1': 'Design sur mesure ultra-élégant adapté à tous les écrans mobiles et ordinateurs',
-      'price_item_2': 'Nom de domaine personnalisé (.site / .online / .xyz) gratuit la 1ère année',
-      'price_item_3': 'Intégration complète de vos produits, images, textes et coordonnées',
-      'price_item_4': 'Boutons de commande WhatsApp routant les clients directement vers votre téléphone',
-      'price_item_5': 'Intégration Google Maps pour guider facilement les clients vers votre établissement',
-      'price_item_6': '3 sessions de révisions gratuites après livraison garantissant 100% de satisfaction',
-      'price_item_7': 'Livraison complète avec lien web direct sous 6 heures après accord',
-
-      // Order Modal
-      'modal_title': 'Commandez Votre Site en 6 Heures 🚀',
-      'modal_sub': 'Saisissez vos coordonnées et notre équipe vous contactera immédiatement sur WhatsApp',
-      'lbl_name': 'Nom complet / Nom de l\'entreprise',
-      'lbl_phone': 'Numéro WhatsApp (pour la livraison)',
-      'lbl_notes': 'Remarques ou secteur d\'activité (optionnel)',
-      'btn_submit_order': 'Confirmer la commande sur WhatsApp 💬',
-
-      // Footer
-      'footer_sub': '🇸🇦 Service web dédié aux entreprises en Arabie Saoudite | Un service POM Agency | Propulsé par Flutter Web & Vercel',
-    },
-    'de': {
-      // Navbar & Hero
-      'hero_badge': 'Lieferung in 6 Stunden + 1 Jahr kostenlose Domain!',
-      'hero_title': 'Landing Page für Ihr Unternehmen & Dienste\nSteigern Sie Ihren Umsatz für nur 299 SAR!',
-      'hero_sub': 'Bringen Sie Ihr Geschäft ohne hohe Kosten digital voran. Erhalten Sie eine superschnelle, professionelle Website, die direkt mit Ihrem WhatsApp verbunden ist.',
-      'btn_order': 'Jetzt Website bestellen (299 SAR)',
-      'btn_demos': 'Demos anzeigen',
-      'chip_domain': 'Kostenlose Domain (Jahr 1)',
-      'chip_delivery': '6h Lieferung',
-      'chip_edits': '3 kostenlose Korrekturen',
-      'chip_tech': 'Erstellt mit Flutter Web',
-      'nav_features': 'Vorteile',
-      'nav_demos': 'Vorlagen',
-      'nav_pricing': 'Preise',
-      'nav_order': 'Jetzt bestellen',
-      'whatsapp_btn_top': 'Direkter Kontakt',
-      'whatsapp_btn_main': 'Vertriebs-WhatsApp 💬',
-
-      // Demo Switcher
-      'demo_title': 'Interaktive Vorlagen-Demos',
-      'demo_sub': 'Wählen Sie Ihre Branche und entdecken Sie 3D-Designs für Ihr Unternehmen',
-      'demo_select_btn': 'Dieses Design Bestellen 🚀',
-      'demo_live_preview': 'Kostenlose Live-Vorschau ✨',
-      'demo_included_title': 'Paket enthält:',
-      'cat_retail_name': 'Geschäfte & Einzelhandel',
-      'cat_retail_desc': 'Maßgeschneiderte Landingpages für Parfüm, Uhren, Kleidung und Physisches.',
-      'cat_corp_name': 'Firmen & Industrie',
-      'cat_corp_desc': 'Offizielle Designs für starke Markenidentität, Fabriken und Logistik.',
-      'cat_serv_name': 'Dienstleistungen & Beratung',
-      'cat_serv_desc': 'Ideal für Berater, Kanzleien, medizinische Praxen und Immobilien.',
-      'cat_cafe_name': 'Cafés & Restaurants',
-      'cat_cafe_desc': 'Interaktive digitale Speisekarte mit Tagesgerichten & Tischreservierung.',
-
-      // Features Section
-      'feat_title': 'Warum SA Web Solutions wählen?',
-      'feat_sub': 'Schnelle und kostengünstige digitale Lösungen in höchster Qualität',
-      'feat_1_title': 'Schnelle 6h-Lieferung',
-      'feat_1_desc': 'Keine wochenlangen Wartezeiten! Ihr Live-Vorschaulink ist am selben Tag fertig.',
-      'feat_2_title': 'Kostenlose Domain (1. Jahr)',
-      'feat_2_desc': 'Wir kaufen und verbinden Ihre Wunschdomain (.site / .online / .xyz) gratis.',
-      'feat_3_title': '3 Kostenlose Revisionen',
-      'feat_3_desc': 'Volle Freiheit zur Anpassung von Texten, Bildern und Farben bis zu 100% Zufriedenheit.',
-      'feat_4_title': 'Entwickelt mit Flutter Web',
-      'feat_4_desc': 'Reaktionsschnelle Leistung, die auf iPhone, Android und PC perfekt läuft.',
-      'feat_5_title': 'Direkte WhatsApp-Anfragen',
-      'feat_5_desc': 'Direkte WhatsApp-Buttons für sofortige Kundenanfragen und Verkäufe.',
-      'feat_6_title': 'Vercel Super-Hosting',
-      'feat_6_desc': 'Gehostet auf Hochleistungssververn mit gratis SSL und Ladezeiten unter 1 Sekunde.',
-
-      // Pricing Section
-      'price_badge': '🏷️ Beliebtestes Angebot in Saudi-Arabien',
-      'price_title': 'Komplett-Paket für Ihre Landing Page',
-      'price_sub': 'Rundum-Sorglos-Lösung ohne versteckte Kosten',
-      'price_amount': '299',
-      'price_currency': 'SAR',
-      'price_period': '/ Einmalzahlung',
-      'price_item_1': 'Hochelegantes individuelles Design, optimiert für Smartphones und Computer',
-      'price_item_2': 'Eigene Wunschdomain (.site / .online / .xyz) im 1. Jahr völlig kostenlos',
-      'price_item_3': 'Vollständige Einbindung Ihrer Produkte, Bilder, Texte und Kontaktdaten',
-      'price_item_4': 'Direkte WhatsApp-Bestellbuttons, die Kunden direkt zu Ihrem Telefon leiten',
-      'price_item_5': 'Google Maps Einbindung für einfache Anfahrt Ihrer Kunden',
-      'price_item_6': '3 kostenlose Überarbeitungsrunden nach Fertigstellung für 100% Zufriedenheit',
-      'price_item_7': 'Vollständige Übergabe mit direktem Weblink innerhalb von 6 Stunden',
-
-      // Order Modal
-      'modal_title': 'Website in 6 Stunden Bestellen 🚀',
-      'modal_sub': 'Geben Sie Ihre Daten ein – unser Team kontaktiert Sie sofort per WhatsApp',
-      'lbl_name': 'Vollständiger Name / Firmenname',
-      'lbl_phone': 'WhatsApp-Nummer (für Zustellung)',
-      'lbl_notes': 'Anmerkungen oder Branche (Optional)',
-      'btn_submit_order': 'Bestellung per WhatsApp Bestätigen 💬',
-
-      // Footer
-      'footer_sub': '🇸🇦 Spezieller Webdienst für sauidische Unternehmen | Ein Dienst der POM Agency | Erstellt mit Flutter Web & Vercel',
-    },
-    'it': {
-      // Navbar & Hero
-      'hero_badge': 'Consegna in 6 Ore + Dominio Gratuito per 1 Anno!',
-      'hero_title': 'Landing Page per la Tua Attività & Servizi\nAumenta le Vendite a soli 299 SAR!',
-      'hero_sub': 'Porta la tua attività online senza costi elevati. Ottieni un sito web professionale e velocissimo, perfettamente ottimizzato per smartphone e collegato al tuo WhatsApp.',
-      'btn_order': 'Ordina il tuo sito ora (299 SAR)',
-      'btn_demos': 'Esplora i modelli',
-      'chip_domain': 'Dominio Gratis (1 Anno)',
-      'chip_delivery': 'Consegna in 6 Ore',
-      'chip_edits': '3 Modifiche Gratuite',
-      'chip_tech': 'Sviluppato in Flutter Web',
-      'nav_features': 'Caratteristiche',
-      'nav_demos': 'Modelli',
-      'nav_pricing': 'Prezzi',
-      'nav_order': 'Ordina Ora',
-      'whatsapp_btn_top': 'Contatto Diretto',
-      'whatsapp_btn_main': 'WhatsApp Commerciale 💬',
-
-      // Demo Switcher
-      'demo_title': 'Demo Interattive dei Modelli',
-      'demo_sub': 'Scegli il tuo settore e scopri i design 3D unici per la tua attività',
-      'demo_select_btn': 'Ordina Questo Design 🚀',
-      'demo_live_preview': 'Anteprima Live Gratuita ✨',
-      'demo_included_title': 'Il pacchetto include:',
-      'cat_retail_name': 'Negozi e Vendita al Dettaglio',
-      'cat_retail_desc': 'Landing page personalizzate per profumi, orologi, abbigliamento e prodotti fisici.',
-      'cat_corp_name': 'Aziende e Industria',
-      'cat_corp_desc': 'Design ufficiali che riflettono l\'identità aziendale, fabbriche e logistica.',
-      'cat_serv_name': 'Servizi e Consulenza',
-      'cat_serv_desc': 'Ideale per studi di consulenza, avvocati, cliniche mediche e immobiliari.',
-      'cat_cafe_name': 'Caffetterie e Ristoranti',
-      'cat_cafe_desc': 'Menu digitale interattivo con piatti del giorno e prenotazione tavoli.',
-
-      // Features Section
-      'feat_title': 'Perché Scegliere SA Web Solutions?',
-      'feat_sub': 'Soluzioni veloci ed economiche senza rinunciare alla qualità',
-      'feat_1_title': 'Consegna Rapida in 6 Ore',
-      'feat_1_desc': 'Nessuna attesa di settimane! Il tuo link di anteprima è pronto il giorno stesso.',
-      'feat_2_title': 'Dominio Gratis (1° Anno)',
-      'feat_2_desc': 'Acquistiamo e colleghiamo gratuitamente il tuo dominio (.site / .online / .xyz).',
-      'feat_3_title': '3 Revisioni Gratuite',
-      'feat_3_desc': 'Completa libertà di modificare testi, immagini e colori fino al 100% di soddisfazione.',
-      'feat_4_title': 'Tecnologia Flutter Web',
-      'feat_4_desc': 'Prestazioni reattive e fluide su iPhone, Android e computer desktop.',
-      'feat_5_title': 'Contatti Diretti WhatsApp',
-      'feat_5_desc': 'Pulsanti WhatsApp diretti per consentire ai clienti di acquistare all\'istante.',
-      'feat_6_title': 'Hosting Super Vercel',
-      'feat_6_desc': 'Ospitato su server globali ad altissima velocità con SSL gratuito e caricamento rapido.',
-
-      // Pricing Section
-      'price_badge': '🏷️ L\'Offerta Più Richiesta in Arabia Saudita',
-      'price_title': 'Pacchetto Landing Page Completo',
-      'price_sub': 'Soluzione completa senza costi nascosti',
-      'price_amount': '299',
-      'price_currency': 'SAR',
-      'price_period': '/ Pagamento Unico',
-      'price_item_1': 'Design personalizzato di grande eleganza ottimizzato per tutti i dispositivi',
-      'price_item_2': 'Nome di dominio personalizzato (.site / .online / .xyz) gratuito per il 1° anno',
-      'price_item_3': 'Inserimento completo di prodotti, immagini, testi e dati di contatto',
-      'price_item_4': 'Pulsanti di ordine WhatsApp che indirizzano i clienti al tuo telefono',
-      'price_item_5': 'Integrazione con Google Maps per facilitare il raggiungimento della sede',
-      'price_item_6': '3 sessioni di revisione gratuite dopo la consegna per la massima soddisfazione',
-      'price_item_7': 'Consegna completa con link web diretto entro 6 ore dall\'accordo',
-
-      // Order Modal
-      'modal_title': 'Ordina il Tuo Sito in 6 Ore 🚀',
-      'modal_sub': 'Inserisci i tuoi dati e il nostro team ti contatterà subito su WhatsApp',
-      'lbl_name': 'Nome Completo / Nome Attività',
-      'lbl_phone': 'Numero WhatsApp (per la consegna)',
-      'lbl_notes': 'Note o Tipo di Attività (Opzionale)',
-      'btn_submit_order': 'Conferma Ordine su WhatsApp 💬',
-
-      // Footer
-      'footer_sub': '🇸🇦 Servizio web dedicato alle aziende saudite | Un servizio POM Agency | Powered by Flutter Web & Vercel',
-    },
-    'hi': {
-      // Navbar & Hero
-      'hero_badge': '6 घंटे में डिलीवरी + 1 वर्ष के लिए मुफ़्त डोमेन!',
-      'hero_title': 'आपके व्यवसाय और सेवाओं के लिए लैंडिंग पेज\nकेवल 299 SAR में अपनी बिक्री और विश्वास बढ़ाएं!',
-      'hero_sub': 'बिना किसी उच्च लागत के अपने व्यवसाय को डिजिटल बनाएं। अपने व्हाट्सएप से सीधे जुड़ा हुआ एक सुपर-फास्ट पेशेवर वेबसाइट प्राप्त करें।',
-      'btn_order': 'अभी अपनी वेबसाइट ऑर्डर करें (299 SAR)',
-      'btn_demos': 'टेम्प्लेट नमूने देखें',
-      'chip_domain': 'मुफ़्त डोमेन (वर्ष 1)',
-      'chip_delivery': '6 घंटे में डिलीवरी',
-      'chip_edits': '3 मुफ़्त संशोधन',
-      'chip_tech': 'Flutter Web द्वारा निर्मित',
-      'nav_features': 'विशेषताएं',
-      'nav_demos': 'टेम्प्लेट',
-      'nav_pricing': 'मूल्य निर्धारण',
-      'nav_order': 'अभी ऑर्डर करें',
-      'whatsapp_btn_top': 'सीधा संपर्क',
-      'whatsapp_btn_main': 'बिक्री व्हाट्सएप 💬',
-
-      // Demo Switcher
-      'demo_title': 'लाइव इंटरएक्टिव टेम्प्लेट नमूने',
-      'demo_sub': 'अपना उद्योग चुनें और अपने व्यवसाय के लिए अद्वितीय 3D डिज़ाइन देखें',
-      'demo_select_btn': 'यह डिज़ाइन ऑर्डर करें 🚀',
-      'demo_live_preview': 'मुफ़्त लाइव पूर्वावलोकन ✨',
-      'demo_included_title': 'पैकेज में शामिल हैं:',
-      'cat_retail_name': 'दुकानें और खुदरा',
-      'cat_retail_desc': 'इत्र, घड़ियों, कपड़ों और भौतिक उत्पादों के लिए समर्पित लैंडिंग पेज।',
-      'cat_corp_name': 'कॉर्पोरेट और कंपनियां',
-      'cat_corp_desc': 'मजबूत ब्रांड पहचान, कारखानों और रसद को दर्शाने वाले आधिकारिक डिज़ाइन।',
-      'cat_serv_name': 'सेवाएं और परामर्श',
-      'cat_serv_desc': 'परामर्श फर्मों, कानून कार्यालयों, क्लीनिकों और रियल एस्टेट के लिए आदर्श।',
-      'cat_cafe_name': 'कैफे और रेस्तरां',
-      'cat_cafe_desc': 'दैनिक विशेष व्यंजन और टेबल बुकिंग प्रदर्शित करने वाला डिजिटल मेनू।',
-
-      // Features Section
-      'feat_title': 'SA Web Solutions क्यों चुनें?',
-      'feat_sub': 'गुणवत्ता से समझौता किए बिना तेज़ और किफायती समाधान',
-      'feat_1_title': '6 घंटे में तेज़ डिलीवरी',
-      'feat_1_desc': 'हफ्तों का इंतजार नहीं! अपनी जानकारी भेजने के बाद उसी दिन अपना लाइव लिंक प्राप्त करें।',
-      'feat_2_title': 'मुफ़्त डोमेन (प्रथम वर्ष)',
-      'feat_2_desc': 'हम आपके ब्रांड के लिए एक कस्टम डोमेन (.site / .online / .xyz) मुफ़्त में खरीदते और जोड़ते हैं।',
-      'feat_3_title': '3 मुफ़्त संशोधन',
-      'feat_3_desc': '100% संतुष्ट होने तक पाठ, चित्र और रंग समायोजित करने की पूरी स्वतंत्रता।',
-      'feat_4_title': 'Flutter Web तकनीक पर आधारित',
-      'feat_4_desc': 'iPhone, Android और PC पर सुचारू रूप से चलने वाला अत्यंत तेज़ प्रदर्शन।',
-      'feat_5_title': 'सीधे व्हाट्सएप से बिक्री',
-      'feat_5_desc': 'ग्राहकों को तुरंत पूछताछ और खरीदारी की सुविधा देने वाले व्हाट्सएप बटन।',
-      'feat_6_title': 'Vercel सुपर होस्टिंग',
-      'feat_6_desc': 'मुफ़्त SSL और एक सेकंड से भी कम समय में लोड होने वाले विश्व स्तरीय सर्वर पर होस्टेड।',
-
-      // Pricing Section
-      'price_badge': '🏷️ सऊदी अरब में सबसे लोकप्रिय ऑफ़र',
-      'price_title': 'सर्व-समावेशी लैंडिंग पेज पैकेज',
-      'price_sub': 'बिना किसी छिपे शुल्क के संपूर्ण समाधान',
-      'price_amount': '299',
-      'price_currency': 'SAR',
-      'price_period': '/ एकमुश्त शुल्क',
-      'price_item_1': 'सभी मोबाइल और डेस्कटॉप स्क्रीन के लिए अनुकूलित अति-सुंदर कस्टम डिज़ाइन',
-      'price_item_2': 'प्रथम वर्ष के लिए मुफ़्त कस्टम ब्रांड डोमेन नाम (.site / .online / .xyz)',
-      'price_item_3': 'आपके उत्पादों, छवियों, पाठों और संपर्क जानकारी का पूर्ण समावेश',
-      'price_item_4': 'सीधे व्हाट्सएप ऑर्डर बटन जो ग्राहकों को आपके फोन पर भेजते हैं',
-      'price_item_5': 'ग्राहकों को आपके स्थान तक आसानी से पहुँचाने के लिए Google मानचित्र',
-      'price_item_6': '100% संतुष्टि की गारंटी देने वाले 3 मुफ़्त संशोधन दौर',
-      'price_item_7': 'समझौते के 6 घंटे के भीतर सीधे वेब लिंक के साथ पूर्ण डिलीवरी',
-
-      // Order Modal
-      'modal_title': '6 घंटे में अपनी वेबसाइट ऑर्डर करें 🚀',
-      'modal_sub': 'अपना विवरण दर्ज करें और हमारी टीम तुरंत व्हाट्सएप पर आपसे संपर्क करेगी',
-      'lbl_name': 'पूरा नाम / व्यवसाय का नाम',
-      'lbl_phone': 'व्हाट्सएप नंबर (डिलीवरी के लिए)',
-      'lbl_notes': 'टिप्पणियां या व्यवसाय का प्रकार (वैकल्पिक)',
-      'btn_submit_order': 'व्हाट्सएप पर ऑर्डर की पुष्टि करें 💬',
-
-      // Footer
-      'footer_sub': '🇸🇦 सऊदी अरब के व्यवसायों के लिए समर्पित वेब सेवा | POM Agency सेवा | Flutter Web और Vercel द्वारा संचालित',
-    },
   };
 
   static String tr(String key) {
     final langCode = currentLanguageNotifier.value.code;
     return _localizedValues[langCode]?[key] ?? _localizedValues['ar']?[key] ?? key;
+  }
+
+  static String getVariantName(TemplateVariant variant) {
+    final key = 'v_${variant.id}_name';
+    final val = tr(key);
+    return (val != key && val.isNotEmpty) ? val : variant.name;
+  }
+
+  static String getVariantBadge(TemplateVariant variant) {
+    final key = 'v_${variant.id}_badge';
+    final val = tr(key);
+    return (val != key && val.isNotEmpty) ? val : variant.badge;
+  }
+
+  static String getVariantDesc(TemplateVariant variant) {
+    final key = 'v_${variant.id}_desc';
+    final val = tr(key);
+    return (val != key && val.isNotEmpty) ? val : variant.description;
+  }
+
+  static List<String> getVariantHighlights(TemplateVariant variant) {
+    final List<String> result = [];
+    for (int i = 0; i < variant.highlights.length; i++) {
+      final key = 'v_${variant.id}_h$i';
+      final val = tr(key);
+      if (val != key && val.isNotEmpty) {
+        result.add(val);
+      } else {
+        result.add(variant.highlights[i]);
+      }
+    }
+    return result;
   }
 }

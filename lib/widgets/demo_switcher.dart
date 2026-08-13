@@ -44,14 +44,14 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.palette_rounded, color: AppTheme.primaryDark, size: 18),
-                    SizedBox(width: 8),
+                    const Icon(Icons.palette_rounded, color: AppTheme.primaryDark, size: 18),
+                    const SizedBox(width: 8),
                     Text(
-                      '4 أشكال عصرية لكل نوع قالب',
-                      style: TextStyle(
+                      AppTranslations.tr('demo_badge_header'),
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.primaryDark,
@@ -191,7 +191,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                variant.name,
+                                AppTranslations.getVariantName(variant),
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -246,7 +246,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        currentVariant.name,
+                                        AppTranslations.getVariantName(currentVariant),
                                         style: TextStyle(
                                           fontSize: isMobile ? 18 : 22,
                                           fontWeight: FontWeight.bold,
@@ -264,7 +264,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                                         ),
                                       ),
                                       child: Text(
-                                        currentVariant.badge,
+                                        AppTranslations.getVariantBadge(currentVariant),
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -294,7 +294,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
                       const SizedBox(height: 24),
 
                       Text(
-                        currentVariant.description,
+                        AppTranslations.getVariantDesc(currentVariant),
                         style: TextStyle(
                           fontSize: 16,
                           color: theme.textTheme.bodyLarge?.color,
@@ -306,7 +306,7 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
 
                       // Features Highlights Checklist
                       Column(
-                        children: currentVariant.highlights.map((feat) {
+                        children: AppTranslations.getVariantHighlights(currentVariant).map((feat) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: Row(

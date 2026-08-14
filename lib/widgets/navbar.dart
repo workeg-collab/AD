@@ -54,9 +54,8 @@ class Navbar extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    height: 46,
-                    width: 46,
-                    padding: const EdgeInsets.all(4),
+                    height: 48,
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                     decoration: BoxDecoration(
                       color: isDark ? AppTheme.cardDark : Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(12),
@@ -65,7 +64,8 @@ class Navbar extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.asset(
-                        'assets/images/pom_logo.png',
+                        'assets/images/xxx.png',
+                        height: 40,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return const Icon(

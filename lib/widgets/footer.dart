@@ -27,9 +27,8 @@ class Footer extends StatelessWidget {
                   Row(
                     children: [
                       Container(
-                        height: 36,
-                        width: 36,
-                        padding: const EdgeInsets.all(3),
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                         decoration: BoxDecoration(
                           color: isDark ? AppTheme.cardDark : Colors.white,
                           borderRadius: BorderRadius.circular(10),
@@ -38,7 +37,8 @@ class Footer extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
                           child: Image.asset(
-                            'assets/images/pom_logo.png',
+                            'assets/images/xxx.png',
+                            height: 32,
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) {
                               return const Icon(

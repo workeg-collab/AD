@@ -1,7 +1,7 @@
 export const config = {
   api: {
     bodyParser: {
-      sizeLimit: '25mb',
+      sizeLimit: '50mb',
     },
   },
 };
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
       headers: {
         apikey: supabaseKey,
         Authorization: `Bearer ${supabaseKey}`,
-        'Content-Type': fileType,
+        'Content-Type': fileType || 'application/octet-stream',
       },
       body: fileBuffer,
     });
@@ -73,8 +73,10 @@ export default async function handler(req, res) {
     }
 
     const errorData = await uploadRes.text();
+    console.error('Supabase upload error:', errorData);
     res.status(500).json({ success: false, error: errorData });
   } catch (error) {
+    console.error('Handler error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 }

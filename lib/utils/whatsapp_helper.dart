@@ -21,6 +21,7 @@ class WhatsAppHelper {
     if (domainChoice != null && domainChoice.isNotEmpty) {
       textMessage += '\n🌐 الدومين المختار: $domainChoice';
     }
+    textMessage += '\n💰 قيمة العرض: 299 ريال (4,081.35 ج.م شامل ضريبة 5%)';
 
     final Uri url = Uri.parse(
       'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(textMessage)}',

@@ -27,15 +27,24 @@ export default async function handler(req, res) {
       domainChoice = '',
       amountSar = 299.00,
       sarToEgpRate = 13.00,
+      taxPercent = 5.0,
     } = req.body || {};
 
-    // 299 SAR * 13.0 = 3887 EGP
-    const egpAmount = Math.round(Number(amountSar || 299) * Number(sarToEgpRate || 13));
+    // 1. SAR: 299.00 SAR
+    const sar = Number(amountSar || 299.00);
+    // 2. USD: ~ $79.73 USD
+    const usd = Number((sar / 3.75).toFixed(2));
+    // 3. EGP Base (قبل الضريبة): 299 * 13.00 = 3,887.00 EGP
+    const baseEgp = Number((sar * Number(sarToEgpRate || 13.00)).toFixed(2));
+    // 4. Tax 5%: 3,887 * 0.05 = 194.35 EGP
+    const taxEgp = Number((baseEgp * (Number(taxPercent || 5.0) / 100)).toFixed(2));
+    // 5. Total with Tax: 3,887 + 194.35 = 4,081.35 EGP
+    const totalEgp = Number((baseEgp + taxEgp).toFixed(2));
 
     const profileId = 154004;
     const serverKey = 'SHJ9WHMT6Z-J9KRRLTHBG-2HBDZKRTWR';
     const cartId = `ORDER_${Date.now()}`;
-    let description = `تصميم صفحة تعريفية لـ ${businessName} (299 ريال)`;
+    let description = `تصميم صفحة لـ ${businessName} (299 SAR + 5% ضريبة = ${totalEgp} ج.م)`;
     if (domainChoice) {
       description += ` + دومين ${domainChoice}`;
     }
@@ -47,7 +56,7 @@ export default async function handler(req, res) {
       cart_id: cartId,
       cart_description: description,
       cart_currency: 'EGP',
-      cart_amount: egpAmount,
+      cart_amount: totalEgp,
       customer_details: {
         name: customerName || 'عميل كريم',
         email: customerEmail || 'customer@ad-landing.com',

@@ -17,8 +17,11 @@ class PayTabsHelper {
     String? domainChoice,
     double amountSar = 299.00,
     double sarToEgpRate = 13.00,
+    double taxPercent = 5.00,
   }) async {
-    final egpAmount = (amountSar * sarToEgpRate).roundToDouble();
+    final baseEgp = amountSar * sarToEgpRate;
+    final taxEgp = baseEgp * (taxPercent / 100);
+    final totalEgp = double.parse((baseEgp + taxEgp).toStringAsFixed(2));
 
     final payload = {
       'customerName': customerName.isNotEmpty ? customerName : 'عميل كريم',
@@ -28,6 +31,7 @@ class PayTabsHelper {
       'domainChoice': domainChoice ?? '',
       'amountSar': amountSar,
       'sarToEgpRate': sarToEgpRate,
+      'taxPercent': taxPercent,
     };
 
     // 1. Try Vercel Serverless Function first (Bypasses all browser CORS restrictions)
@@ -50,7 +54,7 @@ class PayTabsHelper {
     // 2. Direct Fallback
     try {
       final cartId = 'ORDER_${DateTime.now().millisecondsSinceEpoch}';
-      String description = 'تصميم صفحة تعريفية لـ $businessName (299 ريال)';
+      String description = 'تصميم صفحة لـ $businessName (299 SAR + 5% ضريبة = $totalEgp ج.م)';
       if (domainChoice != null && domainChoice.isNotEmpty) {
         description += ' + دومين $domainChoice';
       }
@@ -62,7 +66,7 @@ class PayTabsHelper {
         'cart_id': cartId,
         'cart_description': description,
         'cart_currency': 'EGP',
-        'cart_amount': egpAmount,
+        'cart_amount': totalEgp,
         'customer_details': {
           'name': customerName.isNotEmpty ? customerName : 'عميل كريم',
           'email': customerEmail.isNotEmpty ? customerEmail : 'customer@ad-landing.com',
@@ -102,6 +106,7 @@ class PayTabsHelper {
     String? domainChoice,
     double amountSar = 299.00,
     double sarToEgpRate = 13.00,
+    double taxPercent = 5.00,
   }) async {
     final url = await createPaymentPage(
       customerName: customerName,
@@ -111,6 +116,7 @@ class PayTabsHelper {
       domainChoice: domainChoice,
       amountSar: amountSar,
       sarToEgpRate: sarToEgpRate,
+      taxPercent: taxPercent,
     );
 
     if (url != null && url.isNotEmpty) {

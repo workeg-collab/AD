@@ -268,34 +268,126 @@ class _OrderModalState extends State<OrderModal> {
                   ),
                 ),
 
-                // Price & Currency Summary
+                const SizedBox(height: 16),
+
+                // Detailed Multi-Currency & 5% Tax Invoice Breakdown
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: isDark ? AppTheme.cardDark : const Color(0xFFF0FDF4),
-                    borderRadius: BorderRadius.circular(12),
+                    color: isDark ? AppTheme.cardDark : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                      color: isDark ? AppTheme.borderDark : const Color(0xFFE2E8F0),
+                      width: 1.5,
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      Text(
-                        'إجمالي قيمة العرض:',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
+                      // 1. Line SAR
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '🇸🇦 السعر بالريال السعودي:',
+                            style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                          ),
+                          Text(
+                            '299.00 SAR',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                        ],
                       ),
-                      const Text(
-                        '299 ريال (3,887 ج.م)',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF10B981),
-                        ),
+                      const SizedBox(height: 6),
+
+                      // 2. Line USD
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '🇺🇸 السعر بالدولار الأمريكي:',
+                            style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                          ),
+                          Text(
+                            '\$79.73 USD',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+
+                      // 3. Line EGP Base
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '🇪🇬 السعر بالجنيه المصري (قبل الضريبة):',
+                            style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                          ),
+                          Text(
+                            '3,887.00 ج.م',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+
+                      // 4. Line 5% Tax
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '🧾 ضريبة القيمة المضافة (5%):',
+                            style: TextStyle(fontSize: 13, color: Color(0xFFD97706)),
+                          ),
+                          Text(
+                            '+ 194.35 ج.م',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFD97706),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Divider(height: 1),
+                      ),
+
+                      // 5. Line Total EGP with Tax
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '💳 الإجمالي النهائي للدفع:',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w900,
+                              color: textColor,
+                            ),
+                          ),
+                          const Text(
+                            '4,081.35 ج.م',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF10B981),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

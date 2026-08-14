@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_translations.dart';
@@ -16,12 +17,27 @@ class OrderModal extends StatefulWidget {
 
 class _OrderModalState extends State<OrderModal> {
   final _formKey = GlobalKey<FormState>();
+
+  // Required Fields
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+
+  // Optional Fields
   final _domainController = TextEditingController();
+  final _logoLinkController = TextEditingController();
+  final _photosLinkController = TextEditingController();
+  final _profileLinkController = TextEditingController();
+  final _aboutContentController = TextEditingController();
+  final _contactInfoController = TextEditingController();
   final _notesController = TextEditingController();
+
   String _selectedCategory = 'متجر / محل تجاري';
   bool _isProcessing = false;
+
+  // Selected File Names
+  String? _logoFileName;
+  List<String> _photoFileNames = [];
+  String? _profileFileName;
 
   final List<String> _categories = [
     'متجر / محل تجاري',
@@ -44,8 +60,91 @@ class _OrderModalState extends State<OrderModal> {
     _nameController.dispose();
     _phoneController.dispose();
     _domainController.dispose();
+    _logoLinkController.dispose();
+    _photosLinkController.dispose();
+    _profileLinkController.dispose();
+    _aboutContentController.dispose();
+    _contactInfoController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  // Pick Logo File
+  Future<void> _pickLogoFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['png', 'jpg', 'jpeg', 'svg', 'pdf', 'ai', 'eps'],
+      );
+      if (result != null && result.files.isNotEmpty) {
+        setState(() {
+          _logoFileName = result.files.first.name;
+        });
+      }
+    } catch (_) {}
+  }
+
+  // Pick Photos
+  Future<void> _pickPhotos() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.image,
+      );
+      if (result != null && result.files.isNotEmpty) {
+        setState(() {
+          _photoFileNames = result.files.map((f) => f.name).toList();
+        });
+      }
+    } catch (_) {}
+  }
+
+  // Pick Company Profile File
+  Future<void> _pickProfileFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
+      );
+      if (result != null && result.files.isNotEmpty) {
+        setState(() {
+          _profileFileName = result.files.first.name;
+        });
+      }
+    } catch (_) {}
+  }
+
+  String _getCombinedLogoInfo() {
+    final List<String> parts = [];
+    if (_logoFileName != null && _logoFileName!.isNotEmpty) {
+      parts.add('ملف مرفق: $_logoFileName');
+    }
+    if (_logoLinkController.text.trim().isNotEmpty) {
+      parts.add('رابط: ${_logoLinkController.text.trim()}');
+    }
+    return parts.join(' | ');
+  }
+
+  String _getCombinedPhotosInfo() {
+    final List<String> parts = [];
+    if (_photoFileNames.isNotEmpty) {
+      parts.add('صور مرفقة: ${_photoFileNames.length} ملفات (${_photoFileNames.take(3).join(', ')}${_photoFileNames.length > 3 ? '...' : ''})');
+    }
+    if (_photosLinkController.text.trim().isNotEmpty) {
+      parts.add('رابط سحابي: ${_photosLinkController.text.trim()}');
+    }
+    return parts.join(' | ');
+  }
+
+  String _getCombinedProfileInfo() {
+    final List<String> parts = [];
+    if (_profileFileName != null && _profileFileName!.isNotEmpty) {
+      parts.add('ملف بروفايل: $_profileFileName');
+    }
+    if (_profileLinkController.text.trim().isNotEmpty) {
+      parts.add('رابط: ${_profileLinkController.text.trim()}');
+    }
+    return parts.join(' | ');
   }
 
   Future<void> _submitWhatsAppOrder() async {
@@ -56,7 +155,13 @@ class _OrderModalState extends State<OrderModal> {
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
     final domain = _domainController.text.trim();
+    final aboutContent = _aboutContentController.text.trim();
+    final contactInfo = _contactInfoController.text.trim();
     final notes = _notesController.text.trim();
+
+    final logoInfo = _getCombinedLogoInfo();
+    final photosInfo = _getCombinedPhotosInfo();
+    final profileInfo = _getCombinedProfileInfo();
 
     try {
       // 1. Generate direct PayTabs payment page URL for this order
@@ -78,6 +183,11 @@ class _OrderModalState extends State<OrderModal> {
         businessName: name,
         category: _selectedCategory,
         domainChoice: domain,
+        logoInfo: logoInfo,
+        photosInfo: photosInfo,
+        profileInfo: profileInfo,
+        aboutContent: aboutContent,
+        contactInfo: contactInfo,
         notes: notes,
         paymentMethod: 'طلب وتأكيد عبر الواتساب + رابط PayTabs 💬',
         paymentUrl: paymentUrl,
@@ -116,7 +226,13 @@ class _OrderModalState extends State<OrderModal> {
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
     final domain = _domainController.text.trim();
+    final aboutContent = _aboutContentController.text.trim();
+    final contactInfo = _contactInfoController.text.trim();
     final notes = _notesController.text.trim();
+
+    final logoInfo = _getCombinedLogoInfo();
+    final photosInfo = _getCombinedPhotosInfo();
+    final profileInfo = _getCombinedProfileInfo();
 
     try {
       // 1. Launch PayTabs hosted checkout
@@ -138,6 +254,11 @@ class _OrderModalState extends State<OrderModal> {
         businessName: name,
         category: _selectedCategory,
         domainChoice: domain,
+        logoInfo: logoInfo,
+        photosInfo: photosInfo,
+        profileInfo: profileInfo,
+        aboutContent: aboutContent,
+        contactInfo: contactInfo,
         notes: notes,
         paymentMethod: 'دفع فوري بالبطاقة عبر PayTabs 💳',
         paymentUrl: paymentUrl,
@@ -196,8 +317,8 @@ class _OrderModalState extends State<OrderModal> {
         ),
       ),
       child: Container(
-        padding: EdgeInsets.all(isMobile ? 16 : 28),
-        constraints: const BoxConstraints(maxWidth: 540),
+        padding: EdgeInsets.all(isMobile ? 16 : 26),
+        constraints: const BoxConstraints(maxWidth: 580, maxHeight: 780),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -226,14 +347,27 @@ class _OrderModalState extends State<OrderModal> {
                           ),
                           const SizedBox(width: 10),
                           Flexible(
-                            child: Text(
-                              AppTranslations.tr('modal_title'),
-                              style: TextStyle(
-                                fontSize: isMobile ? 15 : 18,
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppTranslations.tr('modal_title'),
+                                  style: TextStyle(
+                                    fontSize: isMobile ? 14.5 : 17,
+                                    fontWeight: FontWeight.bold,
+                                    color: textColor,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'الاسم ورقم الهاتف أساسيان فقط، وباقي الخانات اختيارية',
+                                  style: TextStyle(
+                                    fontSize: isMobile ? 10.5 : 11.5,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -248,27 +382,30 @@ class _OrderModalState extends State<OrderModal> {
                   ],
                 ),
 
-                const SizedBox(height: 6),
-                Text(
-                  AppTranslations.tr('modal_sub'),
-                  style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
-                ),
-
                 const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 10),
 
-                // Business Name Input
+                // ==================== SECTION 1: REQUIRED BASIC INFO ====================
+                _buildSectionHeader('1️⃣ البيانات الأساسية (مطلوبة)', Icons.person_rounded),
+                const SizedBox(height: 8),
+
+                // Field 1: Name (REQUIRED)
+                Text(
+                  'الاسم الكامل / اسم النشاط التجاري *',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textColor),
+                ),
+                const SizedBox(height: 6),
                 TextFormField(
                   controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: AppTranslations.tr('lbl_name'),
-                    hintText: 'مثال: متجر الأناقة أو شركة الفجر',
-                    prefixIcon: const Icon(Icons.store_rounded, color: AppTheme.primary, size: 20),
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  decoration: _buildInputDecoration(
+                    hint: 'مثال: متجر الرياض / فهد القحطاني',
+                    icon: Icons.business_center_outlined,
+                    isDark: isDark,
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'يرجى كتابة الاسم';
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'يرجى كتابة الاسم أو اسم النشاط للبدء';
                     }
                     return null;
                   },
@@ -276,20 +413,23 @@ class _OrderModalState extends State<OrderModal> {
 
                 const SizedBox(height: 12),
 
-                // Phone Input
+                // Field 2: Phone (REQUIRED)
+                Text(
+                  'رقم الواتساب (للتواصل والتسليم الفوري) *',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textColor),
+                ),
+                const SizedBox(height: 6),
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'رقم الهاتف / الواتساب للتواصل *',
-                    hintText: '05xxxxxxxx أو 01xxxxxxxxx',
-                    prefixIcon: Icon(Icons.phone_rounded, color: AppTheme.secondary, size: 20),
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  decoration: _buildInputDecoration(
+                    hint: 'مثال: 0501234567 أو +966501234567',
+                    icon: Icons.phone_android_rounded,
+                    isDark: isDark,
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'يرجى كتابة رقم الهاتف للتواصل';
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'يرجى كتابة رقم الواتساب الخاص بك';
                     }
                     return null;
                   },
@@ -297,75 +437,230 @@ class _OrderModalState extends State<OrderModal> {
 
                 const SizedBox(height: 12),
 
-                // Selected Domain Input
-                TextFormField(
-                  controller: _domainController,
-                  textDirection: TextDirection.ltr,
-                  decoration: InputDecoration(
-                    labelText: 'اسم الدومين المقترح (مجاناً بالسنة الأولى)',
-                    hintText: 'مثال: mybrand.site',
-                    hintTextDirection: TextDirection.ltr,
-                    prefixIcon: const Icon(Icons.language_rounded, color: Color(0xFF10B981), size: 20),
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                    suffixIcon: _domainController.text.isNotEmpty
-                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 20)
-                        : null,
-                  ),
+                // Field 3: Category (Dropdown)
+                Text(
+                  'تصنيف النشاط (اختياري)',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textColor),
                 ),
-
-                const SizedBox(height: 12),
-
-                // Category Dropdown
+                const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
                   initialValue: _selectedCategory,
-                  decoration: const InputDecoration(
-                    labelText: 'نوع النشاط *',
-                    prefixIcon: Icon(Icons.category_rounded, color: AppTheme.accentGold, size: 20),
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  dropdownColor: isDark ? AppTheme.surfaceDark : Colors.white,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    color: textColor,
+                    fontWeight: FontWeight.w600,
                   ),
-                  dropdownColor: isDark ? AppTheme.cardDark : Colors.white,
+                  decoration: _buildInputDecoration(
+                    hint: 'اختر تصنيف النشاط',
+                    icon: Icons.category_rounded,
+                    isDark: isDark,
+                  ),
                   items: _categories.map((cat) {
                     return DropdownMenuItem(
                       value: cat,
-                      child: Text(cat, style: TextStyle(color: textColor, fontSize: 13)),
+                      child: Text(cat),
                     );
                   }).toList(),
                   onChanged: (val) {
                     if (val != null) {
-                      setState(() {
-                        _selectedCategory = val;
-                      });
+                      setState(() => _selectedCategory = val);
                     }
                   },
                 ),
 
                 const SizedBox(height: 12),
 
-                // Notes Input
+                // Field 4: Domain (OPTIONAL)
+                Text(
+                  'اسم الدومين المطلوب (اختياري)',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textColor),
+                ),
+                const SizedBox(height: 6),
                 TextFormField(
-                  controller: _notesController,
-                  maxLines: 2,
-                  decoration: InputDecoration(
-                    labelText: AppTranslations.tr('lbl_notes'),
-                    hintText: 'أي تفاصيل أو رغبات خاصة بتصميم صفحتك...',
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  controller: _domainController,
+                  textDirection: TextDirection.ltr,
+                  decoration: _buildInputDecoration(
+                    hint: 'مثال: riyadh-store.site (أو اتركه لنساعدك في اختياره)',
+                    icon: Icons.language_rounded,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+                const Divider(),
+                const SizedBox(height: 10),
+
+                // ==================== SECTION 2: BRAND ASSETS & ATTACHMENTS ====================
+                _buildSectionHeader('2️⃣ المرفقات والشعار والصور (اختياري)', Icons.cloud_upload_rounded),
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.info_outline_rounded, size: 16, color: AppTheme.primary),
+                      SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          'جميع المرفقات اختيارية ويمكنك أيضاً إرسالها لاحقاً عبر محادثة الواتساب بسهولة.',
+                          style: TextStyle(fontSize: 11, color: AppTheme.primary, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Item A: Logo
+                Text(
+                  'شعار النشاط / اللوجو (اختياري)',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textColor),
+                ),
+                const SizedBox(height: 6),
+                _buildFilePickerRow(
+                  label: _logoFileName ?? 'إرفاق ملف الشعار (PNG/JPG/SVG)',
+                  isSelected: _logoFileName != null,
+                  onPick: _pickLogoFile,
+                  onClear: () => setState(() => _logoFileName = null),
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _logoLinkController,
+                  decoration: _buildInputDecoration(
+                    hint: 'أو ضع رابط الشعار / Google Drive هنا',
+                    icon: Icons.link_rounded,
+                    isDark: isDark,
                   ),
                 ),
 
                 const SizedBox(height: 14),
 
-                // Detailed Multi-Currency & TAX (5%) Invoice Breakdown Card
+                // Item B: Activity / Product Photos
+                Text(
+                  'الصور المتاحة للنشاط أو المنتجات (اختياري)',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textColor),
+                ),
+                const SizedBox(height: 6),
+                _buildFilePickerRow(
+                  label: _photoFileNames.isNotEmpty
+                      ? 'تم اختيار ${_photoFileNames.length} صور'
+                      : 'إرفاق صور النشاط / المنتجات',
+                  isSelected: _photoFileNames.isNotEmpty,
+                  onPick: _pickPhotos,
+                  onClear: () => setState(() => _photoFileNames = []),
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _photosLinkController,
+                  decoration: _buildInputDecoration(
+                    hint: 'أو ضع رابط مجلد الصور / Dropbox / Drive',
+                    icon: Icons.photo_library_rounded,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                // Item C: Company Profile File
+                Text(
+                  'ملف بروفايل الشركة / النشاط (اختياري)',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textColor),
+                ),
+                const SizedBox(height: 6),
+                _buildFilePickerRow(
+                  label: _profileFileName ?? 'إرفاق ملف البروفايل (PDF/Word)',
+                  isSelected: _profileFileName != null,
+                  onPick: _pickProfileFile,
+                  onClear: () => setState(() => _profileFileName = null),
+                  isDark: isDark,
+                ),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _profileLinkController,
+                  decoration: _buildInputDecoration(
+                    hint: 'أو ضع رابط ملف البروفايل السحابي',
+                    icon: Icons.picture_as_pdf_rounded,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+                const Divider(),
+                const SizedBox(height: 10),
+
+                // ==================== SECTION 3: CONTENT & CONTACT INFO ====================
+                _buildSectionHeader('3️⃣ محتوى الموقع وبيانات التواصل (اختياري)', Icons.article_rounded),
+                const SizedBox(height: 10),
+
+                // Item D: Content / About text
+                Text(
+                  'البيانات والنصوص المراد إضافتها في الموقع (اختياري)',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textColor),
+                ),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _aboutContentController,
+                  maxLines: 3,
+                  decoration: _buildInputDecoration(
+                    hint: 'اكتب نبذة عن نشاطك، أبرز المنتجات والخدمات، الأسعار أو العروض التي ترغب في عرضها بالموقع...',
+                    icon: Icons.edit_note_rounded,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Item E: Address, Phones, Emails, Website, Social
+                Text(
+                  'العنوان وأرقام الهواتف والإيميلات وروابط التواصل (اختياري)',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textColor),
+                ),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _contactInfoController,
+                  maxLines: 3,
+                  decoration: _buildInputDecoration(
+                    hint: 'العنوان/الفرع، رابط موقع قوقل ماب، أرقام هواتف إضافية، الإيميل الرسمي، حسابات انستقرام وتيك توك وتويتر...',
+                    icon: Icons.location_on_rounded,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Item F: General Notes
+                Text(
+                  'ملاحظات أو طلبات خاصة للتصميم (اختياري)',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: textColor),
+                ),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _notesController,
+                  maxLines: 2,
+                  decoration: _buildInputDecoration(
+                    hint: 'أي ألوان مفضلة، أو أمثلة لمواقع تعجبك، أو تعليمات خاصة...',
+                    icon: Icons.palette_rounded,
+                    isDark: isDark,
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                // ==================== PRICE BREAKDOWN (5 LINES) ====================
                 Container(
-                  padding: EdgeInsets.all(isMobile ? 12 : 16),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: isDark ? AppTheme.cardDark : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isDark ? AppTheme.borderDark : const Color(0xFFE2E8F0),
-                      width: 1.5,
+                      color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+                      width: 1.2,
                     ),
                   ),
                   child: Column(
@@ -374,80 +669,72 @@ class _OrderModalState extends State<OrderModal> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             '🇸🇦 السعر بالريال السعودي:',
-                            style: TextStyle(fontSize: isMobile ? 12 : 13, color: AppTheme.textMuted),
+                            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
                           ),
                           Text(
                             '299.00 SAR',
                             style: TextStyle(
-                              fontSize: isMobile ? 12 : 13,
+                              fontSize: 13,
                               fontWeight: FontWeight.bold,
                               color: textColor,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
 
                       // 2. Line USD
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '🇺🇸 السعر بالدولار الأمريكي:',
-                            style: TextStyle(fontSize: isMobile ? 12 : 13, color: AppTheme.textMuted),
+                            '🇺🇸 السعر بالدولار (تقريباً):',
+                            style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                           ),
                           Text(
                             '\$79.73 USD',
-                            style: TextStyle(
-                              fontSize: isMobile ? 12 : 13,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
+                            style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
 
                       // 3. Line EGP Base
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '🇪🇬 السعر بالجنيه المصري (قبل الضريبة):',
-                            style: TextStyle(fontSize: isMobile ? 11.5 : 13, color: AppTheme.textMuted),
+                            '🇪🇬 السعر بالمصري (سعر الصرف 13.00):',
+                            style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                           ),
                           Text(
                             '3,887.00 ج.م',
-                            style: TextStyle(
-                              fontSize: isMobile ? 12 : 13,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
+                            style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
 
-                      // 4. Line TAX (5%)
-                      Row(
+                      // 4. Line TAX 5%
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             '🧾 TAX (5%):',
                             style: TextStyle(
-                              fontSize: isMobile ? 12 : 13,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFFD97706),
+                              color: Color(0xFFD97706),
                             ),
                           ),
                           Text(
                             '+ 194.35 ج.م',
                             style: TextStyle(
-                              fontSize: isMobile ? 12 : 13,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFFD97706),
+                              color: Color(0xFFD97706),
                             ),
                           ),
                         ],
@@ -465,17 +752,17 @@ class _OrderModalState extends State<OrderModal> {
                           Text(
                             '💳 الإجمالي النهائي للدفع:',
                             style: TextStyle(
-                              fontSize: isMobile ? 13 : 14,
+                              fontSize: 13.5,
                               fontWeight: FontWeight.w900,
                               color: textColor,
                             ),
                           ),
-                          Text(
+                          const Text(
                             '4,081.35 ج.م',
                             style: TextStyle(
-                              fontSize: isMobile ? 15 : 16,
+                              fontSize: 15.5,
                               fontWeight: FontWeight.w900,
-                              color: const Color(0xFF10B981),
+                              color: Color(0xFF10B981),
                             ),
                           ),
                         ],
@@ -584,6 +871,112 @@ class _OrderModalState extends State<OrderModal> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: AppTheme.primary),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 13.5,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilePickerRow({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onPick,
+    required VoidCallback onClear,
+    required bool isDark,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.cardDark : Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isSelected ? const Color(0xFF10B981) : (isDark ? AppTheme.borderDark : AppTheme.borderLight),
+          width: isSelected ? 1.5 : 1.0,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isSelected ? Icons.check_circle_rounded : Icons.attach_file_rounded,
+            color: isSelected ? const Color(0xFF10B981) : AppTheme.textMuted,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? const Color(0xFF10B981) : AppTheme.textMuted,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (isSelected)
+            IconButton(
+              icon: const Icon(Icons.close_rounded, size: 16, color: Colors.red),
+              onPressed: onClear,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            )
+          else
+            TextButton(
+              onPressed: onPick,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text('اختيار ملف', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            ),
+        ],
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration({
+    required String hint,
+    required IconData icon,
+    required bool isDark,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(fontSize: 12.5, color: AppTheme.textMuted),
+      prefixIcon: Icon(icon, size: 18, color: AppTheme.primary),
+      filled: true,
+      fillColor: isDark ? AppTheme.cardDark : Colors.grey.shade50,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(
+          color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(
+          color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
       ),
     );
   }

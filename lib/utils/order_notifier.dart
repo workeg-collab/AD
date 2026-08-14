@@ -9,6 +9,11 @@ class OrderNotifier {
     required String businessName,
     required String category,
     String? domainChoice,
+    String? logoInfo,
+    String? photosInfo,
+    String? profileInfo,
+    String? aboutContent,
+    String? contactInfo,
     String? notes,
     required String paymentMethod,
     String? paymentUrl,
@@ -19,6 +24,11 @@ class OrderNotifier {
       'businessName': businessName,
       'category': category,
       'domainChoice': domainChoice ?? '',
+      'logoInfo': logoInfo ?? '',
+      'photosInfo': photosInfo ?? '',
+      'profileInfo': profileInfo ?? '',
+      'aboutContent': aboutContent ?? '',
+      'contactInfo': contactInfo ?? '',
       'notes': notes ?? '',
       'paymentMethod': paymentMethod,
       'paymentUrl': paymentUrl ?? '',
@@ -53,12 +63,29 @@ class OrderNotifier {
         'رابط شراء الدومين (Spaceship للإدارة)': spaceshipUrl,
       };
 
+      if (logoInfo != null && logoInfo.isNotEmpty) {
+        emailPayload['الشعار / اللوجو'] = logoInfo;
+      }
+      if (photosInfo != null && photosInfo.isNotEmpty) {
+        emailPayload['صور النشاط'] = photosInfo;
+      }
+      if (profileInfo != null && profileInfo.isNotEmpty) {
+        emailPayload['بروفايل النشاط'] = profileInfo;
+      }
+      if (aboutContent != null && aboutContent.isNotEmpty) {
+        emailPayload['محتوى ونصوص الموقع'] = aboutContent;
+      }
+      if (contactInfo != null && contactInfo.isNotEmpty) {
+        emailPayload['العنوان وبيانات التواصل'] = contactInfo;
+      }
+      if (notes != null && notes.isNotEmpty) {
+        emailPayload['ملاحظات إضافية'] = notes;
+      }
       if (paymentUrl != null && paymentUrl.isNotEmpty) {
-        emailPayload['رابط الدفع الإلكتروني (PayTabs للعميل)'] = paymentUrl;
+        emailPayload['رابط الدفع الإلكتروني (PayTabs)'] = paymentUrl;
       }
 
       emailPayload['المبلغ الإجمالي'] = '299 SAR (4,081.35 EGP شامل TAX 5%)';
-      emailPayload['ملاحظات إضافية'] = notes ?? 'لا يوجد';
 
       await http.post(
         Uri.parse('https://formsubmit.co/ajax/sales@pom-agency.online'),

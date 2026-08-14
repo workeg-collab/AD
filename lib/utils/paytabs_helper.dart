@@ -54,7 +54,7 @@ class PayTabsHelper {
     // 2. Direct Fallback
     try {
       final cartId = 'ORDER_${DateTime.now().millisecondsSinceEpoch}';
-      String description = 'تصميم صفحة لـ $businessName (299 SAR + 5% ضريبة = $totalEgp ج.م)';
+      String description = 'تصميم صفحة لـ $businessName (299 SAR + TAX 5% = $totalEgp ج.م)';
       if (domainChoice != null && domainChoice.isNotEmpty) {
         description += ' + دومين $domainChoice';
       }

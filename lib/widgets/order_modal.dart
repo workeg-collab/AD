@@ -51,12 +51,13 @@ class _OrderModalState extends State<OrderModal> {
     if (_formKey.currentState!.validate()) {
       Navigator.of(context).pop();
       WhatsAppHelper.launchWhatsApp(
+        customerName: _nameController.text.trim(),
+        customerPhone: _phoneController.text.trim(),
         businessName: _nameController.text.trim(),
         category: _selectedCategory,
         domainChoice: _domainController.text.trim(),
-        customMessage: _notesController.text.trim().isNotEmpty
-            ? 'طلب جديد لـ ${_nameController.text.trim()} - رقم التواصل: ${_phoneController.text.trim()} - ملاحظات: ${_notesController.text.trim()}'
-            : null,
+        notes: _notesController.text.trim(),
+        paymentMethod: 'تأكيد الطلب عبر الواتساب 💬',
       );
     }
   }
@@ -67,6 +68,17 @@ class _OrderModalState extends State<OrderModal> {
     setState(() => _isPaying = true);
 
     try {
+      // 1. Send instant Admin WhatsApp Notification with full order details & Spaceship domain purchase link
+      WhatsAppHelper.notifyAdminPayTabsOrder(
+        customerName: _nameController.text.trim(),
+        customerPhone: _phoneController.text.trim(),
+        businessName: _nameController.text.trim(),
+        category: _selectedCategory,
+        domainChoice: _domainController.text.trim(),
+        notes: _notesController.text.trim(),
+      );
+
+      // 2. Launch PayTabs hosted checkout
       final success = await PayTabsHelper.launchPayment(
         customerName: _nameController.text.trim(),
         customerPhone: _phoneController.text.trim(),

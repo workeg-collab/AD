@@ -26,7 +26,10 @@ class DomainSearchResult {
 }
 
 class DomainChecker {
-  // Budget TLDs that strictly cost <= $2 USD on domain registrars
+  // STRICT CONSTRAINT: Domain cost must NEVER exceed $2.00 USD
+  static const double maxAllowedPriceUsd = 2.0;
+
+  // Verified budget TLDs that strictly cost <= $2.00 USD on global registrars (Spaceship / Namecheap / Porkbun)
   static const List<DomainExtensionInfo> budgetExtensions = [
     DomainExtensionInfo(tld: '.site', internalMaxCostUsd: 0.99),
     DomainExtensionInfo(tld: '.online', internalMaxCostUsd: 0.99),
@@ -35,11 +38,11 @@ class DomainChecker {
     DomainExtensionInfo(tld: '.shop', internalMaxCostUsd: 1.88),
     DomainExtensionInfo(tld: '.website', internalMaxCostUsd: 1.49),
     DomainExtensionInfo(tld: '.space', internalMaxCostUsd: 1.29),
-    DomainExtensionInfo(tld: '.tech', internalMaxCostUsd: 1.99),
     DomainExtensionInfo(tld: '.fun', internalMaxCostUsd: 1.49),
     DomainExtensionInfo(tld: '.top', internalMaxCostUsd: 1.20),
     DomainExtensionInfo(tld: '.uno', internalMaxCostUsd: 1.20),
-    DomainExtensionInfo(tld: '.live', internalMaxCostUsd: 1.99),
+    DomainExtensionInfo(tld: '.icu', internalMaxCostUsd: 1.10),
+    DomainExtensionInfo(tld: '.click', internalMaxCostUsd: 1.40),
   ];
 
   static String sanitizeSlug(String input) {
@@ -110,7 +113,7 @@ class DomainChecker {
     if (slug.isEmpty || slug.length < 2) return [];
 
     final eligibleExtensions = budgetExtensions
-        .where((ext) => ext.internalMaxCostUsd <= 2.0)
+        .where((ext) => ext.internalMaxCostUsd <= maxAllowedPriceUsd)
         .toList();
 
     List<Future<DomainSearchResult>> futures = eligibleExtensions.map((ext) async {

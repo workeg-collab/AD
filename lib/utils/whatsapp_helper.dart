@@ -20,6 +20,7 @@ class WhatsAppHelper {
     }
     if (domainChoice != null && domainChoice.isNotEmpty) {
       textMessage += '\n🌐 الدومين المقترح: $domainChoice';
+      textMessage += '\n🔗 رابط الشراء الفوري على Spaceship: https://www.spaceship.com/domain-search/?query=$domainChoice';
     }
 
     final Uri url = Uri.parse(

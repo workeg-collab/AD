@@ -122,7 +122,7 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
                         ),
                         const SizedBox(height: 2),
                         const Text(
-                          'دومين خاص لعلامتك التجارية مشمول مجاناً بالسنة الأولى',
+                          'دومين خاص مدعوم ومسجل عبر Spaceship ومشمول مجاناً بالسنة الأولى',
                           style: TextStyle(
                             fontSize: 12,
                             color: AppTheme.textMuted,

@@ -136,4 +136,9 @@ class DomainChecker {
 
     return results;
   }
+
+  /// Get direct Spaceship search & buy URL for the chosen domain
+  static String getSpaceshipUrl(String domain) {
+    return 'https://www.spaceship.com/domain-search/?query=$domain';
+  }
 }

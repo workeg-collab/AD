@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 // ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
 import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
 
 class UploadedFileResult {
   final String fileName;
@@ -24,77 +21,40 @@ class SupabaseStorageHelper {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmx3aGR0cG5mdWVud3JmYXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MTgwNjMsImV4cCI6MjEwMjI5NDA2M30.1jc8ahuejtrfIRMTOFO-aVYMwOd7einjtUQdou2kNBY';
   static const String bucketName = 'orders';
 
-  static Uint8List _toUint8List(dynamic raw) {
-    if (raw is Uint8List) return raw;
-    if (raw is ByteBuffer) return raw.asUint8List();
-    if (raw is List<int>) return Uint8List.fromList(raw);
-    try {
-      final buffer = (raw as dynamic).buffer;
-      if (buffer is ByteBuffer) {
-        return buffer.asUint8List();
-      }
-    } catch (_) {}
-    return Uint8List.view(raw as dynamic);
-  }
-
-  /// Upload raw binary file bytes (Uint8List) directly to Supabase Storage
-  static Future<String?> uploadBytes({
-    required Uint8List bytes,
-    required String fileName,
-    required String contentType,
-  }) async {
-    final cleanFileName = fileName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+  /// Stream native browser File directly to Supabase Storage via XMLHttpRequest
+  static Future<String?> uploadHtmlFileDirect(html.File file) {
+    final completer = Completer<String?>();
+    final cleanFileName = file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
     final uniquePath = '${DateTime.now().millisecondsSinceEpoch}_$cleanFileName';
+    final uploadUri = '$supabaseUrl/storage/v1/object/$bucketName/$uniquePath';
+    final publicUrl = '$supabaseUrl/storage/v1/object/public/$bucketName/$uniquePath';
 
-    // 1. Direct binary HTTP upload to Supabase Storage REST API
-    try {
-      final uploadUri = Uri.parse('$supabaseUrl/storage/v1/object/$bucketName/$uniquePath');
+    final request = html.HttpRequest();
+    request.open('POST', uploadUri, async: true);
+    request.setRequestHeader('apikey', supabaseAnonKey);
+    request.setRequestHeader('Authorization', 'Bearer $supabaseAnonKey');
+    request.setRequestHeader(
+      'Content-Type',
+      file.type.isNotEmpty ? file.type : _getContentType(file.name),
+    );
 
-      final response = await http.post(
-        uploadUri,
-        headers: {
-          'apikey': supabaseAnonKey,
-          'Authorization': 'Bearer $supabaseAnonKey',
-          'Content-Type': contentType.isNotEmpty ? contentType : 'application/octet-stream',
-        },
-        body: bytes,
-      ).timeout(const Duration(seconds: 30));
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final publicUrl = '$supabaseUrl/storage/v1/object/public/$bucketName/$uniquePath';
-        debugPrint('✅ Direct Supabase Upload Success: $publicUrl');
-        return publicUrl;
+    request.onLoad.listen((event) {
+      if (request.status == 200 || request.status == 201) {
+        debugPrint('✅ Supabase Upload SUCCESS: $publicUrl');
+        completer.complete(publicUrl);
+      } else {
+        debugPrint('❌ Supabase Upload Status: ${request.status} - ${request.responseText}');
+        completer.complete(null);
       }
-    } catch (e) {
-      debugPrint('⚠️ Direct Supabase upload error: $e');
-    }
+    });
 
-    // 2. Serverless API bridge fallback with Base64 payload
-    try {
-      final base64Data = base64Encode(bytes);
-      final response = await http.post(
-        Uri.parse('/api/supabase-upload'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'base64Data': base64Data,
-          'fileName': fileName,
-          'fileType': contentType,
-        }),
-      ).timeout(const Duration(seconds: 30));
+    request.onError.listen((event) {
+      debugPrint('❌ Supabase Network Error');
+      completer.complete(null);
+    });
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final fileUrl = data?['fileUrl'] as String?;
-        if (fileUrl != null && fileUrl.startsWith('http')) {
-          debugPrint('✅ Serverless Supabase Upload Success: $fileUrl');
-          return fileUrl;
-        }
-      }
-    } catch (e) {
-      debugPrint('⚠️ Serverless Supabase upload error: $e');
-    }
-
-    return null;
+    request.send(file);
+    return completer.future.timeout(const Duration(seconds: 40), onTimeout: () => null);
   }
 
   /// Pick Logo synchronously on Web to satisfy browser user-activation security
@@ -111,32 +71,20 @@ class SupabaseStorageHelper {
 
         html.document.body?.children.add(uploadInput);
 
-        uploadInput.onChange.listen((e) {
+        uploadInput.onChange.listen((e) async {
           final files = uploadInput.files;
           if (files != null && files.isNotEmpty) {
             final file = files.first;
             onUploadStatusChanged(true);
-
-            final reader = html.FileReader();
-            reader.readAsArrayBuffer(file);
-
-            reader.onLoadEnd.listen((event) async {
-              try {
-                final bytes = _toUint8List(reader.result);
-                final fileUrl = await uploadBytes(
-                  bytes: bytes,
-                  fileName: file.name,
-                  contentType: file.type.isNotEmpty ? file.type : _getContentType(file.name),
-                );
-
-                onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-              } catch (_) {
-                onComplete(UploadedFileResult(fileName: file.name));
-              } finally {
-                onUploadStatusChanged(false);
-                uploadInput.remove();
-              }
-            });
+            try {
+              final fileUrl = await uploadHtmlFileDirect(file);
+              onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+            } catch (_) {
+              onComplete(UploadedFileResult(fileName: file.name));
+            } finally {
+              onUploadStatusChanged(false);
+              uploadInput.remove();
+            }
           } else {
             uploadInput.remove();
           }
@@ -149,20 +97,11 @@ class SupabaseStorageHelper {
       }
     }
 
-    // Fallback for non-web
-    FilePicker.platform.pickFiles(type: FileType.image, withData: true).then((result) async {
+    // Non-web fallback
+    FilePicker.platform.pickFiles(type: FileType.image, withData: true).then((result) {
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        if (file.bytes != null) {
-          onUploadStatusChanged(true);
-          final fileUrl = await uploadBytes(
-            bytes: file.bytes!,
-            fileName: file.name,
-            contentType: _getContentType(file.name),
-          );
-          onUploadStatusChanged(false);
-          onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-        }
+        onComplete(UploadedFileResult(fileName: file.name));
       }
     });
   }
@@ -181,39 +120,22 @@ class SupabaseStorageHelper {
 
         html.document.body?.children.add(uploadInput);
 
-        uploadInput.onChange.listen((e) {
+        uploadInput.onChange.listen((e) async {
           final files = uploadInput.files;
           if (files != null && files.isNotEmpty) {
             onUploadStatusChanged(true);
             final List<UploadedFileResult> results = [];
-            int processed = 0;
-
             for (final file in files) {
-              final reader = html.FileReader();
-              reader.readAsArrayBuffer(file);
-
-              reader.onLoadEnd.listen((event) async {
-                try {
-                  final bytes = _toUint8List(reader.result);
-                  final fileUrl = await uploadBytes(
-                    bytes: bytes,
-                    fileName: file.name,
-                    contentType: file.type.isNotEmpty ? file.type : _getContentType(file.name),
-                  );
-
-                  results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-                } catch (_) {
-                  results.add(UploadedFileResult(fileName: file.name));
-                }
-
-                processed++;
-                if (processed == files.length) {
-                  onUploadStatusChanged(false);
-                  uploadInput.remove();
-                  onComplete(results);
-                }
-              });
+              try {
+                final fileUrl = await uploadHtmlFileDirect(file);
+                results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+              } catch (_) {
+                results.add(UploadedFileResult(fileName: file.name));
+              }
             }
+            onUploadStatusChanged(false);
+            uploadInput.remove();
+            onComplete(results);
           } else {
             uploadInput.remove();
           }
@@ -226,22 +148,12 @@ class SupabaseStorageHelper {
       }
     }
 
-    // Fallback for non-web
-    FilePicker.platform.pickFiles(allowMultiple: true, type: FileType.image, withData: true).then((result) async {
+    // Non-web fallback
+    FilePicker.platform.pickFiles(allowMultiple: true, type: FileType.image, withData: true).then((result) {
       if (result != null && result.files.isNotEmpty) {
-        onUploadStatusChanged(true);
-        final List<UploadedFileResult> results = [];
-        for (final file in result.files) {
-          if (file.bytes != null) {
-            final fileUrl = await uploadBytes(
-              bytes: file.bytes!,
-              fileName: file.name,
-              contentType: _getContentType(file.name),
-            );
-            results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-          }
-        }
-        onUploadStatusChanged(false);
+        final List<UploadedFileResult> results = result.files
+            .map((f) => UploadedFileResult(fileName: f.name))
+            .toList();
         onComplete(results);
       }
     });
@@ -261,32 +173,20 @@ class SupabaseStorageHelper {
 
         html.document.body?.children.add(uploadInput);
 
-        uploadInput.onChange.listen((e) {
+        uploadInput.onChange.listen((e) async {
           final files = uploadInput.files;
           if (files != null && files.isNotEmpty) {
             final file = files.first;
             onUploadStatusChanged(true);
-
-            final reader = html.FileReader();
-            reader.readAsArrayBuffer(file);
-
-            reader.onLoadEnd.listen((event) async {
-              try {
-                final bytes = _toUint8List(reader.result);
-                final fileUrl = await uploadBytes(
-                  bytes: bytes,
-                  fileName: file.name,
-                  contentType: file.type.isNotEmpty ? file.type : _getContentType(file.name),
-                );
-
-                onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-              } catch (_) {
-                onComplete(UploadedFileResult(fileName: file.name));
-              } finally {
-                onUploadStatusChanged(false);
-                uploadInput.remove();
-              }
-            });
+            try {
+              final fileUrl = await uploadHtmlFileDirect(file);
+              onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+            } catch (_) {
+              onComplete(UploadedFileResult(fileName: file.name));
+            } finally {
+              onUploadStatusChanged(false);
+              uploadInput.remove();
+            }
           } else {
             uploadInput.remove();
           }
@@ -299,20 +199,11 @@ class SupabaseStorageHelper {
       }
     }
 
-    // Fallback for non-web
-    FilePicker.platform.pickFiles(type: FileType.any, withData: true).then((result) async {
+    // Non-web fallback
+    FilePicker.platform.pickFiles(type: FileType.any, withData: true).then((result) {
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        if (file.bytes != null) {
-          onUploadStatusChanged(true);
-          final fileUrl = await uploadBytes(
-            bytes: file.bytes!,
-            fileName: file.name,
-            contentType: _getContentType(file.name),
-          );
-          onUploadStatusChanged(false);
-          onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-        }
+        onComplete(UploadedFileResult(fileName: file.name));
       }
     });
   }

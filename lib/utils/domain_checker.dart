@@ -77,37 +77,78 @@ class DomainChecker {
     return result;
   }
 
-  /// Check a single domain availability via DNS over HTTPS
-  static Future<bool> isDomainAvailable(String domain) async {
+  /// Check a single domain availability via Authoritative ICANN RDAP Registry & DNS
+  static Future<bool> isDomainAvailable(String domain, {int slugLength = 4}) async {
+    // 1-3 letter domains (like 'aly.site', 'aly.xyz') are globally Reserved or Premium ($500+)
+    if (slugLength <= 3) {
+      // Short 2-3 char domains cannot be regular budget domains
+      // Verify with strict RDAP
+      try {
+        final uri = Uri.parse('https://rdap.org/domain/$domain');
+        final response = await http.get(uri).timeout(const Duration(seconds: 4));
+        if (response.statusCode == 200) return false;
+        final body = response.body.toLowerCase();
+        if (body.contains('not available') ||
+            body.contains('reserved') ||
+            body.contains('premium') ||
+            !body.contains('available for registration')) {
+          return false;
+        }
+      } catch (_) {
+        return false;
+      }
+    }
+
     try {
-      final uri = Uri.parse('https://dns.google/resolve?name=$domain&type=A');
-      final response = await http.get(uri).timeout(const Duration(seconds: 4));
+      // Step 1: Authoritative ICANN RDAP Lookup
+      final rdapUri = Uri.parse('https://rdap.org/domain/$domain');
+      final rdapResponse = await http.get(rdapUri).timeout(const Duration(seconds: 4));
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final status = data['Status'] as int?;
-        final answer = data['Answer'];
+      if (rdapResponse.statusCode == 200) {
+        // Domain has an active registration record on RDAP
+        return false;
+      }
 
-        if (status == 3) return true;
-        if (answer == null || (answer is List && answer.isEmpty)) {
-          final nsUri = Uri.parse('https://dns.google/resolve?name=$domain&type=NS');
-          final nsResponse = await http.get(nsUri).timeout(const Duration(seconds: 4));
-          if (nsResponse.statusCode == 200) {
-            final nsData = jsonDecode(nsResponse.body);
-            final nsStatus = nsData['Status'] as int?;
-            final nsAnswer = nsData['Answer'];
-            if (nsStatus == 3 || nsAnswer == null || (nsAnswer is List && nsAnswer.isEmpty)) {
+      if (rdapResponse.statusCode == 404) {
+        final body = rdapResponse.body.toLowerCase();
+        if (body.contains('not available') ||
+            body.contains('reserved') ||
+            body.contains('registry reserved') ||
+            body.contains('premium')) {
+          return false;
+        }
+
+        if (body.contains('available for registration') ||
+            body.contains('is available') ||
+            body.contains('not found')) {
+          // Double verify with DNS NS records
+          final dnsUri = Uri.parse('https://dns.google/resolve?name=$domain&type=NS');
+          final dnsResponse = await http.get(dnsUri).timeout(const Duration(seconds: 3));
+          if (dnsResponse.statusCode == 200) {
+            final dnsData = jsonDecode(dnsResponse.body);
+            if (dnsData['Status'] == 3 || dnsData['Answer'] == null) {
               return true;
             }
           }
         }
-        return false;
       }
-    } catch (_) {}
+    } catch (_) {
+      // Fallback to DNS NS + A checking if RDAP network timeout occurs
+      try {
+        final dnsUri = Uri.parse('https://dns.google/resolve?name=$domain&type=NS');
+        final dnsRes = await http.get(dnsUri).timeout(const Duration(seconds: 3));
+        if (dnsRes.statusCode == 200) {
+          final data = jsonDecode(dnsRes.body);
+          if (data['Status'] == 3 && data['Answer'] == null) {
+            return slugLength > 3;
+          }
+        }
+      } catch (_) {}
+    }
     return false;
   }
 
-  /// Search across all <= $2 USD extensions
+  /// Search across all <= $2 USD extensions with smart suggestions for short keywords
   static Future<List<DomainSearchResult>> searchAllBudgetExtensions(String rawName) async {
     final slug = sanitizeSlug(rawName);
     if (slug.isEmpty || slug.length < 2) return [];
@@ -116,25 +157,44 @@ class DomainChecker {
         .where((ext) => ext.internalMaxCostUsd <= maxAllowedPriceUsd)
         .toList();
 
-    List<Future<DomainSearchResult>> futures = eligibleExtensions.map((ext) async {
-      final fullDomain = '$slug${ext.tld}';
-      final isAvail = await isDomainAvailable(fullDomain);
-      return DomainSearchResult(
-        fullDomain: fullDomain,
-        tld: ext.tld,
-        isAvailable: isAvail,
-      );
-    }).toList();
+    List<String> targetSlugs = [slug];
+    // If the input slug is very short (e.g. 'aly'), generate smart business variants
+    if (slug.length <= 3) {
+      targetSlugs.addAll([
+        '$slug-store',
+        '$slug-brand',
+        '$slug-shop',
+        'matjar-$slug',
+      ]);
+    }
 
-    final results = await Future.wait(futures);
+    List<Future<DomainSearchResult>> futures = [];
 
-    results.sort((a, b) {
+    for (final s in targetSlugs) {
+      for (final ext in eligibleExtensions) {
+        final fullDomain = '$s${ext.tld}';
+        futures.add(() async {
+          final isAvail = await isDomainAvailable(fullDomain, slugLength: s.length);
+          return DomainSearchResult(
+            fullDomain: fullDomain,
+            tld: ext.tld,
+            isAvailable: isAvail,
+          );
+        }());
+      }
+    }
+
+    final allResults = await Future.wait(futures);
+
+    // Filter to avoid overwhelming results:
+    // If the direct keyword has available domains, show them first, then suggestions
+    allResults.sort((a, b) {
       if (a.isAvailable && !b.isAvailable) return -1;
       if (!a.isAvailable && b.isAvailable) return 1;
       return 0;
     });
 
-    return results;
+    return allResults;
   }
 
   /// Get direct Spaceship search & buy URL for the chosen domain

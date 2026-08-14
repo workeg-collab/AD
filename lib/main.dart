@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'theme/app_theme.dart';
+import 'utils/supabase_storage_helper.dart';
 import 'views/home_page.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier<ThemeMode>(ThemeMode.light);
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Supabase.initialize(
+      url: SupabaseStorageHelper.supabaseUrl,
+      // ignore: deprecated_member_use
+      anonKey: SupabaseStorageHelper.supabaseAnonKey,
+    );
+  } catch (e) {
+    debugPrint('Supabase init error: $e');
+  }
   runApp(const SAApp());
 }
 

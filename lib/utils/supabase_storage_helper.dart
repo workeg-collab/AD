@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
-// ignore: avoid_web_libraries_in_flutter, deprecated_member_use
-import 'dart:html' as html;
 import 'package:file_picker/file_picker.dart';
-import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UploadedFileResult {
   final String fileName;
@@ -24,307 +21,152 @@ class SupabaseStorageHelper {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmx3aGR0cG5mdWVud3JmYXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MTgwNjMsImV4cCI6MjEwMjI5NDA2M30.1jc8ahuejtrfIRMTOFO-aVYMwOd7einjtUQdou2kNBY';
   static const String bucketName = 'orders';
 
-  /// Generates a unique, URL-safe filename while preserving the original extension.
-  static String _generateUniquePath(String originalFileName) {
-    String ext = '';
-    final dotIndex = originalFileName.lastIndexOf('.');
-    if (dotIndex != -1 && dotIndex < originalFileName.length - 1) {
-      ext = originalFileName.substring(dotIndex).toLowerCase();
-      ext = ext.replaceAll(RegExp(r'[^a-zA-Z0-9.]'), '');
+  /// Ensure Supabase client is initialized
+  static Future<void> ensureInitialized() async {
+    try {
+      Supabase.instance.client;
+    } catch (_) {
+      await Supabase.initialize(
+        url: supabaseUrl,
+        // ignore: deprecated_member_use
+        anonKey: supabaseAnonKey,
+      );
     }
+  }
 
-    final safeBase = originalFileName
-        .split('.')
-        .first
-        .replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
-    final shortBase = safeBase.length > 20 ? safeBase.substring(0, 20) : (safeBase.isEmpty ? 'file' : safeBase);
+  /// Generates a clean, unique file name using timestamp + random suffix + clean extension
+  static String _generateCleanFileName(PlatformFile file) {
+    String ext = (file.extension ?? '').toLowerCase().replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+    if (ext.isEmpty && file.name.contains('.')) {
+      ext = file.name.split('.').last.toLowerCase().replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
+    }
+    if (ext.isEmpty) {
+      ext = 'png';
+    }
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final randomSuffix = Random().nextInt(900000) + 100000;
-
-    return '${timestamp}_${randomSuffix}_$shortBase$ext';
+    return '${timestamp}_$randomSuffix.$ext';
   }
 
-  /// Read an html.File as a Base64 data URL string reliably
-  static Future<String?> _readHtmlFileAsDataUrl(html.File file) {
-    final completer = Completer<String?>();
-    final reader = html.FileReader();
-    reader.onLoadEnd.listen((event) {
-      if (reader.result != null) {
-        completer.complete(reader.result.toString());
-      } else {
-        completer.complete(null);
-      }
-    });
-    reader.onError.listen((event) => completer.complete(null));
-    reader.readAsDataUrl(file);
-    return completer.future.timeout(const Duration(seconds: 45), onTimeout: () => null);
-  }
+  /// Uploads in-memory file bytes directly using supabase.storage.from('orders').uploadBinary(...)
+  static Future<String?> uploadPlatformFile(PlatformFile file) async {
+    if (file.bytes == null || file.bytes!.isEmpty) {
+      debugPrint('❌ Supabase Upload Failed: file.bytes is null or empty!');
+      return null;
+    }
 
-  /// Upload raw bytes directly to Supabase Storage endpoint with Serverless Bridge Fallback
-  static Future<String?> uploadBytesDirect(Uint8List bytes, String originalFileName, {String? mimeType}) async {
-    final uniquePath = _generateUniquePath(originalFileName);
-    final uploadUri = Uri.parse('$supabaseUrl/storage/v1/object/$bucketName/$uniquePath');
-    final publicUrl = '$supabaseUrl/storage/v1/object/public/$bucketName/$uniquePath';
-    final contentType = (mimeType != null && mimeType.isNotEmpty)
-        ? mimeType
-        : _getContentType(originalFileName);
-
-    // 1. Direct Supabase Storage Upload via HTTP POST
     try {
-      final response = await http
-          .post(
-            uploadUri,
-            headers: {
-              'apikey': supabaseAnonKey,
-              'Authorization': 'Bearer $supabaseAnonKey',
-              'Content-Type': contentType,
-            },
-            body: bytes,
-          )
-          .timeout(const Duration(seconds: 45));
+      await ensureInitialized();
+      final uniqueName = _generateCleanFileName(file);
+      final contentType = _getContentType(uniqueName);
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        debugPrint('✅ Supabase Direct Bytes Upload SUCCESS: $publicUrl');
-        return publicUrl;
-      }
-      debugPrint('❌ Supabase Direct Bytes Status ${response.statusCode}: ${response.body}');
+      final client = Supabase.instance.client;
+      await client.storage.from(bucketName).uploadBinary(
+            uniqueName,
+            file.bytes!,
+            fileOptions: FileOptions(
+              contentType: contentType,
+              upsert: true,
+            ),
+          );
+
+      final publicUrl = client.storage.from(bucketName).getPublicUrl(uniqueName);
+      debugPrint('✅ Supabase Upload SUCCESS: $publicUrl');
+      return publicUrl;
     } catch (e) {
-      debugPrint('❌ Supabase Direct Bytes Exception: $e');
+      debugPrint('❌ Supabase Upload Exception: $e');
+      return null;
     }
-
-    // 2. Fallback to Serverless Bridge on Web
-    if (kIsWeb) {
-      try {
-        final base64String = base64Encode(bytes);
-        final bridgeUri = Uri.base.resolve('/api/supabase-upload');
-        final response = await http
-            .post(
-              bridgeUri,
-              headers: {'Content-Type': 'application/json'},
-              body: jsonEncode({
-                'base64Data': base64String,
-                'fileName': originalFileName,
-                'fileType': contentType,
-              }),
-            )
-            .timeout(const Duration(seconds: 40));
-
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          if (data['success'] == true && data['fileUrl'] != null) {
-            final url = data['fileUrl'] as String;
-            debugPrint('✅ Serverless Bridge Upload SUCCESS: $url');
-            return url;
-          }
-        }
-        debugPrint('❌ Bridge status ${response.statusCode}: ${response.body}');
-      } catch (e) {
-        debugPrint('❌ Bridge upload error: $e');
-      }
-    }
-
-    return null;
   }
 
-  /// Process and upload a native html.File safely
-  static Future<String?> uploadHtmlFile(html.File file) async {
-    try {
-      final dataUrl = await _readHtmlFileAsDataUrl(file);
-      if (dataUrl != null && dataUrl.isNotEmpty) {
-        final commaIndex = dataUrl.indexOf(',');
-        final base64String = commaIndex != -1 ? dataUrl.substring(commaIndex + 1) : dataUrl;
-        final bytes = base64Decode(base64String);
-        final mime = file.type.isNotEmpty ? file.type : _getContentType(file.name);
-        return await uploadBytesDirect(bytes, file.name, mimeType: mime);
-      }
-    } catch (e) {
-      debugPrint('uploadHtmlFile error: $e');
-    }
-    return null;
-  }
-
-  /// Pick Logo synchronously on Web (bypasses browser popup blocking) & Native
-  static void pickLogo({
+  /// Pick Logo using FilePicker withData: true & uploadBinary
+  static Future<void> pickLogo({
     required Function(bool isUploading) onUploadStatusChanged,
     required Function(UploadedFileResult result) onComplete,
-  }) {
-    if (kIsWeb) {
-      try {
-        final html.FileUploadInputElement uploadInput = html.FileUploadInputElement()
-          ..accept = 'image/*'
-          ..multiple = false
-          ..style.display = 'none';
+  }) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['png', 'jpg', 'jpeg', 'svg', 'webp', 'gif', 'ico', 'heic'],
+        withData: true,
+      );
 
-        html.document.body?.children.add(uploadInput);
-
-        uploadInput.onChange.listen((e) async {
-          final files = uploadInput.files;
-          if (files != null && files.isNotEmpty) {
-            final file = files.first;
-            onUploadStatusChanged(true);
-            try {
-              final fileUrl = await uploadHtmlFile(file);
-              onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-            } catch (_) {
-              onComplete(UploadedFileResult(fileName: file.name, fileUrl: null));
-            } finally {
-              onUploadStatusChanged(false);
-              uploadInput.remove();
-            }
-          } else {
-            uploadInput.remove();
-          }
-        });
-
-        // Trigger synchronous click directly in user event tick
-        uploadInput.click();
-        return;
-      } catch (err) {
-        debugPrint('Web pick logo error: $err');
-      }
-    }
-
-    // Universal / Non-web fallback
-    FilePicker.platform.pickFiles(type: FileType.image, withData: true).then((result) async {
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        if (file.bytes != null) {
+        if (file.bytes != null && file.bytes!.isNotEmpty) {
           onUploadStatusChanged(true);
-          final fileUrl = await uploadBytesDirect(file.bytes!, file.name);
+          final fileUrl = await uploadPlatformFile(file);
           onUploadStatusChanged(false);
           onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-        } else {
-          onComplete(UploadedFileResult(fileName: file.name, fileUrl: null));
+          return;
         }
       }
-    });
+    } catch (e) {
+      debugPrint('Error picking logo: $e');
+      onUploadStatusChanged(false);
+    }
   }
 
-  /// Pick Photos synchronously on Web (concurrent uploads) & Native
-  static void pickPhotos({
+  /// Pick Photos using FilePicker withData: true & uploadBinary (concurrent)
+  static Future<void> pickPhotos({
     required Function(bool isUploading) onUploadStatusChanged,
     required Function(List<UploadedFileResult> results) onComplete,
-  }) {
-    if (kIsWeb) {
-      try {
-        final html.FileUploadInputElement uploadInput = html.FileUploadInputElement()
-          ..accept = 'image/*'
-          ..multiple = true
-          ..style.display = 'none';
+  }) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+        allowedExtensions: ['png', 'jpg', 'jpeg', 'svg', 'webp', 'gif', 'heic'],
+        withData: true,
+      );
 
-        html.document.body?.children.add(uploadInput);
-
-        uploadInput.onChange.listen((e) async {
-          final files = uploadInput.files;
-          if (files != null && files.isNotEmpty) {
-            onUploadStatusChanged(true);
-            try {
-              final uploadTasks = files.map((file) async {
-                final fileUrl = await uploadHtmlFile(file);
-                return UploadedFileResult(fileName: file.name, fileUrl: fileUrl);
-              }).toList();
-
-              final results = await Future.wait(uploadTasks);
-              onComplete(results);
-            } catch (err) {
-              debugPrint('Error uploading photos: $err');
-              onComplete([]);
-            } finally {
-              onUploadStatusChanged(false);
-              uploadInput.remove();
-            }
-          } else {
-            uploadInput.remove();
-          }
-        });
-
-        // Trigger synchronous click directly in user event tick
-        uploadInput.click();
-        return;
-      } catch (err) {
-        debugPrint('Web pick photos error: $err');
-      }
-    }
-
-    // Universal / Non-web fallback
-    FilePicker.platform.pickFiles(allowMultiple: true, type: FileType.image, withData: true).then((result) async {
       if (result != null && result.files.isNotEmpty) {
         onUploadStatusChanged(true);
-        try {
-          final uploadTasks = result.files.map((file) async {
-            if (file.bytes != null) {
-              final fileUrl = await uploadBytesDirect(file.bytes!, file.name);
-              return UploadedFileResult(fileName: file.name, fileUrl: fileUrl);
-            }
-            return UploadedFileResult(fileName: file.name, fileUrl: null);
-          }).toList();
+        final uploadTasks = result.files.map((file) async {
+          if (file.bytes != null && file.bytes!.isNotEmpty) {
+            final fileUrl = await uploadPlatformFile(file);
+            return UploadedFileResult(fileName: file.name, fileUrl: fileUrl);
+          }
+          return UploadedFileResult(fileName: file.name, fileUrl: null);
+        }).toList();
 
-          final results = await Future.wait(uploadTasks);
-          onComplete(results);
-        } catch (_) {
-          onComplete([]);
-        } finally {
-          onUploadStatusChanged(false);
-        }
+        final results = await Future.wait(uploadTasks);
+        onUploadStatusChanged(false);
+        onComplete(results);
+        return;
       }
-    });
+    } catch (e) {
+      debugPrint('Error picking photos: $e');
+      onUploadStatusChanged(false);
+    }
   }
 
-  /// Pick Profile Document synchronously on Web & Native
-  static void pickProfileDocument({
+  /// Pick Profile Document using FilePicker withData: true & uploadBinary
+  static Future<void> pickProfileDocument({
     required Function(bool isUploading) onUploadStatusChanged,
     required Function(UploadedFileResult result) onComplete,
-  }) {
-    if (kIsWeb) {
-      try {
-        final html.FileUploadInputElement uploadInput = html.FileUploadInputElement()
-          ..accept = '.pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-          ..multiple = false
-          ..style.display = 'none';
+  }) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'txt', 'rtf'],
+        withData: true,
+      );
 
-        html.document.body?.children.add(uploadInput);
-
-        uploadInput.onChange.listen((e) async {
-          final files = uploadInput.files;
-          if (files != null && files.isNotEmpty) {
-            final file = files.first;
-            onUploadStatusChanged(true);
-            try {
-              final fileUrl = await uploadHtmlFile(file);
-              onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-            } catch (_) {
-              onComplete(UploadedFileResult(fileName: file.name, fileUrl: null));
-            } finally {
-              onUploadStatusChanged(false);
-              uploadInput.remove();
-            }
-          } else {
-            uploadInput.remove();
-          }
-        });
-
-        // Trigger synchronous click directly in user event tick
-        uploadInput.click();
-        return;
-      } catch (err) {
-        debugPrint('Web pick profile error: $err');
-      }
-    }
-
-    // Universal / Non-web fallback
-    FilePicker.platform.pickFiles(type: FileType.any, withData: true).then((result) async {
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        if (file.bytes != null) {
+        if (file.bytes != null && file.bytes!.isNotEmpty) {
           onUploadStatusChanged(true);
-          final fileUrl = await uploadBytesDirect(file.bytes!, file.name);
+          final fileUrl = await uploadPlatformFile(file);
           onUploadStatusChanged(false);
           onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-        } else {
-          onComplete(UploadedFileResult(fileName: file.name, fileUrl: null));
+          return;
         }
       }
-    });
+    } catch (e) {
+      debugPrint('Error picking profile: $e');
+      onUploadStatusChanged(false);
+    }
   }
 
   static String _getContentType(String filename) {

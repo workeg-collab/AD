@@ -22,7 +22,6 @@ class Navbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 768;
-    final isSmallMobile = screenWidth < 400;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final navTextColor = theme.textTheme.bodyMedium?.color;
@@ -171,9 +170,9 @@ class Navbar extends StatelessWidget {
                         );
                       },
                       icon: const Icon(Icons.language_rounded, size: 16, color: Color(0xFF10B981)),
-                      label: const Text(
-                        'فحص الدومين 🌐',
-                        style: TextStyle(color: Color(0xFF10B981), fontSize: 14, fontWeight: FontWeight.bold),
+                      label: Text(
+                        AppTranslations.tr('nav_domain_check'),
+                        style: const TextStyle(color: Color(0xFF10B981), fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -229,7 +228,7 @@ class Navbar extends StatelessWidget {
                     icon: Icon(Icons.chat_bubble_outline_rounded, size: isMobile ? 15 : 18),
                     label: Text(
                       isMobile
-                          ? (isSmallMobile ? 'طلب' : AppTranslations.tr('nav_order'))
+                          ? AppTranslations.tr('nav_order')
                           : AppTranslations.tr('whatsapp_btn_top'),
                       style: TextStyle(fontSize: isMobile ? 12 : 14),
                     ),

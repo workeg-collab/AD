@@ -484,7 +484,7 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'اختار اسم موقعك الآن 🌐',
+                      AppTranslations.tr('btn_choose_domain'),
                       style: TextStyle(
                         fontSize: isMobile ? 14.5 : 16,
                         fontWeight: FontWeight.w900,
@@ -499,9 +499,9 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
                         color: const Color(0xFFFDE68A),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Text(
-                        'مجاناً',
-                        style: TextStyle(
+                      child: Text(
+                        AppTranslations.tr('badge_free'),
+                        style: const TextStyle(
                           color: Color(0xFF78350F),
                           fontSize: 10,
                           fontWeight: FontWeight.w900,

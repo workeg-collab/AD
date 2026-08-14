@@ -84,7 +84,7 @@ class Footer extends StatelessWidget {
                           const Icon(Icons.chat_rounded, color: AppTheme.primaryDark, size: 18),
                           const SizedBox(width: 6),
                           Text(
-                            '00201093706027 (واتساب المبيعات)',
+                            '00201093706027 (${AppTranslations.tr('whatsapp_sales_label')})',
                             style: TextStyle(
                               color: textColor,
                               fontSize: isMobile ? 13 : 14,

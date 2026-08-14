@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_translations.dart';
-import '../utils/firebase_storage_helper.dart';
 import '../utils/order_notifier.dart';
 import '../utils/paytabs_helper.dart';
+import '../utils/supabase_storage_helper.dart';
 import '../utils/whatsapp_helper.dart';
 
 class OrderModal extends StatefulWidget {
@@ -77,7 +77,7 @@ class _OrderModalState extends State<OrderModal> {
   Future<void> _pickLogoFile() async {
     setState(() => _isUploadingLogo = true);
     try {
-      final result = await FirebaseStorageHelper.pickAndUploadLogo();
+      final result = await SupabaseStorageHelper.pickAndUploadLogo();
       if (mounted && result != null) {
         setState(() {
           _logoFile = result;
@@ -92,7 +92,7 @@ class _OrderModalState extends State<OrderModal> {
   Future<void> _pickPhotos() async {
     setState(() => _isUploadingPhotos = true);
     try {
-      final results = await FirebaseStorageHelper.pickAndUploadPhotos();
+      final results = await SupabaseStorageHelper.pickAndUploadPhotos();
       if (mounted && results.isNotEmpty) {
         setState(() {
           _photoFiles = results;
@@ -107,7 +107,7 @@ class _OrderModalState extends State<OrderModal> {
   Future<void> _pickProfileFile() async {
     setState(() => _isUploadingProfile = true);
     try {
-      final result = await FirebaseStorageHelper.pickAndUploadProfileDocument();
+      final result = await SupabaseStorageHelper.pickAndUploadProfileDocument();
       if (mounted && result != null) {
         setState(() {
           _profileFile = result;

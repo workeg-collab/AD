@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 // ignore: avoid_web_libraries_in_flutter, deprecated_member_use
@@ -17,54 +16,50 @@ class UploadedFileResult {
   String toString() => fileUrl != null ? fileUrl! : fileName;
 }
 
-class FirebaseStorageHelper {
-  static const String storageBucket = 'sa-pom.firebasestorage.app';
-  static const String altBucket = 'sa-pom.appspot.com';
+class SupabaseStorageHelper {
+  // Supabase Project Credentials
+  static String supabaseUrl = 'https://oagxnvhfltsrqpuzxryu.supabase.co';
+  static String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder';
+  static const String bucketName = 'orders';
 
-  /// Upload binary file to Firebase Storage via REST API and return direct public download URL
-  static Future<String?> uploadBytesToFirebase({
+  /// Configure credentials dynamically if needed
+  static void setCredentials({required String url, required String anonKey}) {
+    supabaseUrl = url.trim().replaceAll(RegExp(r'/+$'), '');
+    supabaseAnonKey = anonKey.trim();
+  }
+
+  /// Upload file bytes directly to Supabase Storage and return public URL
+  static Future<String?> uploadBytes({
     required Uint8List bytes,
     required String fileName,
     required String contentType,
   }) async {
-    final cleanFileName = fileName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
-    final uniquePath = 'orders/${DateTime.now().millisecondsSinceEpoch}_$cleanFileName';
+    try {
+      final cleanFileName = fileName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+      final uniquePath = '${DateTime.now().millisecondsSinceEpoch}_$cleanFileName';
 
-    // Try primary bucket, then alternative bucket
-    final buckets = [storageBucket, altBucket];
+      final uploadUri = Uri.parse('$supabaseUrl/storage/v1/object/$bucketName/$uniquePath');
 
-    for (final bucket in buckets) {
-      try {
-        final uploadUrl = Uri.parse(
-          'https://firebasestorage.googleapis.com/v0/b/$bucket/o?uploadType=media&name=${Uri.encodeComponent(uniquePath)}',
-        );
+      final response = await http.post(
+        uploadUri,
+        headers: {
+          'apikey': supabaseAnonKey,
+          'Authorization': 'Bearer $supabaseAnonKey',
+          'Content-Type': contentType.isNotEmpty ? contentType : 'application/octet-stream',
+          'x-upsert': 'true',
+        },
+        body: bytes,
+      ).timeout(const Duration(seconds: 25));
 
-        final response = await http.post(
-          uploadUrl,
-          headers: {
-            'Content-Type': contentType.isNotEmpty ? contentType : 'application/octet-stream',
-          },
-          body: bytes,
-        ).timeout(const Duration(seconds: 25));
-
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          final name = data['name'] as String?;
-          final token = data['downloadTokens'] as String?;
-
-          if (name != null) {
-            final directUrl =
-                'https://firebasestorage.googleapis.com/v0/b/$bucket/o/${Uri.encodeComponent(name)}?alt=media${token != null && token.isNotEmpty ? "&token=$token" : ""}';
-            return directUrl;
-          }
-        }
-      } catch (_) {}
-    }
-
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final publicUrl = '$supabaseUrl/storage/v1/object/public/$bucketName/$uniquePath';
+        return publicUrl;
+      }
+    } catch (_) {}
     return null;
   }
 
-  /// Pick and upload a single image (Logo) to Firebase Storage
+  /// Pick and upload a single image (Logo)
   static Future<UploadedFileResult?> pickAndUploadLogo({
     String accept = 'image/*',
   }) async {
@@ -86,7 +81,7 @@ class FirebaseStorageHelper {
             reader.onLoadEnd.listen((e) async {
               try {
                 final bytes = (reader.result as ByteBuffer).asUint8List();
-                final fileUrl = await uploadBytesToFirebase(
+                final fileUrl = await uploadBytes(
                   bytes: bytes,
                   fileName: file.name,
                   contentType: file.type.isNotEmpty ? file.type : 'image/png',
@@ -116,7 +111,7 @@ class FirebaseStorageHelper {
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         if (file.bytes != null) {
-          final fileUrl = await uploadBytesToFirebase(
+          final fileUrl = await uploadBytes(
             bytes: file.bytes!,
             fileName: file.name,
             contentType: 'image/png',
@@ -130,7 +125,7 @@ class FirebaseStorageHelper {
     return null;
   }
 
-  /// Pick and upload multiple images (Activity / Product Photos) to Firebase Storage
+  /// Pick and upload multiple images (Activity / Product Photos)
   static Future<List<UploadedFileResult>> pickAndUploadPhotos() async {
     if (kIsWeb) {
       try {
@@ -153,7 +148,7 @@ class FirebaseStorageHelper {
               reader.onLoadEnd.listen((e) async {
                 try {
                   final bytes = (reader.result as ByteBuffer).asUint8List();
-                  final fileUrl = await uploadBytesToFirebase(
+                  final fileUrl = await uploadBytes(
                     bytes: bytes,
                     fileName: file.name,
                     contentType: file.type.isNotEmpty ? file.type : 'image/jpeg',
@@ -191,7 +186,7 @@ class FirebaseStorageHelper {
         final List<UploadedFileResult> results = [];
         for (final file in result.files) {
           if (file.bytes != null) {
-            final fileUrl = await uploadBytesToFirebase(
+            final fileUrl = await uploadBytes(
               bytes: file.bytes!,
               fileName: file.name,
               contentType: 'image/jpeg',
@@ -208,7 +203,7 @@ class FirebaseStorageHelper {
     return [];
   }
 
-  /// Pick and upload company profile document (PDF, Word, PPT) to Firebase Storage
+  /// Pick and upload company profile document (PDF, Word, PPT)
   static Future<UploadedFileResult?> pickAndUploadProfileDocument() async {
     if (kIsWeb) {
       try {
@@ -228,7 +223,7 @@ class FirebaseStorageHelper {
             reader.onLoadEnd.listen((e) async {
               try {
                 final bytes = (reader.result as ByteBuffer).asUint8List();
-                final fileUrl = await uploadBytesToFirebase(
+                final fileUrl = await uploadBytes(
                   bytes: bytes,
                   fileName: file.name,
                   contentType: file.type.isNotEmpty ? file.type : 'application/pdf',
@@ -259,7 +254,7 @@ class FirebaseStorageHelper {
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         if (file.bytes != null) {
-          final fileUrl = await uploadBytesToFirebase(
+          final fileUrl = await uploadBytes(
             bytes: file.bytes!,
             fileName: file.name,
             contentType: 'application/pdf',

@@ -18,15 +18,10 @@ class UploadedFileResult {
 
 class SupabaseStorageHelper {
   // Supabase Project Credentials
-  static String supabaseUrl = 'https://oagxnvhfltsrqpuzxryu.supabase.co';
-  static String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.placeholder';
+  static const String supabaseUrl = 'https://spvlwhdtpnfuenwrfayv.supabase.co';
+  static const String supabaseAnonKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmx3aGR0cG5mdWVud3JmYXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MTgwNjMsImV4cCI6MjEwMjI5NDA2M30.1jc8ahuejtrfIRMTOFO-aVYMwOd7einjtUQdou2kNBY';
   static const String bucketName = 'orders';
-
-  /// Configure credentials dynamically if needed
-  static void setCredentials({required String url, required String anonKey}) {
-    supabaseUrl = url.trim().replaceAll(RegExp(r'/+$'), '');
-    supabaseAnonKey = anonKey.trim();
-  }
 
   /// Upload file bytes directly to Supabase Storage and return public URL
   static Future<String?> uploadBytes({

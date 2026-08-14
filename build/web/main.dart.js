@@ -86589,14 +86589,16 @@ bC(){this.cB()
 this.co()
 this.hk()}}
 A.JJ.prototype={
-K(a){var s,r,q,p,o=null,n=A.V(a),m=n.ax.a===B.V,l=n.ok.y,k=l==null?o:l.b
-l=m?B.ns:B.dE
-s=m?B.bW:B.i
+K(a){var s,r,q,p,o,n,m=null,l=A.V(a),k=l.ax.a===B.V,j=l.ok.y,i=j==null?m:j.b
+j=k?B.ns:B.dE
+s=k?B.bW:B.i
 r=A.aU(10)
 q=A.c_(B.T.ba(0.4),1)
-p=t.p
-r=A.bc(A.b([A.bc(A.b([A.aH(o,A.a_5(A.aU(6),A.aym("assets/images/xxx.png",new A.a2F(),B.mL,32),B.bV),B.l,o,o,new A.ax(s,o,q,r,o,o,B.u),o,40,o,B.o5,o,o,o),B.dl,A.ag("POM Agency | SA Web Solutions",o,o,o,A.aG(o,o,k,o,o,o,o,o,o,o,o,16,o,o,B.r,o,o,!0,o,o,o,o,o,o,o,o),o,o)],p),B.n,B.x,B.o,0,o),A.oU(!1,o,!0,A.bc(A.b([B.Iu,B.e8,A.ag("00201093706027 (\u0648\u0627\u062a\u0633\u0627\u0628 \u0627\u0644\u0645\u0628\u064a\u0639\u0627\u062a)",o,o,o,A.aG(o,o,k,o,o,o,o,o,o,o,o,14,o,o,B.bK,o,o,!0,o,o,o,o,o,o,o,o),o,o)],p),B.n,B.x,B.o,0,o),o,!0,o,o,o,o,o,o,o,o,new A.a2G(),o,o,o,o,o,o)],p),B.n,B.bz,B.o,0,o)
-return A.aH(o,A.dO(A.aH(o,A.bI(A.b([r,B.cI,A.atm(m?B.bc:B.bd),B.cI,A.ag(A.b8("footer_sub"),o,o,o,B.Am,B.bi,o),B.fC,B.Y7],p),B.n,B.o),B.l,o,B.er,o,o,o,o,o,o,o,o),o,o),B.l,l,o,o,o,o,o,B.GP,o,o,o)}}
+p=A.aU(6)
+o=k?"assets/images/xxx.png":"assets/images/xxx_dark.png"
+n=t.p
+r=A.bc(A.b([A.bc(A.b([A.aH(m,A.a_5(p,A.aym(o,new A.a2F(),B.mL,32),B.bV),B.l,m,m,new A.ax(s,m,q,r,m,m,B.u),m,40,m,B.o5,m,m,m),B.dl,A.ag("POM Agency | SA Web Solutions",m,m,m,A.aG(m,m,i,m,m,m,m,m,m,m,m,16,m,m,B.r,m,m,!0,m,m,m,m,m,m,m,m),m,m)],n),B.n,B.x,B.o,0,m),A.oU(!1,m,!0,A.bc(A.b([B.Iu,B.e8,A.ag("00201093706027 (\u0648\u0627\u062a\u0633\u0627\u0628 \u0627\u0644\u0645\u0628\u064a\u0639\u0627\u062a)",m,m,m,A.aG(m,m,i,m,m,m,m,m,m,m,m,14,m,m,B.bK,m,m,!0,m,m,m,m,m,m,m,m),m,m)],n),B.n,B.x,B.o,0,m),m,!0,m,m,m,m,m,m,m,m,new A.a2G(),m,m,m,m,m,m)],n),B.n,B.bz,B.o,0,m)
+return A.aH(m,A.dO(A.aH(m,A.bI(A.b([r,B.cI,A.atm(k?B.bc:B.bd),B.cI,A.ag(A.b8("footer_sub"),m,m,m,B.Am,B.bi,m),B.fC,B.Y7],n),B.n,B.o),B.l,m,B.er,m,m,m,m,m,m,m,m),m,m),B.l,j,m,m,m,m,m,B.GP,m,m,m)}}
 A.a2F.prototype={
 $3(a,b,c){return B.Is},
 $S:204}
@@ -86718,16 +86720,18 @@ r=i?A.b([],r):A.b([new A.b9(1,B.C,B.m.ba(0.04),B.f,10)],r)
 q=i?B.bW:B.dE
 p=A.aU(12)
 o=A.c_(B.T.ba(0.4),1.5)
-p=A.aH(l,A.a_5(A.aU(8),A.aym("assets/images/xxx.png",new A.a8j(),B.mL,40),B.bV),B.l,l,l,new A.ax(q,l,o,p,l,l,B.u),l,48,l,B.GX,l,l,l)
+n=A.aU(8)
+m=i?"assets/images/xxx.png":"assets/images/xxx_dark.png"
+p=A.aH(l,A.a_5(n,A.aym(m,new A.a8j(),B.mL,40),B.bV),B.l,l,l,new A.ax(q,l,o,p,l,l,B.u),l,48,l,B.GX,l,l,l)
 o=B.b1.ba(0.15)
 q=A.aU(20)
-n=t.p
-q=A.b([A.bc(A.b([p,B.fB,A.bI(A.b([A.bc(A.b([B.Y9,B.aG,A.aH(l,B.XZ,B.l,l,l,new A.ax(o,l,A.c_(B.b1,1),q,l,l,B.u),l,l,l,B.H_,l,l,l)],n),B.n,B.x,B.o,0,l),B.Y3],n),B.a8,B.aV)],n),B.n,B.x,B.o,0,l)],n)
-if(!k)q.push(A.bc(A.b([A.O5(A.ag(A.b8("nav_features"),l,l,l,A.aG(l,l,g,l,l,l,l,l,l,l,l,15,l,l,l,l,l,!0,l,l,l,l,l,l,l,l),l,l),this.e,l),B.lM,A.O5(A.ag(A.b8("nav_demos"),l,l,l,A.aG(l,l,g,l,l,l,l,l,l,l,l,15,l,l,l,l,l,!0,l,l,l,l,l,l,l,l),l,l),this.d,l),B.lM,A.O5(A.ag(A.b8("nav_pricing"),l,l,l,B.Xs,l,l),this.c,l)],n),B.n,B.x,B.o,0,l))
+m=t.p
+q=A.b([A.bc(A.b([p,B.fB,A.bI(A.b([A.bc(A.b([B.Y9,B.aG,A.aH(l,B.XZ,B.l,l,l,new A.ax(o,l,A.c_(B.b1,1),q,l,l,B.u),l,l,l,B.H_,l,l,l)],m),B.n,B.x,B.o,0,l),B.Y3],m),B.a8,B.aV)],m),B.n,B.x,B.o,0,l)],m)
+if(!k)q.push(A.bc(A.b([A.O5(A.ag(A.b8("nav_features"),l,l,l,A.aG(l,l,g,l,l,l,l,l,l,l,l,15,l,l,l,l,l,!0,l,l,l,l,l,l,l,l),l,l),this.e,l),B.lM,A.O5(A.ag(A.b8("nav_demos"),l,l,l,A.aG(l,l,g,l,l,l,l,l,l,l,l,15,l,l,l,l,l,!0,l,l,l,l,l,l,l,l),l,l),this.d,l),B.lM,A.O5(A.ag(A.b8("nav_pricing"),l,l,l,B.Xs,l,l),this.c,l)],m),B.n,B.x,B.o,0,l))
 p=A.ag7(new A.a8k(),$.asO(),t.jm)
 o=A.ag(k?A.b8("nav_order"):A.b8("whatsapp_btn_top"),l,l,l,l,l,l)
-m=k?14:20
-q.push(A.bc(A.b([B.Jh,B.aG,p,B.dl,A.atr(B.Ix,o,new A.a8l(),A.os(l,l,l,l,l,l,l,l,l,l,l,l,new A.a6(m,14,m,14),l,l,l,l,l,l,l))],n),B.n,B.x,B.o,0,l))
+n=k?14:20
+q.push(A.bc(A.b([B.Jh,B.aG,p,B.dl,A.atr(B.Ix,o,new A.a8l(),A.os(l,l,l,l,l,l,l,l,l,l,l,l,new A.a6(n,14,n,14),l,l,l,l,l,l,l))],m),B.n,B.x,B.o,0,l))
 return A.aH(l,A.dO(A.aH(l,A.bc(q,B.n,B.bz,B.o,0,l),B.l,l,B.er,l,l,l,l,l,l,l,l),l,l),B.l,l,l,new A.ax(h,l,new A.d5(B.q,B.q,new A.aB(s,1,B.t,-1),B.q),l,r,l,B.u),l,l,l,B.GN,l,l,l)}}
 A.a8j.prototype={
 $3(a,b,c){return B.Ir},

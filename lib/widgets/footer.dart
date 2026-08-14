@@ -37,7 +37,7 @@ class Footer extends StatelessWidget {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
                           child: Image.asset(
-                            'assets/images/xxx.png',
+                            isDark ? 'assets/images/xxx.png' : 'assets/images/xxx_dark.png',
                             height: 32,
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) {

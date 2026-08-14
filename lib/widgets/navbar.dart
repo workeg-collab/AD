@@ -64,7 +64,7 @@ class Navbar extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.asset(
-                        'assets/images/xxx.png',
+                        isDark ? 'assets/images/xxx.png' : 'assets/images/xxx_dark.png',
                         height: 40,
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {

@@ -1,9 +1,9 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_translations.dart';
 import '../utils/order_notifier.dart';
 import '../utils/paytabs_helper.dart';
+import '../utils/web_file_picker.dart';
 import '../utils/whatsapp_helper.dart';
 
 class OrderModal extends StatefulWidget {
@@ -72,13 +72,13 @@ class _OrderModalState extends State<OrderModal> {
   // Pick Logo File
   Future<void> _pickLogoFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
+      final fileName = await WebFilePicker.pickSingleFile(
+        accept: 'image/*,.svg,.pdf,.ai,.eps',
         allowedExtensions: ['png', 'jpg', 'jpeg', 'svg', 'pdf', 'ai', 'eps'],
       );
-      if (result != null && result.files.isNotEmpty) {
+      if (fileName != null && fileName.isNotEmpty) {
         setState(() {
-          _logoFileName = result.files.first.name;
+          _logoFileName = fileName;
         });
       }
     } catch (_) {}
@@ -87,13 +87,10 @@ class _OrderModalState extends State<OrderModal> {
   // Pick Photos
   Future<void> _pickPhotos() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-        type: FileType.image,
-      );
-      if (result != null && result.files.isNotEmpty) {
+      final fileNames = await WebFilePicker.pickMultipleImages();
+      if (fileNames.isNotEmpty) {
         setState(() {
-          _photoFileNames = result.files.map((f) => f.name).toList();
+          _photoFileNames = fileNames;
         });
       }
     } catch (_) {}
@@ -102,13 +99,10 @@ class _OrderModalState extends State<OrderModal> {
   // Pick Company Profile File
   Future<void> _pickProfileFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
-      );
-      if (result != null && result.files.isNotEmpty) {
+      final fileName = await WebFilePicker.pickProfileDocument();
+      if (fileName != null && fileName.isNotEmpty) {
         setState(() {
-          _profileFileName = result.files.first.name;
+          _profileFileName = fileName;
         });
       }
     } catch (_) {}
@@ -197,11 +191,17 @@ class _OrderModalState extends State<OrderModal> {
         setState(() => _isProcessing = false);
         Navigator.of(context).pop();
 
-        // 3. Open WhatsApp chat with order summary AND direct PayTabs payment link
+        // 3. Open WhatsApp chat with full order summary, attachments & direct PayTabs payment link
         await WhatsAppHelper.launchWhatsApp(
           businessName: name,
           category: _selectedCategory,
           domainChoice: domain,
+          logoInfo: logoInfo,
+          photosInfo: photosInfo,
+          profileInfo: profileInfo,
+          aboutContent: aboutContent,
+          contactInfo: contactInfo,
+          notes: notes,
           paymentUrl: paymentUrl,
         );
       }
@@ -213,6 +213,12 @@ class _OrderModalState extends State<OrderModal> {
           businessName: name,
           category: _selectedCategory,
           domainChoice: domain,
+          logoInfo: logoInfo,
+          photosInfo: photosInfo,
+          profileInfo: profileInfo,
+          aboutContent: aboutContent,
+          contactInfo: contactInfo,
+          notes: notes,
         );
       }
     }
@@ -899,56 +905,75 @@ class _OrderModalState extends State<OrderModal> {
     required VoidCallback onClear,
     required bool isDark,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isDark ? AppTheme.cardDark : Colors.grey.shade50,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isSelected ? null : onPick,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isSelected ? const Color(0xFF10B981) : (isDark ? AppTheme.borderDark : AppTheme.borderLight),
-          width: isSelected ? 1.5 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: isDark ? AppTheme.cardDark : Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? const Color(0xFF10B981) : (isDark ? AppTheme.borderDark : AppTheme.borderLight),
+              width: isSelected ? 1.5 : 1.0,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isSelected ? Icons.check_circle_rounded : Icons.cloud_upload_rounded,
+                color: isSelected ? const Color(0xFF10B981) : AppTheme.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                    color: isSelected ? const Color(0xFF10B981) : textColor(isDark),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (isSelected)
+                IconButton(
+                  icon: const Icon(Icons.cancel_rounded, size: 20, color: Colors.redAccent),
+                  onPressed: onClear,
+                  tooltip: 'إلغاء الملف',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.folder_open_rounded, size: 14, color: AppTheme.primary),
+                      SizedBox(width: 4),
+                      Text(
+                        'اختيار ملف',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isSelected ? Icons.check_circle_rounded : Icons.attach_file_rounded,
-            color: isSelected ? const Color(0xFF10B981) : AppTheme.textMuted,
-            size: 18,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? const Color(0xFF10B981) : AppTheme.textMuted,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (isSelected)
-            IconButton(
-              icon: const Icon(Icons.close_rounded, size: 16, color: Colors.red),
-              onPressed: onClear,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            )
-          else
-            TextButton(
-              onPressed: onPick,
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text('اختيار ملف', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-            ),
-        ],
       ),
     );
   }
+
+  Color textColor(bool isDark) => isDark ? Colors.white70 : Colors.black87;
 
   InputDecoration _buildInputDecoration({
     required String hint,

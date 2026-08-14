@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 // ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
@@ -23,7 +22,49 @@ class SupabaseStorageHelper {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmx3aGR0cG5mdWVud3JmYXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MTgwNjMsImV4cCI6MjEwMjI5NDA2M30.1jc8ahuejtrfIRMTOFO-aVYMwOd7einjtUQdou2kNBY';
   static const String bucketName = 'orders';
 
-  /// Upload file bytes directly to Supabase Storage and return public URL
+  /// Upload native browser File directly to Supabase Storage
+  static Future<String?> uploadHtmlFile({
+    required html.File file,
+    required String contentType,
+  }) async {
+    try {
+      final cleanFileName = file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+      final uniquePath = '${DateTime.now().millisecondsSinceEpoch}_$cleanFileName';
+      final uploadUri = '$supabaseUrl/storage/v1/object/$bucketName/$uniquePath';
+
+      final request = html.HttpRequest();
+      final completer = Completer<String?>();
+
+      request.open('POST', uploadUri);
+      request.setRequestHeader('apikey', supabaseAnonKey);
+      request.setRequestHeader('Authorization', 'Bearer $supabaseAnonKey');
+      request.setRequestHeader(
+        'Content-Type',
+        contentType.isNotEmpty ? contentType : 'application/octet-stream',
+      );
+
+      request.onLoad.listen((event) {
+        if (request.status == 200 || request.status == 201) {
+          final publicUrl = '$supabaseUrl/storage/v1/object/public/$bucketName/$uniquePath';
+          completer.complete(publicUrl);
+        } else {
+          completer.complete(null);
+        }
+      });
+
+      request.onError.listen((_) => completer.complete(null));
+      request.send(file);
+
+      return await completer.future.timeout(
+        const Duration(seconds: 30),
+        onTimeout: () => null,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Upload bytes fallback via http package
   static Future<String?> uploadBytes({
     required Uint8List bytes,
     required String fileName,
@@ -32,7 +73,6 @@ class SupabaseStorageHelper {
     try {
       final cleanFileName = fileName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
       final uniquePath = '${DateTime.now().millisecondsSinceEpoch}_$cleanFileName';
-
       final uploadUri = Uri.parse('$supabaseUrl/storage/v1/object/$bucketName/$uniquePath');
 
       final response = await http.post(
@@ -41,7 +81,6 @@ class SupabaseStorageHelper {
           'apikey': supabaseAnonKey,
           'Authorization': 'Bearer $supabaseAnonKey',
           'Content-Type': contentType.isNotEmpty ? contentType : 'application/octet-stream',
-          'x-upsert': 'true',
         },
         body: bytes,
       ).timeout(const Duration(seconds: 25));
@@ -67,25 +106,19 @@ class SupabaseStorageHelper {
 
         input.click();
 
-        input.onChange.listen((event) {
+        input.onChange.listen((event) async {
           final files = input.files;
           if (files != null && files.isNotEmpty) {
             final file = files.first;
-            final reader = html.FileReader();
-            reader.readAsArrayBuffer(file);
-            reader.onLoadEnd.listen((e) async {
-              try {
-                final bytes = (reader.result as ByteBuffer).asUint8List();
-                final fileUrl = await uploadBytes(
-                  bytes: bytes,
-                  fileName: file.name,
-                  contentType: file.type.isNotEmpty ? file.type : 'image/png',
-                );
-                completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-              } catch (_) {
-                completer.complete(UploadedFileResult(fileName: file.name));
-              }
-            });
+            try {
+              final fileUrl = await uploadHtmlFile(
+                file: file,
+                contentType: file.type.isNotEmpty ? file.type : 'image/png',
+              );
+              completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+            } catch (_) {
+              completer.complete(UploadedFileResult(fileName: file.name));
+            }
           } else {
             completer.complete(null);
           }
@@ -131,34 +164,22 @@ class SupabaseStorageHelper {
 
         input.click();
 
-        input.onChange.listen((event) {
+        input.onChange.listen((event) async {
           final files = input.files;
           if (files != null && files.isNotEmpty) {
             final List<UploadedFileResult> results = [];
-            int processed = 0;
-
             for (final file in files) {
-              final reader = html.FileReader();
-              reader.readAsArrayBuffer(file);
-              reader.onLoadEnd.listen((e) async {
-                try {
-                  final bytes = (reader.result as ByteBuffer).asUint8List();
-                  final fileUrl = await uploadBytes(
-                    bytes: bytes,
-                    fileName: file.name,
-                    contentType: file.type.isNotEmpty ? file.type : 'image/jpeg',
-                  );
-                  results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-                } catch (_) {
-                  results.add(UploadedFileResult(fileName: file.name));
-                }
-
-                processed++;
-                if (processed == files.length) {
-                  completer.complete(results);
-                }
-              });
+              try {
+                final fileUrl = await uploadHtmlFile(
+                  file: file,
+                  contentType: file.type.isNotEmpty ? file.type : 'image/jpeg',
+                );
+                results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+              } catch (_) {
+                results.add(UploadedFileResult(fileName: file.name));
+              }
             }
+            completer.complete(results);
           } else {
             completer.complete([]);
           }
@@ -209,25 +230,19 @@ class SupabaseStorageHelper {
 
         input.click();
 
-        input.onChange.listen((event) {
+        input.onChange.listen((event) async {
           final files = input.files;
           if (files != null && files.isNotEmpty) {
             final file = files.first;
-            final reader = html.FileReader();
-            reader.readAsArrayBuffer(file);
-            reader.onLoadEnd.listen((e) async {
-              try {
-                final bytes = (reader.result as ByteBuffer).asUint8List();
-                final fileUrl = await uploadBytes(
-                  bytes: bytes,
-                  fileName: file.name,
-                  contentType: file.type.isNotEmpty ? file.type : 'application/pdf',
-                );
-                completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-              } catch (_) {
-                completer.complete(UploadedFileResult(fileName: file.name));
-              }
-            });
+            try {
+              final fileUrl = await uploadHtmlFile(
+                file: file,
+                contentType: file.type.isNotEmpty ? file.type : 'application/pdf',
+              );
+              completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+            } catch (_) {
+              completer.complete(UploadedFileResult(fileName: file.name));
+            }
           } else {
             completer.complete(null);
           }

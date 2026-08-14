@@ -36,7 +36,7 @@ class OrderNotifier {
 
     // 1. Try Vercel Serverless Function /api/notify
     try {
-      final serverlessUri = Uri.parse('/api/notify');
+      final serverlessUri = Uri.base.resolve('/api/notify');
       await http.post(
         serverlessUri,
         headers: {'Content-Type': 'application/json'},

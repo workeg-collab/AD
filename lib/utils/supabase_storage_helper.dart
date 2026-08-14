@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 // ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
@@ -44,77 +45,47 @@ class SupabaseStorageHelper {
     return '${timestamp}_${randomSuffix}_$shortBase$ext';
   }
 
-  /// Read an html.File as a Base64 data URL string reliably
-  static Future<String?> _readHtmlFileAsDataUrl(html.File file) {
-    final completer = Completer<String?>();
+  /// Read an html.File as Uint8List safely without type casting issues
+  static Future<Uint8List?> _readFileBytes(html.File file) {
+    final completer = Completer<Uint8List?>();
     final reader = html.FileReader();
     reader.onLoadEnd.listen((event) {
       if (reader.result != null) {
-        completer.complete(reader.result.toString());
+        try {
+          final dynamic result = reader.result;
+          if (result is Uint8List) {
+            completer.complete(result);
+          } else if (result is ByteBuffer) {
+            completer.complete(result.asUint8List());
+          } else if (result is List<int>) {
+            completer.complete(Uint8List.fromList(result));
+          } else {
+            completer.complete(null);
+          }
+        } catch (e) {
+          debugPrint('Error converting file bytes: $e');
+          completer.complete(null);
+        }
       } else {
         completer.complete(null);
       }
     });
-    reader.onError.listen((event) {
-      completer.complete(null);
-    });
-    reader.readAsDataUrl(file);
+    reader.onError.listen((event) => completer.complete(null));
+    reader.readAsArrayBuffer(file);
     return completer.future.timeout(const Duration(seconds: 40), onTimeout: () => null);
   }
 
-  /// Upload file to Supabase via the reliable Serverless Bridge (/api/supabase-upload)
-  static Future<String?> _uploadViaServerlessBridge(String base64Data, String fileName, String fileType) async {
-    try {
-      final response = await http
-          .post(
-            Uri.parse('/api/supabase-upload'),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'base64Data': base64Data,
-              'fileName': fileName,
-              'fileType': fileType,
-            }),
-          )
-          .timeout(const Duration(seconds: 40));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['success'] == true && data['fileUrl'] != null) {
-          final url = data['fileUrl'] as String;
-          debugPrint('✅ Upload via /api/supabase-upload SUCCESS: $url');
-          return url;
-        }
-      }
-      debugPrint('❌ Bridge status ${response.statusCode}: ${response.body}');
-    } catch (e) {
-      debugPrint('❌ Bridge upload error: $e');
-    }
-    return null;
-  }
-
-  /// Upload raw bytes directly to Supabase Storage endpoint (Universal fallback)
+  /// Upload raw bytes directly to Supabase Storage endpoint (Primary) with Serverless Fallback
   static Future<String?> uploadBytesDirect(Uint8List bytes, String originalFileName, {String? mimeType}) async {
+    final uniquePath = _generateUniquePath(originalFileName);
+    final uploadUri = Uri.parse('$supabaseUrl/storage/v1/object/$bucketName/$uniquePath');
+    final publicUrl = '$supabaseUrl/storage/v1/object/public/$bucketName/$uniquePath';
     final contentType = (mimeType != null && mimeType.isNotEmpty)
         ? mimeType
         : _getContentType(originalFileName);
 
-    // 1. Try Vercel Serverless Bridge if on Web
-    if (kIsWeb) {
-      try {
-        final base64String = base64Encode(bytes);
-        final bridgeUrl = await _uploadViaServerlessBridge(base64String, originalFileName, contentType);
-        if (bridgeUrl != null && bridgeUrl.isNotEmpty) {
-          return bridgeUrl;
-        }
-      } catch (_) {}
-    }
-
-    // 2. Direct Supabase Storage API call
+    // 1. Direct Supabase Storage Upload via HTTP POST (Handles up to 50MB)
     try {
-      final uniquePath = _generateUniquePath(originalFileName);
-      final uploadUri = Uri.parse('$supabaseUrl/storage/v1/object/$bucketName/$uniquePath');
-      final publicUrl = '$supabaseUrl/storage/v1/object/public/$bucketName/$uniquePath';
-
       final response = await http
           .post(
             uploadUri,
@@ -135,58 +106,52 @@ class SupabaseStorageHelper {
     } catch (e) {
       debugPrint('❌ Supabase Direct Bytes Exception: $e');
     }
+
+    // 2. Fallback to Serverless Bridge on Web
+    if (kIsWeb) {
+      try {
+        final base64String = base64Encode(bytes);
+        final bridgeUri = Uri.base.resolve('/api/supabase-upload');
+        final response = await http
+            .post(
+              bridgeUri,
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({
+                'base64Data': base64String,
+                'fileName': originalFileName,
+                'fileType': contentType,
+              }),
+            )
+            .timeout(const Duration(seconds: 40));
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['success'] == true && data['fileUrl'] != null) {
+            final url = data['fileUrl'] as String;
+            debugPrint('✅ Serverless Bridge Upload SUCCESS: $url');
+            return url;
+          }
+        }
+        debugPrint('❌ Bridge status ${response.statusCode}: ${response.body}');
+      } catch (e) {
+        debugPrint('❌ Bridge upload error: $e');
+      }
+    }
+
     return null;
   }
 
-  /// Upload browser native File directly with guaranteed fallback
+  /// Upload browser native File directly with guaranteed bytes streaming
   static Future<String?> uploadHtmlFileDirect(html.File file) async {
-    final contentType = file.type.isNotEmpty ? file.type : _getContentType(file.name);
-
-    // 1. Read file as Base64 Data URL (Highest reliability across all browsers & zero CORS issues)
     try {
-      final dataUrl = await _readHtmlFileAsDataUrl(file);
-      if (dataUrl != null && dataUrl.isNotEmpty) {
-        final bridgeUrl = await _uploadViaServerlessBridge(dataUrl, file.name, contentType);
-        if (bridgeUrl != null && bridgeUrl.isNotEmpty) {
-          return bridgeUrl;
-        }
+      final bytes = await _readFileBytes(file);
+      if (bytes != null && bytes.isNotEmpty) {
+        final mime = file.type.isNotEmpty ? file.type : _getContentType(file.name);
+        return await uploadBytesDirect(bytes, file.name, mimeType: mime);
       }
     } catch (e) {
-      debugPrint('Error reading file as data URL: $e');
+      debugPrint('uploadHtmlFileDirect error: $e');
     }
-
-    // 2. Direct Supabase Storage API fallback
-    try {
-      final uniquePath = _generateUniquePath(file.name);
-      final uploadUri = '$supabaseUrl/storage/v1/object/$bucketName/$uniquePath';
-      final publicUrl = '$supabaseUrl/storage/v1/object/public/$bucketName/$uniquePath';
-
-      final completer = Completer<String?>();
-      final request = html.HttpRequest();
-      request.open('POST', uploadUri, async: true);
-      request.setRequestHeader('apikey', supabaseAnonKey);
-      request.setRequestHeader('Authorization', 'Bearer $supabaseAnonKey');
-      request.setRequestHeader('Content-Type', contentType);
-
-      request.onLoad.listen((event) {
-        if (request.status == 200 || request.status == 201) {
-          debugPrint('✅ Supabase Direct Upload SUCCESS: $publicUrl');
-          completer.complete(publicUrl);
-        } else {
-          debugPrint('❌ Supabase Direct Upload Failed: ${request.status}');
-          completer.complete(null);
-        }
-      });
-
-      request.onError.listen((event) => completer.complete(null));
-      request.send(file);
-
-      final directUrl = await completer.future.timeout(const Duration(seconds: 40), onTimeout: () => null);
-      if (directUrl != null) return directUrl;
-    } catch (e) {
-      debugPrint('Direct upload exception: $e');
-    }
-
     return null;
   }
 

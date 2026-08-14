@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_translations.dart';
 import '../utils/domain_checker.dart';
 import 'order_modal.dart';
 
@@ -74,280 +75,290 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
 
-    return Dialog(
-      backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 12 : 24,
-        vertical: isMobile ? 16 : 24,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(
-          color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
-          width: 1.5,
-        ),
-      ),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 620, maxHeight: 720),
-        padding: EdgeInsets.all(isMobile ? 16 : 28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
+    return ValueListenableBuilder<AppLanguage>(
+      valueListenable: currentLanguageNotifier,
+      builder: (context, currentLang, child) {
+        return Directionality(
+          textDirection: currentLang.isRtl ? TextDirection.rtl : TextDirection.ltr,
+          child: Dialog(
+            backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
+            insetPadding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 12 : 24,
+              vertical: isMobile ? 16 : 24,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+              side: BorderSide(
+                color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+                width: 1.5,
+              ),
+            ),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 620, maxHeight: 720),
+              padding: EdgeInsets.all(isMobile ? 16 : 28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.language_rounded,
-                          color: AppTheme.primary,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
                           children: [
-                            Text(
-                              'فحص واختيار اسم موقعك (مجاناً) 🌐',
-                              style: TextStyle(
-                                fontSize: isMobile ? 14.5 : 18,
-                                fontWeight: FontWeight.w900,
-                                color: textColor,
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primary.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              overflow: TextOverflow.ellipsis,
+                              child: const Icon(
+                                Icons.language_rounded,
+                                color: AppTheme.primary,
+                                size: 20,
+                              ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'دومين خاص لعلامتك مشمول مجاناً بالسنة الأولى',
-                              style: TextStyle(
-                                fontSize: isMobile ? 11 : 12,
-                                color: AppTheme.textMuted,
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    AppTranslations.tr('domain_modal_title'),
+                                    style: TextStyle(
+                                      fontSize: isMobile ? 14.5 : 18,
+                                      fontWeight: FontWeight.w900,
+                                      color: textColor,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    AppTranslations.tr('domain_modal_sub'),
+                                    style: TextStyle(
+                                      fontSize: isMobile ? 11 : 12,
+                                      color: AppTheme.textMuted,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
                       ),
+                      IconButton(
+                        icon: const Icon(Icons.close_rounded, color: AppTheme.textMuted),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
                     ],
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded, color: AppTheme.textMuted),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-            // Search Bar
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: isDark ? AppTheme.cardDark : Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: TextField(
-                      controller: _controller,
-                      textDirection: TextDirection.ltr,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'اكتب اسم محلك أو نشاطك (مثال: riyadh-store)',
-                        hintTextDirection: TextDirection.rtl,
-                        hintStyle: const TextStyle(
-                          fontSize: 13,
-                          color: AppTheme.textMuted,
+                  // Search Bar
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: isDark ? AppTheme.cardDark : Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: TextField(
+                            controller: _controller,
+                            textDirection: TextDirection.ltr,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: AppTranslations.tr('domain_input_hint'),
+                              hintTextDirection: currentLang.isRtl ? TextDirection.rtl : TextDirection.ltr,
+                              hintStyle: const TextStyle(
+                                fontSize: 13,
+                                color: AppTheme.textMuted,
+                              ),
+                              prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.primary),
+                              suffixIcon: _controller.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear_rounded, size: 18),
+                                      onPressed: () {
+                                        _controller.clear();
+                                        setState(() {});
+                                      },
+                                    )
+                                  : null,
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            ),
+                            onSubmitted: (val) => _performSearch(val),
+                          ),
                         ),
-                        prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.primary),
-                        suffixIcon: _controller.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear_rounded, size: 18),
-                                onPressed: () {
-                                  _controller.clear();
-                                  setState(() {});
-                                },
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: _isLoading ? null : () => _performSearch(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primary,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
                               )
-                            : null,
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            : Text(
+                                AppTranslations.tr('domain_btn_search'),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 13.5,
+                                ),
+                              ),
                       ),
-                      onSubmitted: (val) => _performSearch(val),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Quick suggestions
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        Text(
+                          AppTranslations.tr('domain_quick_examples'),
+                          style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                        ),
+                        ..._quickSuggestions.map((sug) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: ActionChip(
+                              label: Text(
+                                sug,
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                              ),
+                              backgroundColor: isDark ? AppTheme.cardDark : Colors.grey.shade100,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              onPressed: () {
+                                _controller.text = sug;
+                                _performSearch(sug);
+                              },
+                            ),
+                          );
+                        }),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : () => _performSearch(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'فحص الآن 🔍',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        ),
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 12),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 8),
 
-            // Quick suggestions
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  const Text(
-                    'أمثلة سريعة: ',
-                    style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                  // Search Results or Placeholder
+                  Expanded(
+                    child: _isLoading
+                        ? Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const CircularProgressIndicator(color: AppTheme.primary),
+                                const SizedBox(height: 16),
+                                Text(
+                                  _searchedKeyword.isNotEmpty
+                                      ? '${AppTranslations.tr('domain_loading_text')} ($_searchedKeyword)'
+                                      : AppTranslations.tr('domain_loading_text'),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: AppTheme.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : _results == null
+                            ? Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primary.withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.travel_explore_rounded,
+                                        size: 48,
+                                        color: AppTheme.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Text(
+                                      AppTranslations.tr('domain_placeholder_title'),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: textColor,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      AppTranslations.tr('domain_placeholder_sub'),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: AppTheme.textMuted,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : _results!.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      AppTranslations.tr('domain_invalid_input'),
+                                      style: const TextStyle(color: AppTheme.textMuted),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    itemCount: _results!.length,
+                                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                                    itemBuilder: (context, index) {
+                                      final item = _results![index];
+                                      return _buildDomainResultCard(
+                                        context,
+                                        item,
+                                        isDark,
+                                        textColor,
+                                      );
+                                    },
+                                  ),
                   ),
-                  ..._quickSuggestions.map((sug) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: ActionChip(
-                        label: Text(
-                          sug,
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                        ),
-                        backgroundColor: isDark ? AppTheme.cardDark : Colors.grey.shade100,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        onPressed: () {
-                          _controller.text = sug;
-                          _performSearch(sug);
-                        },
-                      ),
-                    );
-                  }),
                 ],
               ),
             ),
-
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 8),
-
-            // Search Results or Placeholder
-            Expanded(
-              child: _isLoading
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const CircularProgressIndicator(color: AppTheme.primary),
-                          const SizedBox(height: 16),
-                          Text(
-                            'جاري الفحص المباشر لجميع الامتدادات المتاحة لـ "$_searchedKeyword"...',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppTheme.textMuted,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : _results == null
-                      ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.primary.withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.travel_explore_rounded,
-                                  size: 48,
-                                  color: AppTheme.primary,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              Text(
-                                'ابحث عن اسم موقعك وشاهد الامتدادات المتاحة فوراً',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: textColor,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              const Text(
-                                'جميع الدومينات المتاحة مشمولة مجاناً مع عرض الـ 299 ريال',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.textMuted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : _results!.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'يرجى إدخال اسم صحيح للبحث (حرفين أو أكثر بالإنجليزية أو العربية)',
-                                style: TextStyle(color: AppTheme.textMuted),
-                              ),
-                            )
-                          : ListView.separated(
-                              itemCount: _results!.length,
-                              separatorBuilder: (context, index) => const SizedBox(height: 8),
-                              itemBuilder: (context, index) {
-                                final item = _results![index];
-                                return _buildDomainResultCard(
-                                  context,
-                                  item,
-                                  isDark,
-                                  textColor,
-                                );
-                              },
-                            ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -376,7 +387,7 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Domain Name & Status Badge (NO PRICES DISPLAYED)
+          // Domain Name & Status Badge
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,9 +416,9 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: const Color(0xFF10B981), width: 1),
                         ),
-                        child: const Text(
-                          'شامل الباقة مجاناً 🎁',
-                          style: TextStyle(
+                        child: Text(
+                          AppTranslations.tr('domain_free_included_badge'),
+                          style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF10B981),
@@ -427,10 +438,10 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
                     const SizedBox(width: 4),
                     Text(
                       isAvail
-                          ? 'متاح للحجز الفوري (شامل الباقة) ✅'
+                          ? AppTranslations.tr('domain_available_text')
                           : (item.fullDomain.split('.').first.length <= 3
-                              ? 'غير متاح بالباقة (اسم قصير بريميوم) ❌'
-                              : 'محجوز مسبقاً وغير متاح ❌'),
+                              ? AppTranslations.tr('domain_short_premium_text')
+                              : AppTranslations.tr('domain_taken_text')),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -448,7 +459,7 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
             ElevatedButton.icon(
               onPressed: () => _selectDomainAndOrder(item.fullDomain),
               icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-              label: const Text('اختيار وطلب 🚀'),
+              label: Text(AppTranslations.tr('domain_select_and_order_btn')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF10B981),
                 foregroundColor: Colors.white,
@@ -460,9 +471,9 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
               ),
             )
           else
-            const Text(
-              'غير متاح',
-              style: TextStyle(
+            Text(
+              AppTranslations.tr('domain_unavailable_text'),
+              style: const TextStyle(
                 fontSize: 12,
                 color: AppTheme.textMuted,
                 fontWeight: FontWeight.w600,

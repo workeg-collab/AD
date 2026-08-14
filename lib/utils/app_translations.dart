@@ -245,6 +245,23 @@ class AppTranslations {
       'lbl_notes': 'ملاحظات أو نوع النشاط (اختياري)',
       'btn_submit_order': 'تأكيد الطلب عبر الواتساب 💬',
 
+      // Domain Search Modal
+      'domain_modal_title': 'فحص واختيار اسم موقعك (مجاناً) 🌐',
+      'domain_modal_sub': 'دومين خاص لعلامتك مشمول مجاناً بالسنة الأولى',
+      'domain_input_hint': 'اكتب اسم محلك أو نشاطك (مثال: riyadh-store)',
+      'domain_btn_search': 'فحص الآن 🔍',
+      'domain_quick_examples': 'أمثلة سريعة: ',
+      'domain_loading_text': 'جاري الفحص المباشر لجميع الامتدادات المتاحة...',
+      'domain_placeholder_title': 'ابحث عن اسم موقعك وشاهد الامتدادات المتاحة فوراً',
+      'domain_placeholder_sub': 'جميع الدومينات المتاحة مشمولة مجاناً مع عرض الـ 299 ريال',
+      'domain_invalid_input': 'يرجى إدخال اسم صحيح للبحث (حرفين أو أكثر)',
+      'domain_free_included_badge': 'شامل الباقة مجاناً 🎁',
+      'domain_available_text': 'متاح للحجز الفوري (شامل الباقة) ✅',
+      'domain_short_premium_text': 'غير متاح بالباقة (اسم قصير بريميوم) ❌',
+      'domain_taken_text': 'محجوز مسبقاً وغير متاح ❌',
+      'domain_select_and_order_btn': 'اختيار وطلب 🚀',
+      'domain_unavailable_text': 'غير متاح',
+
       // Footer
       'footer_sub': '🇸🇦 خدمة خاصة ومخصصة لشركات ومحلات المملكة العربية السعودية | إحدى خدمات POM Agency',
     },
@@ -463,6 +480,23 @@ class AppTranslations {
       'lbl_notes': 'Notes or Business Type (Optional)',
       'btn_submit_order': 'Confirm Order via WhatsApp 💬',
 
+      // Domain Search Modal
+      'domain_modal_title': 'Search & Choose Your Domain (Free) 🌐',
+      'domain_modal_sub': 'Custom domain for your brand included free for the 1st year',
+      'domain_input_hint': 'Enter your brand or store name (e.g. riyadh-store)',
+      'domain_btn_search': 'Search Now 🔍',
+      'domain_quick_examples': 'Quick examples: ',
+      'domain_loading_text': 'Searching live availability for all extensions...',
+      'domain_placeholder_title': 'Search for your domain and see live extensions',
+      'domain_placeholder_sub': 'All available domains are included free with the 299 SAR package',
+      'domain_invalid_input': 'Please enter a valid search name (2 or more characters)',
+      'domain_free_included_badge': 'Included Free 🎁',
+      'domain_available_text': 'Available for instant booking (Included) ✅',
+      'domain_short_premium_text': 'Not included (Short premium name) ❌',
+      'domain_taken_text': 'Already taken and unavailable ❌',
+      'domain_select_and_order_btn': 'Select & Order 🚀',
+      'domain_unavailable_text': 'Unavailable',
+
       // Footer
       'footer_sub': '🇸🇦 Dedicated web service for Saudi Arabian businesses & stores | A POM Agency service',
     },
@@ -544,6 +578,23 @@ class AppTranslations {
       'lbl_phone': 'WhatsApp Numarası (Teslimat için)',
       'lbl_notes': 'Notlar veya Sektör Türü (İsteğe Bağlı)',
       'btn_submit_order': 'Siparişi WhatsApp Üzerinden Onayla 💬',
+
+      // Domain Search Modal
+      'domain_modal_title': 'Alan Adınızı Arayın ve Seçin (Ücretsiz) 🌐',
+      'domain_modal_sub': 'Markanız için özel alan adı 1. yıl ücretsiz dahildir',
+      'domain_input_hint': 'Mağaza veya marka adınızı yazın (örn: riyadh-store)',
+      'domain_btn_search': 'Şimdi Ara 🔍',
+      'domain_quick_examples': 'Hızlı örnekler: ',
+      'domain_loading_text': 'Tüm uzantılar için anlık durum sorgulanıyor...',
+      'domain_placeholder_title': 'Alan adınızı arayın ve uygun uzantıları anında görün',
+      'domain_placeholder_sub': 'Uygun tüm alan adları 299 SAR paketine ücretsiz dahildir',
+      'domain_invalid_input': 'Lütfen geçerli bir ad girin (2 veya daha fazla karakter)',
+      'domain_free_included_badge': 'Pakete Dahil 🎁',
+      'domain_available_text': 'Hemen kayda uygun (Pakete Dahil) ✅',
+      'domain_short_premium_text': 'Paket dışı (Kısa premium ad) ❌',
+      'domain_taken_text': 'Daha önceden alınmış ❌',
+      'domain_select_and_order_btn': 'Seç ve Sipariş Et 🚀',
+      'domain_unavailable_text': 'Kullanılamaz',
       'footer_sub': '🇸🇦 Suudi Arabistan işletmelerine özel web hizmeti | POM Agency hizmeti',
     },
     'fr': {
@@ -624,6 +675,25 @@ class AppTranslations {
       'lbl_phone': 'Numéro WhatsApp (pour la livraison)',
       'lbl_notes': 'Remarques ou secteur d\'activité (optionnel)',
       'btn_submit_order': 'Confirmer la commande sur WhatsApp 💬',
+
+      // Domain Search Modal
+      'domain_modal_title': 'Rechercher et Choisir Votre Domaine (Gratuit) 🌐',
+      'domain_modal_sub': 'Nom de domaine personnalisé inclus gratuitement la 1ère année',
+      'domain_input_hint': 'Entrez le nom de votre boutique (ex: riyadh-store)',
+      'domain_btn_search': 'Vérifier 🔍',
+      'domain_quick_examples': 'Exemples rapides : ',
+      'domain_loading_text': 'Vérification en direct de toutes les extensions...',
+      'domain_placeholder_title': 'Recherchez votre domaine et voyez les extensions disponibles',
+      'domain_placeholder_sub': 'Tous les domaines disponibles sont inclus avec l\'offre à 299 SAR',
+      'domain_invalid_input': 'Veuillez entrer un nom valide (2 caractères ou plus)',
+      'domain_free_included_badge': 'Inclus Gratuitement 🎁',
+      'domain_available_text': 'Disponible immédiatement (Inclus) ✅',
+      'domain_short_premium_text': 'Non inclus (Nom court premium) ❌',
+      'domain_taken_text': 'Déjà réservé et indisponible ❌',
+      'domain_select_and_order_btn': 'Choisir et Commander 🚀',
+      'domain_unavailable_text': 'Indisponible',
+
+      // Footer
       'footer_sub': '🇸🇦 Service web dédié aux entreprises en Arabie Saoudite | Un service POM Agency',
     },
     'de': {
@@ -704,6 +774,23 @@ class AppTranslations {
       'lbl_phone': 'WhatsApp-Nummer (für Zustellung)',
       'lbl_notes': 'Anmerkungen oder Branche (Optional)',
       'btn_submit_order': 'Bestellung per WhatsApp Bestätigen 💬',
+
+      // Domain Search Modal
+      'domain_modal_title': 'Domain Suchen & Auswählen (Kostenlos) 🌐',
+      'domain_modal_sub': 'Eigene Wunschdomain im 1. Jahr kostenlos im Paket enthalten',
+      'domain_input_hint': 'Geben Sie Ihren Firmennamen ein (z.B. riyadh-store)',
+      'domain_btn_search': 'Jetzt Prüfen 🔍',
+      'domain_quick_examples': 'Schnellbeispiele: ',
+      'domain_loading_text': 'Live-Prüfung aller verfügbaren Endungen läuft...',
+      'domain_placeholder_title': 'Suchen Sie Ihre Domain und sehen Sie verfügbare Endungen',
+      'domain_placeholder_sub': 'Alle verfügbaren Domains sind im 299 SAR Paket kostenlos enthalten',
+      'domain_invalid_input': 'Bitte geben Sie einen gültigen Namen ein (mind. 2 Zeichen)',
+      'domain_free_included_badge': 'Kostenlos Inklusive 🎁',
+      'domain_available_text': 'Sofort verfügbar (Im Paket enthalten) ✅',
+      'domain_short_premium_text': 'Nicht im Paket (Kurzer Premium-Name) ❌',
+      'domain_taken_text': 'Bereits vergeben und nicht verfügbar ❌',
+      'domain_select_and_order_btn': 'Auswählen & Bestellen 🚀',
+      'domain_unavailable_text': 'Nicht verfügbar',
       'footer_sub': '🇸🇦 Spezieller Webdienst für saudi-arabische Unternehmen | Ein Dienst der POM Agency',
     },
     'it': {
@@ -784,6 +871,25 @@ class AppTranslations {
       'lbl_phone': 'Numero WhatsApp (per la consegna)',
       'lbl_notes': 'Note o Tipo di Attività (Opzionale)',
       'btn_submit_order': 'Conferma Ordine su WhatsApp 💬',
+
+      // Domain Search Modal
+      'domain_modal_title': 'Cerca e Scegli il tuo Dominio (Gratis) 🌐',
+      'domain_modal_sub': 'Dominio personalizzato per il tuo brand gratuito per il 1° anno',
+      'domain_input_hint': 'Inserisci il nome del tuo brand (es: riyadh-store)',
+      'domain_btn_search': 'Verifica Ora 🔍',
+      'domain_quick_examples': 'Esempi rapidi: ',
+      'domain_loading_text': 'Verifica in tempo reale di tutte le estensioni...',
+      'domain_placeholder_title': 'Cerca il tuo dominio e scopri le estensioni disponibili',
+      'domain_placeholder_sub': 'Tutti i domini disponibili sono inclusi gratis con l\'offerta di 299 SAR',
+      'domain_invalid_input': 'Inserisci un nome valido (2 o più caratteri)',
+      'domain_free_included_badge': 'Incluso Gratis 🎁',
+      'domain_available_text': 'Disponibile per la registrazione immediata (Incluso) ✅',
+      'domain_short_premium_text': 'Non incluso (Nome breve premium) ❌',
+      'domain_taken_text': 'Già occupato e non disponibile ❌',
+      'domain_select_and_order_btn': 'Seleziona e Ordina 🚀',
+      'domain_unavailable_text': 'Non disponibile',
+
+      // Footer
       'footer_sub': '🇸🇦 Servizio web dedicato alle aziende saudite | Un servizio POM Agency',
     },
     'hi': {
@@ -864,6 +970,23 @@ class AppTranslations {
       'lbl_phone': 'व्हाट्सएप नंबर (डिलीवरी के लिए)',
       'lbl_notes': 'टिप्पणियां या व्यवसाय का प्रकार (वैकल्पिक)',
       'btn_submit_order': 'व्हाट्सएप पर ऑर्डर की पुष्टि करें 💬',
+
+      // Domain Search Modal
+      'domain_modal_title': 'अपना डोमेन खोजें और चुनें (मुफ़्त) 🌐',
+      'domain_modal_sub': 'प्रथम वर्ष के लिए आपके ब्रांड का कस्टम डोमेन मुफ़्त शामिल है',
+      'domain_input_hint': 'अपने व्यवसाय का नाम दर्ज करें (उदा: riyadh-store)',
+      'domain_btn_search': 'अभी खोजें 🔍',
+      'domain_quick_examples': 'त्वरित उदाहरण: ',
+      'domain_loading_text': 'सभी एक्सटेंशन की लाइव उपलब्धता जांची जा रही है...',
+      'domain_placeholder_title': 'अपना डोमेन खोजें और उपलब्ध एक्सटेंशन तुरंत देखें',
+      'domain_placeholder_sub': 'सभी उपलब्ध डोमेन 299 SAR पैकेज के साथ मुफ़्त शामिल हैं',
+      'domain_invalid_input': 'कृपया एक मान्य नाम दर्ज करें (2 या अधिक अक्षर)',
+      'domain_free_included_badge': 'मुफ़्त शामिल 🎁',
+      'domain_available_text': 'तत्काल बुकिंग के लिए उपलब्ध (शामिल) ✅',
+      'domain_short_premium_text': 'पैकेज में शामिल नहीं (प्रीमियम नाम) ❌',
+      'domain_taken_text': 'पहले से पंजीकृत और अनुपलब्ध ❌',
+      'domain_select_and_order_btn': 'चुनें और ऑर्डर करें 🚀',
+      'domain_unavailable_text': 'अनुपलब्ध',
       'footer_sub': '🇸🇦 सऊदी अरब के व्यवसायों के लिए समर्पित वेब सेवा | POM Agency सेवा',
     },
   };

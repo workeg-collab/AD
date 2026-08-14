@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
     const buffer = Buffer.from(base64Data, 'base64');
 
-    // 1. Upload to Catbox (Permanent, free cloud storage for all file types: images, PDFs, docs)
+    // 1. Primary: Catbox (Permanent free cloud storage)
     try {
       const formData = new FormData();
       formData.append('reqtype', 'fileupload');
@@ -60,52 +60,56 @@ export default async function handler(req, res) {
       }
     } catch (_) {}
 
-    // 2. Fallback for images via Free ImgBB API
-    if (fileType.startsWith('image/')) {
-      try {
-        const imgForm = new FormData();
-        imgForm.append('image', base64Data);
-
-        const imgbbRes = await fetch('https://api.imgbb.com/1/upload?key=2d0b57e4e03d4201712a76f2b43a9dc6', {
-          method: 'POST',
-          body: imgForm,
-        });
-
-        const imgbbData = await imgbbRes.json();
-        if (imgbbData?.data?.url) {
-          res.status(200).json({
-            success: true,
-            fileUrl: imgbbData.data.url,
-            fileName,
-          });
-          return;
-        }
-      } catch (_) {}
-    }
-
-    // 3. Fallback for documents via File.io
+    // 2. Fallback: Litterbox Catbox
     try {
-      const fileioForm = new FormData();
+      const formData = new FormData();
+      formData.append('reqtype', 'fileupload');
+      formData.append('time', '72h');
       const blob = new Blob([buffer], { type: fileType });
-      fileioForm.append('file', blob, fileName);
+      formData.append('fileToUpload', blob, fileName);
 
-      const fileioRes = await fetch('https://file.io', {
+      const litterRes = await fetch('https://litterbox.catbox.moe/resources/internals/api.php', {
         method: 'POST',
-        body: fileioForm,
+        body: formData,
       });
 
-      const fileioData = await fileioRes.json();
-      if (fileioData?.link) {
+      const fileUrl = (await litterRes.text()).trim();
+
+      if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) {
         res.status(200).json({
           success: true,
-          fileUrl: fileioData.link,
+          fileUrl,
           fileName,
         });
         return;
       }
     } catch (_) {}
 
-    res.status(500).json({ success: false, error: 'Could not upload file to cloud storage' });
+    // 3. Fallback: Tmpfiles.org
+    try {
+      const formData = new FormData();
+      const blob = new Blob([buffer], { type: fileType });
+      formData.append('file', blob, fileName);
+
+      const tmpRes = await fetch('https://tmpfiles.org/api/v1/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const tmpData = await tmpRes.json();
+      const rawUrl = tmpData?.data?.url;
+      if (rawUrl && rawUrl.includes('tmpfiles.org')) {
+        const fileUrl = rawUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+        res.status(200).json({
+          success: true,
+          fileUrl,
+          fileName,
+        });
+        return;
+      }
+    } catch (_) {}
+
+    res.status(500).json({ success: false, error: 'All upload providers failed' });
   } catch (error) {
     res.status(500).json({
       success: false,

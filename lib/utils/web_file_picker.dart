@@ -17,97 +17,31 @@ class UploadedFileResult {
 }
 
 class WebFilePicker {
-  /// Upload native browser File directly to CORS-enabled cloud storage (tmpfiles.org + gofile.io)
-  static Future<String?> uploadBrowserFile(html.File file) async {
-    // 1. Primary: tmpfiles.org (Instant direct download link, 100% CORS-friendly)
+  /// Upload base64 data to /api/upload
+  static Future<String?> uploadBase64({
+    required String base64Data,
+    required String fileName,
+    required String mimeType,
+  }) async {
     try {
-      final formData = html.FormData();
-      formData.appendBlob('file', file, file.name);
+      final response = await http.post(
+        Uri.parse('/api/upload'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'base64Data': base64Data,
+          'fileName': fileName,
+          'fileType': mimeType,
+        }),
+      ).timeout(const Duration(seconds: 25));
 
-      final request = html.HttpRequest();
-      final completer = Completer<String?>();
-
-      request.open('POST', 'https://tmpfiles.org/api/v1/upload');
-
-      request.onLoad.listen((event) {
-        if (request.status == 200) {
-          try {
-            final data = jsonDecode(request.responseText ?? '');
-            final rawUrl = data?['data']?['url'] as String?;
-            if (rawUrl != null && rawUrl.contains('tmpfiles.org')) {
-              final dlUrl = rawUrl.replaceFirst('tmpfiles.org/', 'tmpfiles.org/dl/');
-              completer.complete(dlUrl);
-            } else {
-              completer.complete(null);
-            }
-          } catch (_) {
-            completer.complete(null);
-          }
-        } else {
-          completer.complete(null);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final fileUrl = data?['fileUrl'] as String?;
+        if (fileUrl != null && fileUrl.startsWith('http')) {
+          return fileUrl;
         }
-      });
-
-      request.onError.listen((_) => completer.complete(null));
-      request.send(formData);
-
-      final result = await completer.future.timeout(
-        const Duration(seconds: 20),
-        onTimeout: () => null,
-      );
-
-      if (result != null && result.startsWith('http')) {
-        return result;
       }
     } catch (_) {}
-
-    // 2. Secondary Fallback: Gofile.io (100% CORS-friendly)
-    try {
-      final srvRes = await http.get(Uri.parse('https://api.gofile.io/servers')).timeout(const Duration(seconds: 8));
-      String server = 'store1';
-      if (srvRes.statusCode == 200) {
-        final srvData = jsonDecode(srvRes.body);
-        final servers = srvData?['data']?['servers'] as List?;
-        if (servers != null && servers.isNotEmpty) {
-          server = servers[0]['name'] ?? 'store1';
-        }
-      }
-
-      final formData = html.FormData();
-      formData.appendBlob('file', file, file.name);
-
-      final request = html.HttpRequest();
-      final completer = Completer<String?>();
-
-      request.open('POST', 'https://$server.gofile.io/contents/uploadfile');
-
-      request.onLoad.listen((event) {
-        if (request.status == 200) {
-          try {
-            final data = jsonDecode(request.responseText ?? '');
-            final pageUrl = data?['data']?['downloadPage'];
-            if (pageUrl != null && pageUrl.toString().startsWith('http')) {
-              completer.complete(pageUrl.toString());
-            } else {
-              completer.complete(null);
-            }
-          } catch (_) {
-            completer.complete(null);
-          }
-        } else {
-          completer.complete(null);
-        }
-      });
-
-      request.onError.listen((_) => completer.complete(null));
-      request.send(formData);
-
-      return await completer.future.timeout(
-        const Duration(seconds: 25),
-        onTimeout: () => null,
-      );
-    } catch (_) {}
-
     return null;
   }
 
@@ -125,16 +59,29 @@ class WebFilePicker {
 
         input.click();
 
-        input.onChange.listen((event) async {
+        input.onChange.listen((event) {
           final files = input.files;
           if (files != null && files.isNotEmpty) {
             final file = files.first;
-            try {
-              final fileUrl = await uploadBrowserFile(file);
-              completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-            } catch (_) {
-              completer.complete(UploadedFileResult(fileName: file.name));
-            }
+            final reader = html.FileReader();
+            reader.readAsDataUrl(file);
+            reader.onLoadEnd.listen((e) async {
+              try {
+                final dataUrl = reader.result as String;
+                final base64String = dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
+                final mimeType = file.type.isNotEmpty ? file.type : 'image/png';
+
+                final fileUrl = await uploadBase64(
+                  base64Data: base64String,
+                  fileName: file.name,
+                  mimeType: mimeType,
+                );
+
+                completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+              } catch (_) {
+                completer.complete(UploadedFileResult(fileName: file.name));
+              }
+            });
           } else {
             completer.complete(null);
           }
@@ -155,6 +102,15 @@ class WebFilePicker {
       );
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
+        if (file.bytes != null) {
+          final base64String = base64Encode(file.bytes!);
+          final fileUrl = await uploadBase64(
+            base64Data: base64String,
+            fileName: file.name,
+            mimeType: 'image/png',
+          );
+          return UploadedFileResult(fileName: file.name, fileUrl: fileUrl);
+        }
         return UploadedFileResult(fileName: file.name);
       }
     } catch (_) {}
@@ -173,19 +129,38 @@ class WebFilePicker {
 
         input.click();
 
-        input.onChange.listen((event) async {
+        input.onChange.listen((event) {
           final files = input.files;
           if (files != null && files.isNotEmpty) {
             final List<UploadedFileResult> results = [];
+            int processed = 0;
+
             for (final file in files) {
-              try {
-                final fileUrl = await uploadBrowserFile(file);
-                results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-              } catch (_) {
-                results.add(UploadedFileResult(fileName: file.name));
-              }
+              final reader = html.FileReader();
+              reader.readAsDataUrl(file);
+              reader.onLoadEnd.listen((e) async {
+                try {
+                  final dataUrl = reader.result as String;
+                  final base64String = dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
+                  final mimeType = file.type.isNotEmpty ? file.type : 'image/jpeg';
+
+                  final fileUrl = await uploadBase64(
+                    base64Data: base64String,
+                    fileName: file.name,
+                    mimeType: mimeType,
+                  );
+
+                  results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+                } catch (_) {
+                  results.add(UploadedFileResult(fileName: file.name));
+                }
+
+                processed++;
+                if (processed == files.length) {
+                  completer.complete(results);
+                }
+              });
             }
-            completer.complete(results);
           } else {
             completer.complete([]);
           }
@@ -205,7 +180,21 @@ class WebFilePicker {
         withData: true,
       );
       if (result != null && result.files.isNotEmpty) {
-        return result.files.map((f) => UploadedFileResult(fileName: f.name)).toList();
+        final List<UploadedFileResult> results = [];
+        for (final file in result.files) {
+          if (file.bytes != null) {
+            final base64String = base64Encode(file.bytes!);
+            final fileUrl = await uploadBase64(
+              base64Data: base64String,
+              fileName: file.name,
+              mimeType: 'image/jpeg',
+            );
+            results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+          } else {
+            results.add(UploadedFileResult(fileName: file.name));
+          }
+        }
+        return results;
       }
     } catch (_) {}
 
@@ -223,16 +212,29 @@ class WebFilePicker {
 
         input.click();
 
-        input.onChange.listen((event) async {
+        input.onChange.listen((event) {
           final files = input.files;
           if (files != null && files.isNotEmpty) {
             final file = files.first;
-            try {
-              final fileUrl = await uploadBrowserFile(file);
-              completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-            } catch (_) {
-              completer.complete(UploadedFileResult(fileName: file.name));
-            }
+            final reader = html.FileReader();
+            reader.readAsDataUrl(file);
+            reader.onLoadEnd.listen((e) async {
+              try {
+                final dataUrl = reader.result as String;
+                final base64String = dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
+                final mimeType = file.type.isNotEmpty ? file.type : 'application/pdf';
+
+                final fileUrl = await uploadBase64(
+                  base64Data: base64String,
+                  fileName: file.name,
+                  mimeType: mimeType,
+                );
+
+                completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+              } catch (_) {
+                completer.complete(UploadedFileResult(fileName: file.name));
+              }
+            });
           } else {
             completer.complete(null);
           }
@@ -253,6 +255,15 @@ class WebFilePicker {
       );
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
+        if (file.bytes != null) {
+          final base64String = base64Encode(file.bytes!);
+          final fileUrl = await uploadBase64(
+            base64Data: base64String,
+            fileName: file.name,
+            mimeType: 'application/pdf',
+          );
+          return UploadedFileResult(fileName: file.name, fileUrl: fileUrl);
+        }
         return UploadedFileResult(fileName: file.name);
       }
     } catch (_) {}

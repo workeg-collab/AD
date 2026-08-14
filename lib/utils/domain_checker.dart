@@ -79,24 +79,11 @@ class DomainChecker {
 
   /// Check a single domain availability via Authoritative ICANN RDAP Registry & DNS
   static Future<bool> isDomainAvailable(String domain, {int slugLength = 4}) async {
-    // 1-3 letter domains (like 'aly.site', 'aly.xyz') are globally Reserved or Premium ($500+)
+    // STRICT RULE: 1-3 letter domains (like 'aly.online', 'aly.site', 'aly.xyz')
+    // are ALWAYS priced as Premium Registry Domains ($50 - $5,000+) on Spaceship.
+    // They must NEVER be marked as available under the <= $2 budget rule!
     if (slugLength <= 3) {
-      // Short 2-3 char domains cannot be regular budget domains
-      // Verify with strict RDAP
-      try {
-        final uri = Uri.parse('https://rdap.org/domain/$domain');
-        final response = await http.get(uri).timeout(const Duration(seconds: 4));
-        if (response.statusCode == 200) return false;
-        final body = response.body.toLowerCase();
-        if (body.contains('not available') ||
-            body.contains('reserved') ||
-            body.contains('premium') ||
-            !body.contains('available for registration')) {
-          return false;
-        }
-      } catch (_) {
-        return false;
-      }
+      return false;
     }
 
     try {

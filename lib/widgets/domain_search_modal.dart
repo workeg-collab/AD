@@ -414,7 +414,11 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      isAvail ? 'متاح للحجز الفوري ✅' : 'محجوز مسبقاً وغير متاح ❌',
+                      isAvail
+                          ? 'متاح للحجز الفوري (شامل الباقة) ✅'
+                          : (item.fullDomain.split('.').first.length <= 3
+                              ? 'غير متاح بالباقة (اسم قصير بريميوم) ❌'
+                              : 'محجوز مسبقاً وغير متاح ❌'),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

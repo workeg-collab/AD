@@ -74,40 +74,42 @@ class _OrderModalState extends State<OrderModal> {
   }
 
   // Pick Logo File
-  Future<void> _pickLogoFile() async {
-    setState(() => _isUploadingLogo = true);
-    try {
-      final result = await SupabaseStorageHelper.pickAndUploadLogo();
-      if (mounted && result != null) {
-        setState(() {
-          _logoFile = result;
-        });
-        if (result.fileUrl != null && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('تم رفع الشعار بنجاح ✅ (${result.fileName})'),
-              backgroundColor: const Color(0xFF10B981),
-              duration: const Duration(seconds: 3),
-            ),
-          );
+  void _pickLogoFile() {
+    SupabaseStorageHelper.pickLogo(
+      onUploadStatusChanged: (isUploading) {
+        if (mounted) setState(() => _isUploadingLogo = isUploading);
+      },
+      onComplete: (result) {
+        if (mounted) {
+          setState(() {
+            _logoFile = result;
+          });
+          if (result.fileUrl != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('تم رفع الشعار بنجاح ✅ (${result.fileName})'),
+                backgroundColor: const Color(0xFF10B981),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
         }
-      }
-    } finally {
-      if (mounted) setState(() => _isUploadingLogo = false);
-    }
+      },
+    );
   }
 
   // Pick Photos
-  Future<void> _pickPhotos() async {
-    setState(() => _isUploadingPhotos = true);
-    try {
-      final results = await SupabaseStorageHelper.pickAndUploadPhotos();
-      if (mounted && results.isNotEmpty) {
-        setState(() {
-          _photoFiles = results;
-        });
-        final uploadedCount = results.where((r) => r.fileUrl != null).length;
-        if (mounted) {
+  void _pickPhotos() {
+    SupabaseStorageHelper.pickPhotos(
+      onUploadStatusChanged: (isUploading) {
+        if (mounted) setState(() => _isUploadingPhotos = isUploading);
+      },
+      onComplete: (results) {
+        if (mounted && results.isNotEmpty) {
+          setState(() {
+            _photoFiles = results;
+          });
+          final uploadedCount = results.where((r) => r.fileUrl != null).length;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('تم رفع $uploadedCount صور بنجاح إلى السيرفر ✅'),
@@ -116,34 +118,33 @@ class _OrderModalState extends State<OrderModal> {
             ),
           );
         }
-      }
-    } finally {
-      if (mounted) setState(() => _isUploadingPhotos = false);
-    }
+      },
+    );
   }
 
   // Pick Company Profile File
-  Future<void> _pickProfileFile() async {
-    setState(() => _isUploadingProfile = true);
-    try {
-      final result = await SupabaseStorageHelper.pickAndUploadProfileDocument();
-      if (mounted && result != null) {
-        setState(() {
-          _profileFile = result;
-        });
-        if (result.fileUrl != null && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('تم رفع البروفايل بنجاح ✅ (${result.fileName})'),
-              backgroundColor: const Color(0xFF10B981),
-              duration: const Duration(seconds: 3),
-            ),
-          );
+  void _pickProfileFile() {
+    SupabaseStorageHelper.pickProfileDocument(
+      onUploadStatusChanged: (isUploading) {
+        if (mounted) setState(() => _isUploadingProfile = isUploading);
+      },
+      onComplete: (result) {
+        if (mounted) {
+          setState(() {
+            _profileFile = result;
+          });
+          if (result.fileUrl != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('تم رفع البروفايل بنجاح ✅ (${result.fileName})'),
+                backgroundColor: const Color(0xFF10B981),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
         }
-      }
-    } finally {
-      if (mounted) setState(() => _isUploadingProfile = false);
-    }
+      },
+    );
   }
 
   String _getCombinedLogoInfo() {

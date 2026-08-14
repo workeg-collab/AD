@@ -3,6 +3,12 @@
   "outputDirectory": "build/web",
   "cleanUrls": false,
   "trailingSlash": false,
+  "crons": [
+    {
+      "path": "/api/cleanup-old-files",
+      "schedule": "0 * * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/(.*)",

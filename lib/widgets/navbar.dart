@@ -28,8 +28,8 @@ class Navbar extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 12 : 24,
-        vertical: isMobile ? 10 : 14,
+        horizontal: isMobile ? 8 : 24,
+        vertical: isMobile ? 8 : 14,
       ),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.surfaceDark : Colors.white,
@@ -61,30 +61,36 @@ class Navbar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      height: isMobile ? 38 : 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                      height: isMobile ? 32 : 48,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isMobile ? 4 : 5,
+                        vertical: isMobile ? 2 : 3,
+                      ),
                       decoration: BoxDecoration(
                         color: isDark ? AppTheme.cardDark : Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4), width: 1.5),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppTheme.primary.withValues(alpha: 0.4),
+                          width: 1.2,
+                        ),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(6),
                         child: Image.asset(
                           isDark ? 'assets/images/xxx.png' : 'assets/images/xxx_dark.png',
-                          height: isMobile ? 30 : 40,
+                          height: isMobile ? 26 : 40,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
                             return Icon(
                               Icons.rocket_launch_rounded,
                               color: AppTheme.primaryDark,
-                              size: isMobile ? 18 : 24,
+                              size: isMobile ? 16 : 24,
                             );
                           },
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: isMobile ? 6 : 8),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -95,15 +101,18 @@ class Navbar extends StatelessWidget {
                             Text(
                               'POM SA',
                               style: TextStyle(
-                                fontSize: isMobile ? 16 : 20,
+                                fontSize: isMobile ? 14.5 : 20,
                                 fontWeight: FontWeight.w900,
                                 color: AppTheme.primaryDark,
-                                letterSpacing: 0.8,
+                                letterSpacing: 0.6,
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            SizedBox(width: isMobile ? 4 : 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isMobile ? 5 : 6,
+                                vertical: isMobile ? 1.5 : 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppTheme.accentGold.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(20),
@@ -112,7 +121,7 @@ class Navbar extends StatelessWidget {
                               child: Text(
                                 'السعودية 🇸🇦',
                                 style: TextStyle(
-                                  fontSize: isMobile ? 9.5 : 11,
+                                  fontSize: isMobile ? 9 : 11,
                                   fontWeight: FontWeight.bold,
                                   color: AppTheme.accentGold,
                                 ),
@@ -185,7 +194,7 @@ class Navbar extends StatelessWidget {
                   // Small Language Selector Button
                   const LanguageSelectorButton(),
 
-                  SizedBox(width: isMobile ? 5 : 8),
+                  SizedBox(width: isMobile ? 4 : 8),
 
                   // Theme Mode Toggle Icon Button
                   ValueListenableBuilder<ThemeMode>(
@@ -200,7 +209,7 @@ class Navbar extends StatelessWidget {
                           },
                           borderRadius: BorderRadius.circular(20),
                           child: Container(
-                            padding: EdgeInsets.all(isMobile ? 6 : 7),
+                            padding: EdgeInsets.all(isMobile ? 5 : 7),
                             decoration: BoxDecoration(
                               color: isDark ? AppTheme.cardDark : Colors.grey.shade200,
                               shape: BoxShape.circle,
@@ -212,7 +221,7 @@ class Navbar extends StatelessWidget {
                             child: Icon(
                               isDark ? Icons.wb_sunny_rounded : Icons.dark_mode_rounded,
                               color: isDark ? Colors.amber : AppTheme.primary,
-                              size: isMobile ? 14 : 15,
+                              size: isMobile ? 12.5 : 15,
                             ),
                           ),
                         ),
@@ -220,22 +229,28 @@ class Navbar extends StatelessWidget {
                     },
                   ),
 
-                  SizedBox(width: isMobile ? 6 : 10),
+                  SizedBox(width: isMobile ? 4 : 10),
 
                   // Action CTA
                   ElevatedButton.icon(
                     onPressed: () => WhatsAppHelper.launchWhatsApp(),
-                    icon: Icon(Icons.chat_bubble_outline_rounded, size: isMobile ? 15 : 18),
+                    icon: Icon(Icons.chat_bubble_outline_rounded, size: isMobile ? 13 : 18),
                     label: Text(
                       isMobile
                           ? AppTranslations.tr('nav_order')
                           : AppTranslations.tr('whatsapp_btn_top'),
-                      style: TextStyle(fontSize: isMobile ? 12 : 14),
+                      style: TextStyle(
+                        fontSize: isMobile ? 11.5 : 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 10 : 20,
-                        vertical: isMobile ? 10 : 14,
+                        horizontal: isMobile ? 8 : 20,
+                        vertical: isMobile ? 8 : 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(isMobile ? 10 : 14),
                       ),
                     ),
                   ),

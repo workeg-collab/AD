@@ -7,6 +7,8 @@ class LanguageSelectorButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 768;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -15,9 +17,9 @@ class LanguageSelectorButton extends StatelessWidget {
       builder: (context, currentLang, child) {
         return PopupMenuButton<AppLanguage>(
           tooltip: 'اختر اللغة / Select Language',
-          offset: const Offset(0, 40),
+          offset: const Offset(0, 36),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
             side: BorderSide(
               color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
             ),
@@ -33,13 +35,13 @@ class LanguageSelectorButton extends StatelessWidget {
                 value: lang,
                 child: Row(
                   children: [
-                    Text(lang.flag, style: const TextStyle(fontSize: 16)),
-                    const SizedBox(width: 10),
+                    Text(lang.flag, style: const TextStyle(fontSize: 15)),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         lang.name,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 12.5,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           color: isSelected
                               ? AppTheme.primary
@@ -48,17 +50,20 @@ class LanguageSelectorButton extends StatelessWidget {
                       ),
                     ),
                     if (isSelected)
-                      const Icon(Icons.check_rounded, size: 16, color: AppTheme.primary),
+                      const Icon(Icons.check_rounded, size: 15, color: AppTheme.primary),
                   ],
                 ),
               );
             }).toList();
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 6 : 9,
+              vertical: isMobile ? 4 : 6,
+            ),
             decoration: BoxDecoration(
               color: isDark ? AppTheme.surfaceDark : Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
                 width: 1,
@@ -67,20 +72,20 @@ class LanguageSelectorButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(currentLang.flag, style: const TextStyle(fontSize: 14)),
-                const SizedBox(width: 5),
+                Text(currentLang.flag, style: TextStyle(fontSize: isMobile ? 12 : 14)),
+                SizedBox(width: isMobile ? 3 : 5),
                 Text(
                   currentLang.code.toUpperCase(),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: isMobile ? 10 : 11,
                     fontWeight: FontWeight.bold,
                     color: isDark ? AppTheme.textWhite : AppTheme.textDark,
                   ),
                 ),
-                const SizedBox(width: 2),
+                SizedBox(width: isMobile ? 1 : 2),
                 Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  size: 14,
+                  size: isMobile ? 12 : 14,
                   color: isDark ? AppTheme.textMutedDark : AppTheme.textMuted,
                 ),
               ],

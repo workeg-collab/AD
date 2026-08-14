@@ -180,7 +180,7 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard> {
           ],
         ),
         child: Padding(
-          padding: EdgeInsets.all(widget.isMobile ? 18 : 24),
+          padding: EdgeInsets.all(widget.isMobile ? 13 : 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -189,14 +189,14 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard> {
                 children: [
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding: EdgeInsets.all(widget.isMobile ? 10 : 12),
+                    padding: EdgeInsets.all(widget.isMobile ? 7 : 12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: _isHovered
                             ? gradient
                             : [color.withValues(alpha: 0.15), color.withValues(alpha: 0.08)],
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(widget.isMobile ? 10 : 12),
                       boxShadow: _isHovered
                           ? [
                               BoxShadow(
@@ -210,16 +210,16 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard> {
                     child: Icon(
                       widget.item['icon'] as IconData,
                       color: _isHovered ? Colors.white : color,
-                      size: widget.isMobile ? 22 : 28,
+                      size: widget.isMobile ? 18 : 28,
                     ),
                   ),
                   if (widget.isMobile) ...[
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         widget.item['title'] as String,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14.5,
                           fontWeight: FontWeight.bold,
                           color: widget.textColor,
                         ),
@@ -239,13 +239,13 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard> {
                   ),
                 ),
               ],
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
                 widget.item['desc'] as String,
                 style: TextStyle(
-                  fontSize: widget.isMobile ? 13 : 14,
+                  fontSize: widget.isMobile ? 12 : 14,
                   color: AppTheme.textMuted,
-                  height: 1.5,
+                  height: 1.45,
                 ),
               ),
             ],

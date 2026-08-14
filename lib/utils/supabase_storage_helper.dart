@@ -1,5 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+// ignore: avoid_web_libraries_in_flutter, deprecated_member_use
+import 'dart:html' as html;
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,6 +22,26 @@ class SupabaseStorageHelper {
   static const String supabaseAnonKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmx3aGR0cG5mdWVud3JmYXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MTgwNjMsImV4cCI6MjEwMjI5NDA2M30.1jc8ahuejtrfIRMTOFO-aVYMwOd7einjtUQdou2kNBY';
   static const String bucketName = 'orders';
+
+  /// Convert any raw reader result to safe Uint8List on Flutter Web
+  static Uint8List _extractUint8List(dynamic rawResult) {
+    if (rawResult is Uint8List) {
+      return rawResult;
+    }
+    if (rawResult is ByteBuffer) {
+      return rawResult.asUint8List();
+    }
+    if (rawResult is List<int>) {
+      return Uint8List.fromList(rawResult);
+    }
+    try {
+      final buffer = (rawResult as dynamic).buffer;
+      if (buffer is ByteBuffer) {
+        return buffer.asUint8List();
+      }
+    } catch (_) {}
+    return Uint8List.view(rawResult as dynamic);
+  }
 
   /// Upload raw binary file bytes directly to Supabase Storage
   static Future<String?> uploadBytes({
@@ -49,12 +72,61 @@ class SupabaseStorageHelper {
     return null;
   }
 
-  /// Pick and upload a single image (Logo)
-  static Future<UploadedFileResult?> pickAndUploadLogo() async {
+  /// Pick and upload a single image (Logo) with 100% reliable DOM-attached input
+  static Future<UploadedFileResult?> pickAndUploadLogo({
+    String accept = 'image/*',
+  }) async {
+    if (kIsWeb) {
+      try {
+        final completer = Completer<UploadedFileResult?>();
+        final input = html.FileUploadInputElement()
+          ..accept = accept
+          ..multiple = false
+          ..style.display = 'none';
+
+        html.document.body?.children.add(input);
+        input.click();
+
+        input.onChange.listen((event) {
+          final files = input.files;
+          if (files != null && files.isNotEmpty) {
+            final file = files.first;
+            final reader = html.FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onLoadEnd.listen((e) async {
+              try {
+                final bytes = _extractUint8List(reader.result);
+                final fileUrl = await uploadBytes(
+                  bytes: bytes,
+                  fileName: file.name,
+                  contentType: file.type.isNotEmpty ? file.type : _getContentType(file.name),
+                );
+                completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+              } catch (_) {
+                completer.complete(UploadedFileResult(fileName: file.name));
+              } finally {
+                input.remove();
+              }
+            });
+          } else {
+            input.remove();
+            completer.complete(null);
+          }
+        });
+
+        return await completer.future.timeout(
+          const Duration(minutes: 2),
+          onTimeout: () {
+            input.remove();
+            return null;
+          },
+        );
+      } catch (_) {}
+    }
+
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['png', 'jpg', 'jpeg', 'svg', 'webp', 'pdf', 'ai', 'eps'],
+        type: FileType.image,
         withData: true,
       );
       if (result != null && result.files.isNotEmpty) {
@@ -70,11 +142,68 @@ class SupabaseStorageHelper {
         return UploadedFileResult(fileName: file.name);
       }
     } catch (_) {}
+
     return null;
   }
 
   /// Pick and upload multiple images (Activity / Product Photos)
   static Future<List<UploadedFileResult>> pickAndUploadPhotos() async {
+    if (kIsWeb) {
+      try {
+        final completer = Completer<List<UploadedFileResult>>();
+        final input = html.FileUploadInputElement()
+          ..accept = 'image/*'
+          ..multiple = true
+          ..style.display = 'none';
+
+        html.document.body?.children.add(input);
+        input.click();
+
+        input.onChange.listen((event) {
+          final files = input.files;
+          if (files != null && files.isNotEmpty) {
+            final List<UploadedFileResult> results = [];
+            int processed = 0;
+
+            for (final file in files) {
+              final reader = html.FileReader();
+              reader.readAsArrayBuffer(file);
+              reader.onLoadEnd.listen((e) async {
+                try {
+                  final bytes = _extractUint8List(reader.result);
+                  final fileUrl = await uploadBytes(
+                    bytes: bytes,
+                    fileName: file.name,
+                    contentType: file.type.isNotEmpty ? file.type : _getContentType(file.name),
+                  );
+                  results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+                } catch (_) {
+                  results.add(UploadedFileResult(fileName: file.name));
+                }
+
+                processed++;
+                if (processed == files.length) {
+                  input.remove();
+                  completer.complete(results);
+                }
+              });
+            }
+          } else {
+            input.remove();
+            completer.complete([]);
+          }
+        });
+
+        return await completer.future.timeout(
+          const Duration(minutes: 2),
+          onTimeout: () {
+            input.remove();
+            return [];
+          },
+        );
+      } catch (_) {}
+    }
+
     try {
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
@@ -98,11 +227,60 @@ class SupabaseStorageHelper {
         return results;
       }
     } catch (_) {}
+
     return [];
   }
 
   /// Pick and upload company profile document (PDF, Word, PPT)
   static Future<UploadedFileResult?> pickAndUploadProfileDocument() async {
+    if (kIsWeb) {
+      try {
+        final completer = Completer<UploadedFileResult?>();
+        final input = html.FileUploadInputElement()
+          ..accept = '.pdf,.doc,.docx,.ppt,.pptx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          ..multiple = false
+          ..style.display = 'none';
+
+        html.document.body?.children.add(input);
+        input.click();
+
+        input.onChange.listen((event) {
+          final files = input.files;
+          if (files != null && files.isNotEmpty) {
+            final file = files.first;
+            final reader = html.FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onLoadEnd.listen((e) async {
+              try {
+                final bytes = _extractUint8List(reader.result);
+                final fileUrl = await uploadBytes(
+                  bytes: bytes,
+                  fileName: file.name,
+                  contentType: file.type.isNotEmpty ? file.type : _getContentType(file.name),
+                );
+                completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+              } catch (_) {
+                completer.complete(UploadedFileResult(fileName: file.name));
+              } finally {
+                input.remove();
+              }
+            });
+          } else {
+            input.remove();
+            completer.complete(null);
+          }
+        });
+
+        return await completer.future.timeout(
+          const Duration(minutes: 2),
+          onTimeout: () {
+            input.remove();
+            return null;
+          },
+        );
+      } catch (_) {}
+    }
+
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -122,6 +300,7 @@ class SupabaseStorageHelper {
         return UploadedFileResult(fileName: file.name);
       }
     } catch (_) {}
+
     return null;
   }
 

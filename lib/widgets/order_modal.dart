@@ -972,8 +972,9 @@ class _OrderModalState extends State<OrderModal> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: (isSelected || isUploading) ? null : onPick,
+        onTap: isUploading ? null : (isSelected ? onClear : onPick),
         borderRadius: BorderRadius.circular(12),
+        mouseCursor: isUploading ? SystemMouseCursors.wait : SystemMouseCursors.click,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
@@ -1027,22 +1028,32 @@ class _OrderModalState extends State<OrderModal> {
                   constraints: const BoxConstraints(),
                 )
               else
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.folder_open_rounded, size: 14, color: AppTheme.primary),
-                      SizedBox(width: 4),
-                      Text(
-                        'اختيار ملف',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primary),
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: onPick,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    ],
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.folder_open_rounded, size: 15, color: AppTheme.primary),
+                          SizedBox(width: 5),
+                          Text(
+                            'اختيار ملف',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
             ],

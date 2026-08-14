@@ -17,15 +17,14 @@ class UploadedFileResult {
 }
 
 class WebFilePicker {
-  /// Upload file bytes to cloud storage and return permanent direct URL
-  static Future<String?> uploadBytes({
-    required Uint8List bytes,
+  /// Upload base64 string to cloud storage via /api/upload and return permanent direct URL
+  static Future<String?> uploadBase64({
+    required String base64String,
     required String fileName,
     required String mimeType,
   }) async {
     // 1. Try /api/upload
     try {
-      final base64String = base64Encode(bytes);
       final response = await http.post(
         Uri.parse('/api/upload'),
         headers: {'Content-Type': 'application/json'},
@@ -34,35 +33,13 @@ class WebFilePicker {
           'fileName': fileName,
           'fileType': mimeType,
         }),
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 25));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data['fileUrl'] != null) {
+        if (data['fileUrl'] != null && data['fileUrl'].toString().startsWith('http')) {
           return data['fileUrl'] as String;
         }
-      }
-    } catch (_) {}
-
-    // 2. Direct fallback to Catbox.moe API (worldwide permanent free file hosting)
-    try {
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('https://catbox.moe/user/api.php'),
-      );
-      request.fields['reqtype'] = 'fileupload';
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'fileToUpload',
-          bytes,
-          filename: fileName,
-        ),
-      );
-      final streamed = await request.send().timeout(const Duration(seconds: 15));
-      final response = await http.Response.fromStream(streamed);
-      final text = response.body.trim();
-      if (text.startsWith('http://') || text.startsWith('https://')) {
-        return text;
       }
     } catch (_) {}
 
@@ -88,12 +65,13 @@ class WebFilePicker {
           if (files != null && files.isNotEmpty) {
             final file = files.first;
             final reader = html.FileReader();
-            reader.readAsArrayBuffer(file);
+            reader.readAsDataUrl(file);
             reader.onLoadEnd.listen((e) async {
               try {
-                final bytes = Uint8List.fromList(reader.result as List<int>);
-                final fileUrl = await uploadBytes(
-                  bytes: bytes,
+                final dataUrl = reader.result as String;
+                final base64String = dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
+                final fileUrl = await uploadBase64(
+                  base64String: base64String,
                   fileName: file.name,
                   mimeType: file.type.isNotEmpty ? file.type : 'application/octet-stream',
                 );
@@ -123,8 +101,9 @@ class WebFilePicker {
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         if (file.bytes != null) {
-          final fileUrl = await uploadBytes(
-            bytes: file.bytes!,
+          final base64String = base64Encode(file.bytes!);
+          final fileUrl = await uploadBase64(
+            base64String: base64String,
             fileName: file.name,
             mimeType: 'application/octet-stream',
           );
@@ -156,12 +135,13 @@ class WebFilePicker {
 
             for (final file in files) {
               final reader = html.FileReader();
-              reader.readAsArrayBuffer(file);
+              reader.readAsDataUrl(file);
               reader.onLoadEnd.listen((e) async {
                 try {
-                  final bytes = Uint8List.fromList(reader.result as List<int>);
-                  final fileUrl = await uploadBytes(
-                    bytes: bytes,
+                  final dataUrl = reader.result as String;
+                  final base64String = dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
+                  final fileUrl = await uploadBase64(
+                    base64String: base64String,
                     fileName: file.name,
                     mimeType: file.type.isNotEmpty ? file.type : 'image/jpeg',
                   );
@@ -198,8 +178,9 @@ class WebFilePicker {
         final List<UploadedFileResult> results = [];
         for (final file in result.files) {
           if (file.bytes != null) {
-            final fileUrl = await uploadBytes(
-              bytes: file.bytes!,
+            final base64String = base64Encode(file.bytes!);
+            final fileUrl = await uploadBase64(
+              base64String: base64String,
               fileName: file.name,
               mimeType: 'image/jpeg',
             );

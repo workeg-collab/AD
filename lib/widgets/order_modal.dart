@@ -836,7 +836,9 @@ class _OrderModalState extends State<OrderModal> {
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: _isProcessing ? null : _submitWhatsAppOrder,
+                      onPressed: (_isProcessing || _isUploadingLogo || _isUploadingPhotos || _isUploadingProfile)
+                          ? null
+                          : _submitWhatsAppOrder,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
@@ -845,7 +847,7 @@ class _OrderModalState extends State<OrderModal> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: _isProcessing
+                      child: (_isUploadingLogo || _isUploadingPhotos || _isUploadingProfile)
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -859,7 +861,7 @@ class _OrderModalState extends State<OrderModal> {
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  'جاري تجهيز الطلب ورابط الدفع...',
+                                  'جاري رفع المرفقات للسيرفر... يرجى الانتظار ⏳',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -868,21 +870,44 @@ class _OrderModalState extends State<OrderModal> {
                                 ),
                               ],
                             )
-                          : const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.chat_rounded, color: Colors.white, size: 20),
-                                SizedBox(width: 8),
-                                Text(
-                                  'تأكيد الطلب واستلام رابط الدفع عبر الواتساب 💬',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                  ),
+                          : _isProcessing
+                              ? const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      'جاري تجهيز الطلب ورابط الدفع...',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.chat_rounded, color: Colors.white, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'تأكيد الطلب واستلام رابط الدفع عبر الواتساب 💬',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
                     ),
                   ),
                 ),
@@ -893,7 +918,9 @@ class _OrderModalState extends State<OrderModal> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
-                    onPressed: _isProcessing ? null : _payWithPayTabs,
+                    onPressed: (_isProcessing || _isUploadingLogo || _isUploadingPhotos || _isUploadingProfile)
+                        ? null
+                        : _payWithPayTabs,
                     icon: const Icon(Icons.credit_card_rounded, color: Color(0xFF2563EB), size: 18),
                     label: const Text(
                       'أو الدفع الفوري بالفيزا/الماستركارد (PayTabs) 💳',

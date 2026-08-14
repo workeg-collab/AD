@@ -34,10 +34,14 @@ class _OrderModalState extends State<OrderModal> {
   String _selectedCategory = 'متجر / محل تجاري';
   bool _isProcessing = false;
 
-  // Selected File Names
-  String? _logoFileName;
-  List<String> _photoFileNames = [];
-  String? _profileFileName;
+  // Uploaded File Results (with public URLs)
+  UploadedFileResult? _logoFile;
+  List<UploadedFileResult> _photoFiles = [];
+  UploadedFileResult? _profileFile;
+
+  bool _isUploadingLogo = false;
+  bool _isUploadingPhotos = false;
+  bool _isUploadingProfile = false;
 
   final List<String> _categories = [
     'متجر / محل تجاري',
@@ -71,72 +75,94 @@ class _OrderModalState extends State<OrderModal> {
 
   // Pick Logo File
   Future<void> _pickLogoFile() async {
+    setState(() => _isUploadingLogo = true);
     try {
-      final fileName = await WebFilePicker.pickSingleFile(
+      final result = await WebFilePicker.pickAndUploadSingleFile(
         accept: 'image/*,.svg,.pdf,.ai,.eps',
         allowedExtensions: ['png', 'jpg', 'jpeg', 'svg', 'pdf', 'ai', 'eps'],
       );
-      if (fileName != null && fileName.isNotEmpty) {
+      if (mounted && result != null) {
         setState(() {
-          _logoFileName = fileName;
+          _logoFile = result;
         });
       }
-    } catch (_) {}
+    } finally {
+      if (mounted) setState(() => _isUploadingLogo = false);
+    }
   }
 
   // Pick Photos
   Future<void> _pickPhotos() async {
+    setState(() => _isUploadingPhotos = true);
     try {
-      final fileNames = await WebFilePicker.pickMultipleImages();
-      if (fileNames.isNotEmpty) {
+      final results = await WebFilePicker.pickAndUploadMultipleImages();
+      if (mounted && results.isNotEmpty) {
         setState(() {
-          _photoFileNames = fileNames;
+          _photoFiles = results;
         });
       }
-    } catch (_) {}
+    } finally {
+      if (mounted) setState(() => _isUploadingPhotos = false);
+    }
   }
 
   // Pick Company Profile File
   Future<void> _pickProfileFile() async {
+    setState(() => _isUploadingProfile = true);
     try {
-      final fileName = await WebFilePicker.pickProfileDocument();
-      if (fileName != null && fileName.isNotEmpty) {
+      final result = await WebFilePicker.pickAndUploadProfileDocument();
+      if (mounted && result != null) {
         setState(() {
-          _profileFileName = fileName;
+          _profileFile = result;
         });
       }
-    } catch (_) {}
+    } finally {
+      if (mounted) setState(() => _isUploadingProfile = false);
+    }
   }
 
   String _getCombinedLogoInfo() {
     final List<String> parts = [];
-    if (_logoFileName != null && _logoFileName!.isNotEmpty) {
-      parts.add('ملف مرفق: $_logoFileName');
+    if (_logoFile != null) {
+      if (_logoFile!.fileUrl != null && _logoFile!.fileUrl!.isNotEmpty) {
+        parts.add(_logoFile!.fileUrl!);
+      } else {
+        parts.add('ملف: ${_logoFile!.fileName}');
+      }
     }
     if (_logoLinkController.text.trim().isNotEmpty) {
-      parts.add('رابط: ${_logoLinkController.text.trim()}');
+      parts.add('رابط إضافي: ${_logoLinkController.text.trim()}');
     }
     return parts.join(' | ');
   }
 
   String _getCombinedPhotosInfo() {
     final List<String> parts = [];
-    if (_photoFileNames.isNotEmpty) {
-      parts.add('صور مرفقة: ${_photoFileNames.length} ملفات (${_photoFileNames.take(3).join(', ')}${_photoFileNames.length > 3 ? '...' : ''})');
+    if (_photoFiles.isNotEmpty) {
+      final urls = _photoFiles.where((f) => f.fileUrl != null).map((f) => f.fileUrl!).toList();
+      if (urls.isNotEmpty) {
+        parts.add(urls.join(' , '));
+      } else {
+        parts.add('${_photoFiles.length} صور مرفقة');
+      }
     }
     if (_photosLinkController.text.trim().isNotEmpty) {
-      parts.add('رابط سحابي: ${_photosLinkController.text.trim()}');
+      parts.add('رابط إضافي: ${_photosLinkController.text.trim()}');
     }
     return parts.join(' | ');
   }
 
   String _getCombinedProfileInfo() {
     final List<String> parts = [];
-    if (_profileFileName != null && _profileFileName!.isNotEmpty) {
-      parts.add('ملف بروفايل: $_profileFileName');
+    if (_profileFile != null) {
+      if (_profileFile!.fileUrl != null && _profileFile!.fileUrl!.isNotEmpty) {
+        parts.add(_profileFile!.fileUrl!);
+      } else {
+        parts.add('بروفايل: ${_profileFile!.fileName}');
+      }
     }
     if (_profileLinkController.text.trim().isNotEmpty) {
-      parts.add('رابط: ${_profileLinkController.text.trim()}');
+      parts.add('رابط إضافي: ${_profileLinkController.text.trim()}');
     }
     return parts.join(' | ');
   }
@@ -528,10 +554,15 @@ class _OrderModalState extends State<OrderModal> {
                 ),
                 const SizedBox(height: 6),
                 _buildFilePickerRow(
-                  label: _logoFileName ?? 'إرفاق ملف الشعار (PNG/JPG/SVG)',
-                  isSelected: _logoFileName != null,
+                  label: _isUploadingLogo
+                      ? 'جاري رفع الشعار إلى السيرفر... ⏳'
+                      : (_logoFile != null
+                          ? 'تم رفع الشعار بنجاح (${_logoFile!.fileName}) ✅'
+                          : 'إرفاق ملف الشعار (PNG/JPG/SVG)'),
+                  isSelected: _logoFile != null,
+                  isUploading: _isUploadingLogo,
                   onPick: _pickLogoFile,
-                  onClear: () => setState(() => _logoFileName = null),
+                  onClear: () => setState(() => _logoFile = null),
                   isDark: isDark,
                 ),
                 const SizedBox(height: 6),
@@ -553,12 +584,15 @@ class _OrderModalState extends State<OrderModal> {
                 ),
                 const SizedBox(height: 6),
                 _buildFilePickerRow(
-                  label: _photoFileNames.isNotEmpty
-                      ? 'تم اختيار ${_photoFileNames.length} صور'
-                      : 'إرفاق صور النشاط / المنتجات',
-                  isSelected: _photoFileNames.isNotEmpty,
+                  label: _isUploadingPhotos
+                      ? 'جاري رفع الصور إلى السيرفر... ⏳'
+                      : (_photoFiles.isNotEmpty
+                          ? 'تم رفع ${_photoFiles.length} صور بنجاح ✅'
+                          : 'إرفاق صور النشاط / المنتجات'),
+                  isSelected: _photoFiles.isNotEmpty,
+                  isUploading: _isUploadingPhotos,
                   onPick: _pickPhotos,
-                  onClear: () => setState(() => _photoFileNames = []),
+                  onClear: () => setState(() => _photoFiles = []),
                   isDark: isDark,
                 ),
                 const SizedBox(height: 6),
@@ -580,10 +614,15 @@ class _OrderModalState extends State<OrderModal> {
                 ),
                 const SizedBox(height: 6),
                 _buildFilePickerRow(
-                  label: _profileFileName ?? 'إرفاق ملف البروفايل (PDF/Word)',
-                  isSelected: _profileFileName != null,
+                  label: _isUploadingProfile
+                      ? 'جاري رفع البروفايل إلى السيرفر... ⏳'
+                      : (_profileFile != null
+                          ? 'تم رفع البروفايل بنجاح (${_profileFile!.fileName}) ✅'
+                          : 'إرفاق ملف البروفايل (PDF/Word)'),
+                  isSelected: _profileFile != null,
+                  isUploading: _isUploadingProfile,
                   onPick: _pickProfileFile,
-                  onClear: () => setState(() => _profileFileName = null),
+                  onClear: () => setState(() => _profileFile = null),
                   isDark: isDark,
                 ),
                 const SizedBox(height: 6),
@@ -901,6 +940,7 @@ class _OrderModalState extends State<OrderModal> {
   Widget _buildFilePickerRow({
     required String label,
     required bool isSelected,
+    bool isUploading = false,
     required VoidCallback onPick,
     required VoidCallback onClear,
     required bool isDark,
@@ -908,7 +948,7 @@ class _OrderModalState extends State<OrderModal> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: isSelected ? null : onPick,
+        onTap: (isSelected || isUploading) ? null : onPick,
         borderRadius: BorderRadius.circular(12),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -916,17 +956,28 @@ class _OrderModalState extends State<OrderModal> {
             color: isDark ? AppTheme.cardDark : Colors.grey.shade50,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: isSelected ? const Color(0xFF10B981) : (isDark ? AppTheme.borderDark : AppTheme.borderLight),
-              width: isSelected ? 1.5 : 1.0,
+              color: isSelected
+                  ? const Color(0xFF10B981)
+                  : (isUploading
+                      ? AppTheme.primary
+                      : (isDark ? AppTheme.borderDark : AppTheme.borderLight)),
+              width: (isSelected || isUploading) ? 1.5 : 1.0,
             ),
           ),
           child: Row(
             children: [
-              Icon(
-                isSelected ? Icons.check_circle_rounded : Icons.cloud_upload_rounded,
-                color: isSelected ? const Color(0xFF10B981) : AppTheme.primary,
-                size: 20,
-              ),
+              if (isUploading)
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary),
+                )
+              else
+                Icon(
+                  isSelected ? Icons.check_circle_rounded : Icons.cloud_upload_rounded,
+                  color: isSelected ? const Color(0xFF10B981) : AppTheme.primary,
+                  size: 20,
+                ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -934,12 +985,16 @@ class _OrderModalState extends State<OrderModal> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                    color: isSelected ? const Color(0xFF10B981) : textColor(isDark),
+                    color: isSelected
+                        ? const Color(0xFF10B981)
+                        : (isUploading ? AppTheme.primary : textColor(isDark)),
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (isSelected)
+              if (isUploading)
+                const SizedBox.shrink()
+              else if (isSelected)
                 IconButton(
                   icon: const Icon(Icons.cancel_rounded, size: 20, color: Colors.redAccent),
                   onPressed: onClear,

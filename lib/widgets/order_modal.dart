@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_translations.dart';
+import '../utils/order_notifier.dart';
 import '../utils/paytabs_helper.dart';
 import '../utils/whatsapp_helper.dart';
 
@@ -49,15 +50,28 @@ class _OrderModalState extends State<OrderModal> {
 
   void _submitWhatsAppOrder() {
     if (_formKey.currentState!.validate()) {
+      final name = _nameController.text.trim();
+      final phone = _phoneController.text.trim();
+      final domain = _domainController.text.trim();
+      final notes = _notesController.text.trim();
+
+      // 1. Send complete background email notification to company email (sales@pom-agency.online)
+      OrderNotifier.sendAdminNotification(
+        customerName: name,
+        customerPhone: phone,
+        businessName: name,
+        category: _selectedCategory,
+        domainChoice: domain,
+        notes: notes,
+        paymentMethod: 'طلب وتأكيد عبر الواتساب 💬',
+      );
+
+      // 2. Open clean client-facing WhatsApp chat
       Navigator.of(context).pop();
       WhatsAppHelper.launchWhatsApp(
-        customerName: _nameController.text.trim(),
-        customerPhone: _phoneController.text.trim(),
-        businessName: _nameController.text.trim(),
+        businessName: name,
         category: _selectedCategory,
-        domainChoice: _domainController.text.trim(),
-        notes: _notesController.text.trim(),
-        paymentMethod: 'تأكيد الطلب عبر الواتساب 💬',
+        domainChoice: domain,
       );
     }
   }
@@ -67,24 +81,30 @@ class _OrderModalState extends State<OrderModal> {
 
     setState(() => _isPaying = true);
 
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final domain = _domainController.text.trim();
+    final notes = _notesController.text.trim();
+
     try {
-      // 1. Send instant Admin WhatsApp Notification with full order details & Spaceship domain purchase link
-      WhatsAppHelper.notifyAdminPayTabsOrder(
-        customerName: _nameController.text.trim(),
-        customerPhone: _phoneController.text.trim(),
-        businessName: _nameController.text.trim(),
+      // 1. Send complete background email notification to company email (sales@pom-agency.online)
+      OrderNotifier.sendAdminNotification(
+        customerName: name,
+        customerPhone: phone,
+        businessName: name,
         category: _selectedCategory,
-        domainChoice: _domainController.text.trim(),
-        notes: _notesController.text.trim(),
+        domainChoice: domain,
+        notes: notes,
+        paymentMethod: 'دفع إلكتروني عبر PayTabs 💳',
       );
 
       // 2. Launch PayTabs hosted checkout
       final success = await PayTabsHelper.launchPayment(
-        customerName: _nameController.text.trim(),
-        customerPhone: _phoneController.text.trim(),
+        customerName: name,
+        customerPhone: phone,
         customerEmail: 'customer@ad-landing.com',
-        businessName: _nameController.text.trim(),
-        domainChoice: _domainController.text.trim(),
+        businessName: name,
+        domainChoice: domain,
         amountSar: 299.00,
         sarToEgpRate: 13.00,
         taxPercent: 5.00,

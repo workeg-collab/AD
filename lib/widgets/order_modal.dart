@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_translations.dart';
+import '../utils/paytabs_helper.dart';
 import '../utils/whatsapp_helper.dart';
 
 class OrderModal extends StatefulWidget {
@@ -15,9 +16,11 @@ class OrderModal extends StatefulWidget {
 class _OrderModalState extends State<OrderModal> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _domainController = TextEditingController();
   final _notesController = TextEditingController();
   String _selectedCategory = 'متجر / محل تجاري';
+  bool _isPaying = false;
 
   final List<String> _categories = [
     'متجر / محل تجاري',
@@ -38,12 +41,13 @@ class _OrderModalState extends State<OrderModal> {
   @override
   void dispose() {
     _nameController.dispose();
+    _phoneController.dispose();
     _domainController.dispose();
     _notesController.dispose();
     super.dispose();
   }
 
-  void _submitOrder() {
+  void _submitWhatsAppOrder() {
     if (_formKey.currentState!.validate()) {
       Navigator.of(context).pop();
       WhatsAppHelper.launchWhatsApp(
@@ -51,9 +55,51 @@ class _OrderModalState extends State<OrderModal> {
         category: _selectedCategory,
         domainChoice: _domainController.text.trim(),
         customMessage: _notesController.text.trim().isNotEmpty
-            ? 'طلب جديد لـ ${_nameController.text.trim()} - ملاحظات: ${_notesController.text.trim()}'
+            ? 'طلب جديد لـ ${_nameController.text.trim()} - رقم التواصل: ${_phoneController.text.trim()} - ملاحظات: ${_notesController.text.trim()}'
             : null,
       );
+    }
+  }
+
+  Future<void> _payWithPayTabs() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isPaying = true);
+
+    try {
+      final success = await PayTabsHelper.launchPayment(
+        customerName: _nameController.text.trim(),
+        customerPhone: _phoneController.text.trim(),
+        customerEmail: 'customer@ad-landing.com',
+        businessName: _nameController.text.trim(),
+        domainChoice: _domainController.text.trim(),
+        amount: 2990.00,
+        currency: 'EGP',
+      );
+
+      if (mounted) {
+        setState(() => _isPaying = false);
+        if (success) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('جاري التحويل إلى بوابة الدفع الآمنة PayTabs... 💳'),
+              backgroundColor: Color(0xFF10B981),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('تعذر فتح صفحة الدفع حالياً، يمكنك إتمام الطلب عبر الواتساب مباشرة.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isPaying = false);
+      }
     }
   }
 
@@ -62,16 +108,21 @@ class _OrderModalState extends State<OrderModal> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final textColor = theme.textTheme.bodyLarge?.color;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
 
     return Dialog(
       backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: isDark ? AppTheme.borderDark : AppTheme.borderLight, width: 1),
+        side: BorderSide(
+          color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+          width: 1.5,
+        ),
       ),
       child: Container(
-        padding: const EdgeInsets.all(28),
-        constraints: const BoxConstraints(maxWidth: 520),
+        padding: EdgeInsets.all(isMobile ? 20 : 28),
+        constraints: const BoxConstraints(maxWidth: 540),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -85,12 +136,23 @@ class _OrderModalState extends State<OrderModal> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.edit_document, color: AppTheme.primary, size: 24),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.rocket_launch_rounded,
+                            color: AppTheme.primary,
+                            size: 22,
+                          ),
+                        ),
                         const SizedBox(width: 10),
                         Text(
                           AppTranslations.tr('modal_title'),
                           style: TextStyle(
-                            fontSize: 17,
+                            fontSize: isMobile ? 16 : 18,
                             fontWeight: FontWeight.bold,
                             color: textColor,
                           ),
@@ -110,13 +172,14 @@ class _OrderModalState extends State<OrderModal> {
                   style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // Business Name Input
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
                     labelText: AppTranslations.tr('lbl_name'),
+                    hintText: 'مثال: متجر الأناقة أو شركة الفجر',
                     prefixIcon: const Icon(Icons.store_rounded, color: AppTheme.primary),
                     border: const OutlineInputBorder(),
                   ),
@@ -128,14 +191,34 @@ class _OrderModalState extends State<OrderModal> {
                   },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
+
+                // Phone Input
+                TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'رقم الهاتف / الواتساب للتواصل *',
+                    hintText: '05xxxxxxxx أو 01xxxxxxxxx',
+                    prefixIcon: Icon(Icons.phone_rounded, color: AppTheme.secondary),
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'يرجى كتابة رقم الهاتف للتواصل';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 14),
 
                 // Selected Domain Input
                 TextFormField(
                   controller: _domainController,
                   textDirection: TextDirection.ltr,
                   decoration: InputDecoration(
-                    labelText: 'اسم الدومين المقترح (مجاناً مع الباقة)',
+                    labelText: 'اسم الدومين المقترح (مجاناً بالسنة الأولى)',
                     hintText: 'مثال: mybrand.site',
                     hintTextDirection: TextDirection.ltr,
                     prefixIcon: const Icon(Icons.language_rounded, color: Color(0xFF10B981)),
@@ -146,14 +229,14 @@ class _OrderModalState extends State<OrderModal> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
                 // Category Dropdown
                 DropdownButtonFormField<String>(
                   initialValue: _selectedCategory,
                   decoration: const InputDecoration(
                     labelText: 'نوع النشاط *',
-                    prefixIcon: Icon(Icons.category_rounded, color: AppTheme.secondary),
+                    prefixIcon: Icon(Icons.category_rounded, color: AppTheme.accentGold),
                     border: OutlineInputBorder(),
                   ),
                   dropdownColor: isDark ? AppTheme.cardDark : Colors.white,
@@ -172,7 +255,7 @@ class _OrderModalState extends State<OrderModal> {
                   },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
                 // Notes Input
                 TextFormField(
@@ -180,21 +263,103 @@ class _OrderModalState extends State<OrderModal> {
                   maxLines: 2,
                   decoration: InputDecoration(
                     labelText: AppTranslations.tr('lbl_notes'),
+                    hintText: 'أي تفاصيل أو رغبات خاصة بتصميم صفحتك...',
                     border: const OutlineInputBorder(),
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 22),
 
-                // Submit Button
+                // Primary Payment Button (PayTabs)
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _submitOrder,
-                    icon: const Icon(Icons.send_rounded, size: 20),
-                    label: Text(AppTranslations.tr('btn_submit_order')),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 18),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF2563EB), Color(0xFF1D4ED8), Color(0xFF0284C7)],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF2563EB).withValues(alpha: 0.35),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _isPaying ? null : _payWithPayTabs,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: _isPaying
+                          ? const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'جاري تجهيز بوابة الدفع...',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.credit_card_rounded, color: Colors.white, size: 22),
+                                SizedBox(width: 10),
+                                Text(
+                                  'الدفع الإلكتروني الآمن (PayTabs) 💳',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Secondary WhatsApp Button
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _submitWhatsAppOrder,
+                    icon: const Icon(Icons.chat_rounded, color: Color(0xFF10B981), size: 20),
+                    label: const Text(
+                      'أو إتمام والطلب عبر الواتساب مباشرة 💬',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF10B981),
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: Color(0xFF10B981), width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 // ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
@@ -16,39 +17,56 @@ class UploadedFileResult {
   String toString() => fileUrl != null ? fileUrl! : fileName;
 }
 
-class WebFilePicker {
-  /// Upload base64 data to /api/upload
-  static Future<String?> uploadBase64({
-    required String base64Data,
-    required String fileName,
-    required String mimeType,
-  }) async {
-    try {
-      final response = await http.post(
-        Uri.parse('/api/upload'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'base64Data': base64Data,
-          'fileName': fileName,
-          'fileType': mimeType,
-        }),
-      ).timeout(const Duration(seconds: 25));
+class FirebaseStorageHelper {
+  static const String storageBucket = 'sa-pom.firebasestorage.app';
+  static const String altBucket = 'sa-pom.appspot.com';
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final fileUrl = data?['fileUrl'] as String?;
-        if (fileUrl != null && fileUrl.startsWith('http')) {
-          return fileUrl;
+  /// Upload binary file to Firebase Storage via REST API and return direct public download URL
+  static Future<String?> uploadBytesToFirebase({
+    required Uint8List bytes,
+    required String fileName,
+    required String contentType,
+  }) async {
+    final cleanFileName = fileName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+    final uniquePath = 'orders/${DateTime.now().millisecondsSinceEpoch}_$cleanFileName';
+
+    // Try primary bucket, then alternative bucket
+    final buckets = [storageBucket, altBucket];
+
+    for (final bucket in buckets) {
+      try {
+        final uploadUrl = Uri.parse(
+          'https://firebasestorage.googleapis.com/v0/b/$bucket/o?uploadType=media&name=${Uri.encodeComponent(uniquePath)}',
+        );
+
+        final response = await http.post(
+          uploadUrl,
+          headers: {
+            'Content-Type': contentType.isNotEmpty ? contentType : 'application/octet-stream',
+          },
+          body: bytes,
+        ).timeout(const Duration(seconds: 25));
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final name = data['name'] as String?;
+          final token = data['downloadTokens'] as String?;
+
+          if (name != null) {
+            final directUrl =
+                'https://firebasestorage.googleapis.com/v0/b/$bucket/o/${Uri.encodeComponent(name)}?alt=media${token != null && token.isNotEmpty ? "&token=$token" : ""}';
+            return directUrl;
+          }
         }
-      }
-    } catch (_) {}
+      } catch (_) {}
+    }
+
     return null;
   }
 
-  /// Pick and upload a single file (Logo)
-  static Future<UploadedFileResult?> pickAndUploadSingleImage({
+  /// Pick and upload a single image (Logo) to Firebase Storage
+  static Future<UploadedFileResult?> pickAndUploadLogo({
     String accept = 'image/*',
-    List<String>? allowedExtensions,
   }) async {
     if (kIsWeb) {
       try {
@@ -64,19 +82,15 @@ class WebFilePicker {
           if (files != null && files.isNotEmpty) {
             final file = files.first;
             final reader = html.FileReader();
-            reader.readAsDataUrl(file);
+            reader.readAsArrayBuffer(file);
             reader.onLoadEnd.listen((e) async {
               try {
-                final dataUrl = reader.result as String;
-                final base64String = dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
-                final mimeType = file.type.isNotEmpty ? file.type : 'image/png';
-
-                final fileUrl = await uploadBase64(
-                  base64Data: base64String,
+                final bytes = (reader.result as ByteBuffer).asUint8List();
+                final fileUrl = await uploadBytesToFirebase(
+                  bytes: bytes,
                   fileName: file.name,
-                  mimeType: mimeType,
+                  contentType: file.type.isNotEmpty ? file.type : 'image/png',
                 );
-
                 completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
               } catch (_) {
                 completer.complete(UploadedFileResult(fileName: file.name));
@@ -96,18 +110,16 @@ class WebFilePicker {
 
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: allowedExtensions != null ? FileType.custom : FileType.any,
-        allowedExtensions: allowedExtensions,
+        type: FileType.image,
         withData: true,
       );
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         if (file.bytes != null) {
-          final base64String = base64Encode(file.bytes!);
-          final fileUrl = await uploadBase64(
-            base64Data: base64String,
+          final fileUrl = await uploadBytesToFirebase(
+            bytes: file.bytes!,
             fileName: file.name,
-            mimeType: 'image/png',
+            contentType: 'image/png',
           );
           return UploadedFileResult(fileName: file.name, fileUrl: fileUrl);
         }
@@ -118,8 +130,8 @@ class WebFilePicker {
     return null;
   }
 
-  /// Pick and upload multiple images (Activity / Product Photos)
-  static Future<List<UploadedFileResult>> pickAndUploadMultipleImages() async {
+  /// Pick and upload multiple images (Activity / Product Photos) to Firebase Storage
+  static Future<List<UploadedFileResult>> pickAndUploadPhotos() async {
     if (kIsWeb) {
       try {
         final completer = Completer<List<UploadedFileResult>>();
@@ -137,19 +149,15 @@ class WebFilePicker {
 
             for (final file in files) {
               final reader = html.FileReader();
-              reader.readAsDataUrl(file);
+              reader.readAsArrayBuffer(file);
               reader.onLoadEnd.listen((e) async {
                 try {
-                  final dataUrl = reader.result as String;
-                  final base64String = dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
-                  final mimeType = file.type.isNotEmpty ? file.type : 'image/jpeg';
-
-                  final fileUrl = await uploadBase64(
-                    base64Data: base64String,
+                  final bytes = (reader.result as ByteBuffer).asUint8List();
+                  final fileUrl = await uploadBytesToFirebase(
+                    bytes: bytes,
                     fileName: file.name,
-                    mimeType: mimeType,
+                    contentType: file.type.isNotEmpty ? file.type : 'image/jpeg',
                   );
-
                   results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
                 } catch (_) {
                   results.add(UploadedFileResult(fileName: file.name));
@@ -183,11 +191,10 @@ class WebFilePicker {
         final List<UploadedFileResult> results = [];
         for (final file in result.files) {
           if (file.bytes != null) {
-            final base64String = base64Encode(file.bytes!);
-            final fileUrl = await uploadBase64(
-              base64Data: base64String,
+            final fileUrl = await uploadBytesToFirebase(
+              bytes: file.bytes!,
               fileName: file.name,
-              mimeType: 'image/jpeg',
+              contentType: 'image/jpeg',
             );
             results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
           } else {
@@ -201,7 +208,7 @@ class WebFilePicker {
     return [];
   }
 
-  /// Pick and upload company profile document (PDF, Word, PPT)
+  /// Pick and upload company profile document (PDF, Word, PPT) to Firebase Storage
   static Future<UploadedFileResult?> pickAndUploadProfileDocument() async {
     if (kIsWeb) {
       try {
@@ -217,19 +224,15 @@ class WebFilePicker {
           if (files != null && files.isNotEmpty) {
             final file = files.first;
             final reader = html.FileReader();
-            reader.readAsDataUrl(file);
+            reader.readAsArrayBuffer(file);
             reader.onLoadEnd.listen((e) async {
               try {
-                final dataUrl = reader.result as String;
-                final base64String = dataUrl.contains(',') ? dataUrl.split(',').last : dataUrl;
-                final mimeType = file.type.isNotEmpty ? file.type : 'application/pdf';
-
-                final fileUrl = await uploadBase64(
-                  base64Data: base64String,
+                final bytes = (reader.result as ByteBuffer).asUint8List();
+                final fileUrl = await uploadBytesToFirebase(
+                  bytes: bytes,
                   fileName: file.name,
-                  mimeType: mimeType,
+                  contentType: file.type.isNotEmpty ? file.type : 'application/pdf',
                 );
-
                 completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
               } catch (_) {
                 completer.complete(UploadedFileResult(fileName: file.name));
@@ -256,11 +259,10 @@ class WebFilePicker {
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
         if (file.bytes != null) {
-          final base64String = base64Encode(file.bytes!);
-          final fileUrl = await uploadBase64(
-            base64Data: base64String,
+          final fileUrl = await uploadBytesToFirebase(
+            bytes: file.bytes!,
             fileName: file.name,
-            mimeType: 'application/pdf',
+            contentType: 'application/pdf',
           );
           return UploadedFileResult(fileName: file.name, fileUrl: fileUrl);
         }

@@ -4,7 +4,9 @@ import '../utils/app_translations.dart';
 import '../utils/whatsapp_helper.dart';
 
 class OrderModal extends StatefulWidget {
-  const OrderModal({super.key});
+  final String? initialDomain;
+
+  const OrderModal({super.key, this.initialDomain});
 
   @override
   State<OrderModal> createState() => _OrderModalState();
@@ -24,6 +26,14 @@ class _OrderModalState extends State<OrderModal> {
     'كافيه / مطعم',
     'خدمة أخرى',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialDomain != null && widget.initialDomain!.isNotEmpty) {
+      _domainController.text = widget.initialDomain!;
+    }
+  }
 
   @override
   void dispose() {
@@ -116,6 +126,24 @@ class _OrderModalState extends State<OrderModal> {
                     }
                     return null;
                   },
+                ),
+
+                const SizedBox(height: 16),
+
+                // Selected Domain Input
+                TextFormField(
+                  controller: _domainController,
+                  textDirection: TextDirection.ltr,
+                  decoration: InputDecoration(
+                    labelText: 'اسم الدومين المقترح (مجاناً مع الباقة)',
+                    hintText: 'مثال: mybrand.site',
+                    hintTextDirection: TextDirection.ltr,
+                    prefixIcon: const Icon(Icons.language_rounded, color: Color(0xFF10B981)),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: _domainController.text.isNotEmpty
+                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981))
+                        : null,
+                  ),
                 ),
 
                 const SizedBox(height: 16),

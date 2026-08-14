@@ -4,6 +4,7 @@ import '../utils/app_translations.dart';
 import '../utils/whatsapp_helper.dart';
 import '../main.dart';
 import 'language_selector_button.dart';
+import 'domain_search_modal.dart';
 
 class Navbar extends StatelessWidget {
   final VoidCallback onOrderTap;
@@ -135,7 +136,7 @@ class Navbar extends StatelessWidget {
                         style: TextStyle(color: navTextColor, fontSize: 15),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     TextButton(
                       onPressed: onDemosTap,
                       child: Text(
@@ -143,12 +144,26 @@ class Navbar extends StatelessWidget {
                         style: TextStyle(color: navTextColor, fontSize: 15),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     TextButton(
                       onPressed: onOrderTap,
                       child: Text(
                         AppTranslations.tr('nav_pricing'),
                         style: const TextStyle(color: AppTheme.accentGold, fontSize: 15, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    TextButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const DomainSearchModal(),
+                        );
+                      },
+                      icon: const Icon(Icons.language_rounded, size: 16, color: Color(0xFF10B981)),
+                      label: const Text(
+                        'فحص الدومين 🌐',
+                        style: TextStyle(color: Color(0xFF10B981), fontSize: 14, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],

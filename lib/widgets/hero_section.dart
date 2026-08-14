@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-
 import '../utils/app_translations.dart';
+import 'domain_search_modal.dart';
 
 class HeroSection extends StatefulWidget {
   final VoidCallback onOrderTap;
@@ -27,6 +27,7 @@ class _HeroSectionState extends State<HeroSection>
   late Animation<Offset> _slideAnim;
   bool _isOrderHovered = false;
   bool _isDemosHovered = false;
+  bool _isDomainHovered = false;
 
   @override
   void initState() {
@@ -233,7 +234,18 @@ class _HeroSectionState extends State<HeroSection>
                     runSpacing: 16,
                     alignment: WrapAlignment.center,
                     children: [
-                      _buildBenefitChip(context, Icons.domain_rounded, AppTranslations.tr('chip_domain'), isDark),
+                      _buildBenefitChip(
+                        context,
+                        Icons.domain_rounded,
+                        AppTranslations.tr('chip_domain'),
+                        isDark,
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const DomainSearchModal(),
+                          );
+                        },
+                      ),
                       _buildAnimatedDeliveryChip(context, isDark),
                       _buildBenefitChip(context, Icons.edit_note_rounded, AppTranslations.tr('chip_edits'), isDark),
                       _buildBenefitChip(context, Icons.flash_on_rounded, AppTranslations.tr('chip_tech'), isDark),
@@ -261,7 +273,7 @@ class _HeroSectionState extends State<HeroSection>
                               backgroundColor: AppTheme.primary,
                               elevation: _isOrderHovered ? 12 : 4,
                               shadowColor: AppTheme.primary.withValues(alpha: 0.5),
-                              padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 20),
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
@@ -274,7 +286,7 @@ class _HeroSectionState extends State<HeroSection>
                                 Text(
                                   AppTranslations.tr('btn_order'),
                                   style: const TextStyle(
-                                    fontSize: 17,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
@@ -283,6 +295,103 @@ class _HeroSectionState extends State<HeroSection>
                             ),
                           ),
                         ),
+                      ),
+
+                      // Animated Domain Search Button "اختار اسم موقعك الآن 🌐"
+                      AnimatedBuilder(
+                        animation: Listenable.merge([_pulseController, _timerWiggleController]),
+                        builder: (context, child) {
+                          final wiggleVal = math.sin(_timerWiggleController.value * 2 * math.pi);
+                          final pulseVal = _pulseController.value;
+
+                          return MouseRegion(
+                            onEnter: (_) => setState(() => _isDomainHovered = true),
+                            onExit: (_) => setState(() => _isDomainHovered = false),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              transform: Matrix4.translationValues(0, _isDomainHovered ? -4 : 0, 0),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF059669), Color(0xFF10B981), Color(0xFF0D9488)],
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: const Color(0xFF34D399).withValues(alpha: 0.8),
+                                  width: 1.5,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF10B981).withValues(alpha: _isDomainHovered ? 0.6 : (0.3 + pulseVal * 0.2)),
+                                    blurRadius: _isDomainHovered ? 20 : (12 + pulseVal * 6),
+                                    spreadRadius: _isDomainHovered ? 2 : (pulseVal * 2),
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => const DomainSearchModal(),
+                                    );
+                                  },
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 19),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Transform.rotate(
+                                          angle: wiggleVal * 0.22,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withValues(alpha: 0.25),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.travel_explore_rounded,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        const Text(
+                                          'اختار اسم موقعك الآن 🌐',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                            letterSpacing: 0.3,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFDE68A),
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: const Text(
+                                            'مجاناً',
+                                            style: TextStyle(
+                                              color: Color(0xFF78350F),
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w900,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
 
                       // Secondary Animated Button
@@ -337,8 +446,14 @@ class _HeroSectionState extends State<HeroSection>
     );
   }
 
-  Widget _buildBenefitChip(BuildContext context, IconData icon, String label, bool isDark) {
-    return Container(
+  Widget _buildBenefitChip(
+    BuildContext context,
+    IconData icon,
+    String label,
+    bool isDark, {
+    VoidCallback? onTap,
+  }) {
+    final chip = Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.cardDark : Colors.white,
@@ -370,6 +485,18 @@ class _HeroSectionState extends State<HeroSection>
         ],
       ),
     );
+
+    if (onTap != null) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: chip,
+        ),
+      );
+    }
+    return chip;
   }
 
   Widget _buildAnimatedDeliveryChip(BuildContext context, bool isDark) {

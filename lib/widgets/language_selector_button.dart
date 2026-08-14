@@ -16,7 +16,7 @@ class LanguageSelectorButton extends StatelessWidget {
       valueListenable: currentLanguageNotifier,
       builder: (context, currentLang, child) {
         return PopupMenuButton<AppLanguage>(
-          tooltip: 'اختر اللغة / Select Language',
+          tooltip: 'اختر اللغة / Language: ${currentLang.name}',
           offset: const Offset(0, 36),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
@@ -57,38 +57,19 @@ class LanguageSelectorButton extends StatelessWidget {
             }).toList();
           },
           child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 6 : 9,
-              vertical: isMobile ? 4 : 6,
-            ),
+            padding: EdgeInsets.all(isMobile ? 5 : 7),
             decoration: BoxDecoration(
-              color: isDark ? AppTheme.surfaceDark : Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(16),
+              color: isDark ? AppTheme.cardDark : Colors.grey.shade200,
+              shape: BoxShape.circle,
               border: Border.all(
-                color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+                color: AppTheme.primary.withValues(alpha: 0.4),
                 width: 1,
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(currentLang.flag, style: TextStyle(fontSize: isMobile ? 12 : 14)),
-                SizedBox(width: isMobile ? 3 : 5),
-                Text(
-                  currentLang.code.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: isMobile ? 10 : 11,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? AppTheme.textWhite : AppTheme.textDark,
-                  ),
-                ),
-                SizedBox(width: isMobile ? 1 : 2),
-                Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: isMobile ? 12 : 14,
-                  color: isDark ? AppTheme.textMutedDark : AppTheme.textMuted,
-                ),
-              ],
+            child: Icon(
+              Icons.translate_rounded,
+              color: isDark ? AppTheme.accentGold : AppTheme.primary,
+              size: isMobile ? 12.5 : 15,
             ),
           ),
         );

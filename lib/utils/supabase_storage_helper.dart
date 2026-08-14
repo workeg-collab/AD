@@ -81,12 +81,11 @@ class SupabaseStorageHelper {
     return null;
   }
 
-  /// Pick and upload a single image (Logo) using file.bytes (Uint8List)
+  /// Pick and upload a single image (Logo) using standard FileType.image
   static Future<UploadedFileResult?> pickAndUploadLogo() async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['png', 'jpg', 'jpeg', 'svg', 'webp', 'pdf', 'ai', 'eps'],
+        type: FileType.image,
         withData: true,
       );
 
@@ -108,13 +107,12 @@ class SupabaseStorageHelper {
     return null;
   }
 
-  /// Pick and upload multiple images (Photos) using file.bytes (Uint8List)
+  /// Pick and upload multiple images (Photos) using standard FileType.image
   static Future<List<UploadedFileResult>> pickAndUploadPhotos() async {
     try {
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
-        type: FileType.custom,
-        allowedExtensions: ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'],
+        type: FileType.image,
         withData: true,
       );
 
@@ -140,12 +138,11 @@ class SupabaseStorageHelper {
     return [];
   }
 
-  /// Pick and upload company profile document using file.bytes (Uint8List)
+  /// Pick and upload company profile document using standard FileType.any
   static Future<UploadedFileResult?> pickAndUploadProfileDocument() async {
     try {
       final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx', 'ppt', 'pptx'],
+        type: FileType.any,
         withData: true,
       );
 

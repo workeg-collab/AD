@@ -997,96 +997,73 @@ class _OrderModalState extends State<OrderModal> {
     required VoidCallback onClear,
     required bool isDark,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: isUploading ? null : (isSelected ? onClear : onPick),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isDark ? AppTheme.cardDark : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12),
-        mouseCursor: isUploading ? SystemMouseCursors.wait : SystemMouseCursors.click,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: isDark ? AppTheme.cardDark : Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected
-                  ? const Color(0xFF10B981)
-                  : (isUploading
-                      ? AppTheme.primary
-                      : (isDark ? AppTheme.borderDark : AppTheme.borderLight)),
-              width: (isSelected || isUploading) ? 1.5 : 1.0,
+        border: Border.all(
+          color: isSelected
+              ? const Color(0xFF10B981)
+              : (isUploading
+                  ? AppTheme.primary
+                  : (isDark ? AppTheme.borderDark : AppTheme.borderLight)),
+          width: (isSelected || isUploading) ? 1.5 : 1.0,
+        ),
+      ),
+      child: Row(
+        children: [
+          if (isUploading)
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary),
+            )
+          else
+            Icon(
+              isSelected ? Icons.check_circle_rounded : Icons.cloud_upload_rounded,
+              color: isSelected ? const Color(0xFF10B981) : AppTheme.primary,
+              size: 22,
+            ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isSelected
+                    ? const Color(0xFF10B981)
+                    : (isUploading ? AppTheme.primary : textColor(isDark)),
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          child: Row(
-            children: [
-              if (isUploading)
-                const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primary),
-                )
-              else
-                Icon(
-                  isSelected ? Icons.check_circle_rounded : Icons.cloud_upload_rounded,
-                  color: isSelected ? const Color(0xFF10B981) : AppTheme.primary,
-                  size: 20,
-                ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                    color: isSelected
-                        ? const Color(0xFF10B981)
-                        : (isUploading ? AppTheme.primary : textColor(isDark)),
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+          const SizedBox(width: 8),
+          if (isUploading)
+            const SizedBox.shrink()
+          else if (isSelected)
+            IconButton(
+              icon: const Icon(Icons.cancel_rounded, size: 22, color: Colors.redAccent),
+              onPressed: onClear,
+              tooltip: 'إلغاء الملف',
+            )
+          else
+            ElevatedButton.icon(
+              onPressed: onPick,
+              icon: const Icon(Icons.folder_open_rounded, size: 16, color: Colors.white),
+              label: const Text(
+                'اختيار ملف',
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.white),
               ),
-              if (isUploading)
-                const SizedBox.shrink()
-              else if (isSelected)
-                IconButton(
-                  icon: const Icon(Icons.cancel_rounded, size: 20, color: Colors.redAccent),
-                  onPressed: onClear,
-                  tooltip: 'إلغاء الملف',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                )
-              else
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    onTap: onPick,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.folder_open_rounded, size: 15, color: AppTheme.primary),
-                          SizedBox(width: 5),
-                          Text(
-                            'اختيار ملف',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.primary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                elevation: 0,
+              ),
+            ),
+        ],
       ),
     );
   }

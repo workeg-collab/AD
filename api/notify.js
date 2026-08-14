@@ -27,6 +27,7 @@ export default async function handler(req, res) {
       domainChoice = '',
       notes = '',
       paymentMethod = 'طلب عبر الموقع',
+      paymentUrl = '',
     } = req.body || {};
 
     const cleanDomain = (domainChoice || '').trim().toLowerCase();
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
     const targetEmail = 'sales@pom-agency.online';
     const emailSubject = `🚨 إشعار طلب جديد: ${businessName || customerName} (${paymentMethod})`;
 
-    const emailBody = `
+    let emailBody = `
 ========================================
 🚨 إشعار طلب جديد - POM Agency 🚨
 ========================================
@@ -50,7 +51,16 @@ export default async function handler(req, res) {
 
 🛒 رابط شراء الدومين المباشر (Spaceship للإدارة):
 ${spaceshipUrl}
+`;
 
+    if (paymentUrl) {
+      emailBody += `
+💳 رابط الدفع الإلكتروني (PayTabs للعميل):
+${paymentUrl}
+`;
+    }
+
+    emailBody += `
 💰 تفاصيل الحساب:
 - السعر بالريال: 299.00 SAR ($79.73 USD)
 - السعر بالمصري: 3,887.00 ج.م

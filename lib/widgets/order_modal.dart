@@ -21,7 +21,7 @@ class _OrderModalState extends State<OrderModal> {
   final _domainController = TextEditingController();
   final _notesController = TextEditingController();
   String _selectedCategory = 'متجر / محل تجاري';
-  bool _isPaying = false;
+  bool _isProcessing = false;
 
   final List<String> _categories = [
     'متجر / محل تجاري',
@@ -48,38 +48,10 @@ class _OrderModalState extends State<OrderModal> {
     super.dispose();
   }
 
-  void _submitWhatsAppOrder() {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text.trim();
-      final phone = _phoneController.text.trim();
-      final domain = _domainController.text.trim();
-      final notes = _notesController.text.trim();
-
-      // 1. Send complete background email notification to company email (sales@pom-agency.online)
-      OrderNotifier.sendAdminNotification(
-        customerName: name,
-        customerPhone: phone,
-        businessName: name,
-        category: _selectedCategory,
-        domainChoice: domain,
-        notes: notes,
-        paymentMethod: 'طلب وتأكيد عبر الواتساب 💬',
-      );
-
-      // 2. Open clean client-facing WhatsApp chat
-      Navigator.of(context).pop();
-      WhatsAppHelper.launchWhatsApp(
-        businessName: name,
-        category: _selectedCategory,
-        domainChoice: domain,
-      );
-    }
-  }
-
-  Future<void> _payWithPayTabs() async {
+  Future<void> _submitWhatsAppOrder() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isPaying = true);
+    setState(() => _isProcessing = true);
 
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
@@ -87,19 +59,8 @@ class _OrderModalState extends State<OrderModal> {
     final notes = _notesController.text.trim();
 
     try {
-      // 1. Send complete background email notification to company email (sales@pom-agency.online)
-      OrderNotifier.sendAdminNotification(
-        customerName: name,
-        customerPhone: phone,
-        businessName: name,
-        category: _selectedCategory,
-        domainChoice: domain,
-        notes: notes,
-        paymentMethod: 'دفع إلكتروني عبر PayTabs 💳',
-      );
-
-      // 2. Launch PayTabs hosted checkout
-      final success = await PayTabsHelper.launchPayment(
+      // 1. Generate direct PayTabs payment page URL for this order
+      final paymentUrl = await PayTabsHelper.createPaymentPage(
         customerName: name,
         customerPhone: phone,
         customerEmail: 'customer@ad-landing.com',
@@ -110,28 +71,105 @@ class _OrderModalState extends State<OrderModal> {
         taxPercent: 5.00,
       );
 
+      // 2. Send complete background email notification to company email (sales@pom-agency.online)
+      await OrderNotifier.sendAdminNotification(
+        customerName: name,
+        customerPhone: phone,
+        businessName: name,
+        category: _selectedCategory,
+        domainChoice: domain,
+        notes: notes,
+        paymentMethod: 'طلب وتأكيد عبر الواتساب + رابط PayTabs 💬',
+        paymentUrl: paymentUrl,
+      );
+
       if (mounted) {
-        setState(() => _isPaying = false);
-        if (success) {
+        setState(() => _isProcessing = false);
+        Navigator.of(context).pop();
+
+        // 3. Open WhatsApp chat with order summary AND direct PayTabs payment link
+        await WhatsAppHelper.launchWhatsApp(
+          businessName: name,
+          category: _selectedCategory,
+          domainChoice: domain,
+          paymentUrl: paymentUrl,
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+        Navigator.of(context).pop();
+        await WhatsAppHelper.launchWhatsApp(
+          businessName: name,
+          category: _selectedCategory,
+          domainChoice: domain,
+        );
+      }
+    }
+  }
+
+  Future<void> _payWithPayTabs() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isProcessing = true);
+
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final domain = _domainController.text.trim();
+    final notes = _notesController.text.trim();
+
+    try {
+      // 1. Launch PayTabs hosted checkout
+      final paymentUrl = await PayTabsHelper.createPaymentPage(
+        customerName: name,
+        customerPhone: phone,
+        customerEmail: 'customer@ad-landing.com',
+        businessName: name,
+        domainChoice: domain,
+        amountSar: 299.00,
+        sarToEgpRate: 13.00,
+        taxPercent: 5.00,
+      );
+
+      // 2. Send complete background email notification to company email (sales@pom-agency.online)
+      await OrderNotifier.sendAdminNotification(
+        customerName: name,
+        customerPhone: phone,
+        businessName: name,
+        category: _selectedCategory,
+        domainChoice: domain,
+        notes: notes,
+        paymentMethod: 'دفع فوري بالبطاقة عبر PayTabs 💳',
+        paymentUrl: paymentUrl,
+      );
+
+      if (mounted) {
+        setState(() => _isProcessing = false);
+        if (paymentUrl != null && paymentUrl.isNotEmpty) {
           Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('جاري التحويل إلى بوابة الدفع الآمنة PayTabs... 💳'),
-              backgroundColor: Color(0xFF10B981),
-            ),
+          await PayTabsHelper.launchPayment(
+            customerName: name,
+            customerPhone: phone,
+            customerEmail: 'customer@ad-landing.com',
+            businessName: name,
+            domainChoice: domain,
+            amountSar: 299.00,
+            sarToEgpRate: 13.00,
+            taxPercent: 5.00,
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('تعذر فتح صفحة الدفع حالياً، يمكنك إتمام الطلب عبر الواتساب مباشرة.'),
+              content: Text('تعذر فتح صفحة الدفع، جاري تحويلك للواتساب للمتابعة مباشرة...'),
               backgroundColor: Colors.orange,
             ),
           );
+          _submitWhatsAppOrder();
         }
       }
     } catch (_) {
       if (mounted) {
-        setState(() => _isPaying = false);
+        setState(() => _isProcessing = false);
       }
     }
   }
@@ -448,25 +486,25 @@ class _OrderModalState extends State<OrderModal> {
 
                 const SizedBox(height: 16),
 
-                // Primary Payment Button (PayTabs)
+                // Primary Action: Submit Order + PayTabs Link via WhatsApp
                 SizedBox(
                   width: double.infinity,
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF2563EB), Color(0xFF1D4ED8), Color(0xFF0284C7)],
+                        colors: [Color(0xFF10B981), Color(0xFF059669)],
                       ),
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF2563EB).withValues(alpha: 0.35),
+                          color: const Color(0xFF10B981).withValues(alpha: 0.35),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: _isPaying ? null : _payWithPayTabs,
+                      onPressed: _isProcessing ? null : _submitWhatsAppOrder,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
@@ -475,7 +513,7 @@ class _OrderModalState extends State<OrderModal> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: _isPaying
+                      child: _isProcessing
                           ? const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -489,7 +527,7 @@ class _OrderModalState extends State<OrderModal> {
                                 ),
                                 SizedBox(width: 10),
                                 Text(
-                                  'جاري تجهيز بوابة الدفع...',
+                                  'جاري تجهيز الطلب ورابط الدفع...',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
@@ -501,10 +539,10 @@ class _OrderModalState extends State<OrderModal> {
                           : const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.credit_card_rounded, color: Colors.white, size: 20),
+                                Icon(Icons.chat_rounded, color: Colors.white, size: 20),
                                 SizedBox(width: 8),
                                 Text(
-                                  'الدفع الإلكتروني الآمن (PayTabs) 💳',
+                                  'تأكيد الطلب واستلام رابط الدفع عبر الواتساب 💬',
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w900,
@@ -519,23 +557,23 @@ class _OrderModalState extends State<OrderModal> {
 
                 const SizedBox(height: 10),
 
-                // Secondary WhatsApp Button
+                // Secondary Action: Instant Card Payment
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
-                    onPressed: _submitWhatsAppOrder,
-                    icon: const Icon(Icons.chat_rounded, color: Color(0xFF10B981), size: 18),
+                    onPressed: _isProcessing ? null : _payWithPayTabs,
+                    icon: const Icon(Icons.credit_card_rounded, color: Color(0xFF2563EB), size: 18),
                     label: const Text(
-                      'أو إتمام والطلب عبر الواتساب مباشرة 💬',
+                      'أو الدفع الفوري بالفيزا/الماستركارد (PayTabs) 💳',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF10B981),
+                        color: Color(0xFF2563EB),
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 13),
-                      side: const BorderSide(color: Color(0xFF10B981), width: 1.5),
+                      side: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),

@@ -11,6 +11,7 @@ class OrderNotifier {
     String? domainChoice,
     String? notes,
     required String paymentMethod,
+    String? paymentUrl,
   }) async {
     final payload = {
       'customerName': customerName,
@@ -20,6 +21,7 @@ class OrderNotifier {
       'domainChoice': domainChoice ?? '',
       'notes': notes ?? '',
       'paymentMethod': paymentMethod,
+      'paymentUrl': paymentUrl ?? '',
     };
 
     // 1. Try Vercel Serverless Function /api/notify
@@ -39,25 +41,32 @@ class OrderNotifier {
           ? 'https://www.spaceship.com/domain-search/?query=$cleanDomain'
           : 'https://www.spaceship.com';
 
+      final Map<String, dynamic> emailPayload = {
+        '_subject': '🚨 طلب جديد: $businessName ($paymentMethod)',
+        '_template': 'table',
+        '_captcha': 'false',
+        'طريقة الطلب والدفع': paymentMethod,
+        'اسم العميل أو النشاط': businessName.isNotEmpty ? businessName : customerName,
+        'رقم هاتف العميل': customerPhone,
+        'تصنيف النشاط': category,
+        'الدومين المطلوب': cleanDomain.isNotEmpty ? cleanDomain : 'غير محدد',
+        'رابط شراء الدومين (Spaceship للإدارة)': spaceshipUrl,
+      };
+
+      if (paymentUrl != null && paymentUrl.isNotEmpty) {
+        emailPayload['رابط الدفع الإلكتروني (PayTabs للعميل)'] = paymentUrl;
+      }
+
+      emailPayload['المبلغ الإجمالي'] = '299 SAR (4,081.35 EGP شامل TAX 5%)';
+      emailPayload['ملاحظات إضافية'] = notes ?? 'لا يوجد';
+
       await http.post(
         Uri.parse('https://formsubmit.co/ajax/sales@pom-agency.online'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({
-          '_subject': '🚨 طلب جديد: $businessName ($paymentMethod)',
-          '_template': 'table',
-          '_captcha': 'false',
-          'طريقة الطلب والدفع': paymentMethod,
-          'اسم العميل أو النشاط': businessName.isNotEmpty ? businessName : customerName,
-          'رقم هاتف العميل': customerPhone,
-          'تصنيف النشاط': category,
-          'الدومين المطلوب': cleanDomain.isNotEmpty ? cleanDomain : 'غير محدد',
-          'رابط شراء الدومين (Spaceship للإدارة)': spaceshipUrl,
-          'المبلغ الإجمالي': '299 SAR (4,081.35 EGP شامل TAX 5%)',
-          'ملاحظات إضافية': notes ?? 'لا يوجد',
-        }),
+        body: jsonEncode(emailPayload),
       ).timeout(const Duration(seconds: 6));
     } catch (_) {}
   }

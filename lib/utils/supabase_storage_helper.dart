@@ -37,6 +37,29 @@ class SupabaseStorageHelper {
     }
   }
 
+  /// Sanitizes any Arabic or special text into a clean S3-compatible ASCII slug
+  static String sanitizeToAscii(String text) {
+    const map = {
+      'ا': 'a', 'أ': 'a', 'إ': 'e', 'آ': 'aa', 'ب': 'b', 'ت': 't', 'ث': 'th',
+      'ج': 'j', 'ح': 'h', 'خ': 'kh', 'د': 'd', 'ذ': 'th', 'ر': 'r', 'ز': 'z',
+      'س': 's', 'ش': 'sh', 'ص': 's', 'ض': 'd', 'ط': 't', 'ظ': 'z', 'ع': 'a',
+      'غ': 'gh', 'ف': 'f', 'ق': 'q', 'ك': 'k', 'ل': 'l', 'م': 'm', 'ن': 'n',
+      'ه': 'h', 'و': 'w', 'ي': 'y', 'ى': 'a', 'ة': 'h', 'ء': '', 'ئ': 'e', 'ؤ': 'o',
+      ' ': '_',
+    };
+    final buffer = StringBuffer();
+    for (int i = 0; i < text.length; i++) {
+      final char = text[i];
+      if (map.containsKey(char)) {
+        buffer.write(map[char]);
+      } else if (RegExp(r'[a-zA-Z0-9_-]').hasMatch(char)) {
+        buffer.write(char);
+      }
+    }
+    final res = buffer.toString().replaceAll(RegExp(r'_+'), '_').replaceAll(RegExp(r'^_|_$'), '');
+    return res.isEmpty ? 'client' : res;
+  }
+
   /// Generates a clean, unique file name using timestamp + random suffix + clean extension
   static String _generateCleanFileName(String fileName, {String prefixTag = ''}) {
     String ext = '';
@@ -88,10 +111,9 @@ class SupabaseStorageHelper {
       final uniqueName = _generateCleanFileName(originalFileName, prefixTag: prefixTag);
       final contentType = _getContentType(uniqueName);
 
-      // Clean folder name to remove invalid URL characters while keeping Arabic & alphanumeric
       String cleanFolder = '';
       if (folderName != null && folderName.trim().isNotEmpty) {
-        cleanFolder = folderName.trim().replaceAll(RegExp(r'[^\w\u0600-\u06FF-]'), '_').replaceAll(RegExp(r'_+'), '_');
+        cleanFolder = sanitizeToAscii(folderName.trim());
       }
 
       final fullPath = cleanFolder.isNotEmpty ? '$cleanFolder/$uniqueName' : uniqueName;

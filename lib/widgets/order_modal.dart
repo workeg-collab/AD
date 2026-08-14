@@ -77,7 +77,7 @@ class _OrderModalState extends State<OrderModal> {
   Future<void> _pickLogoFile() async {
     setState(() => _isUploadingLogo = true);
     try {
-      final result = await WebFilePicker.pickAndUploadSingleFile(
+      final result = await WebFilePicker.pickAndUploadSingleImage(
         accept: 'image/*,.svg,.pdf,.ai,.eps',
         allowedExtensions: ['png', 'jpg', 'jpeg', 'svg', 'pdf', 'ai', 'eps'],
       );

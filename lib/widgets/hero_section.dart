@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
@@ -18,8 +19,10 @@ class HeroSection extends StatefulWidget {
 }
 
 class _HeroSectionState extends State<HeroSection>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
+  late AnimationController _pulseController;
+  late AnimationController _timerWiggleController;
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
   bool _isOrderHovered = false;
@@ -32,6 +35,16 @@ class _HeroSectionState extends State<HeroSection>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     );
+
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _timerWiggleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..repeat();
 
     _fadeAnim = CurvedAnimation(
       parent: _controller,
@@ -52,6 +65,8 @@ class _HeroSectionState extends State<HeroSection>
   @override
   void dispose() {
     _controller.dispose();
+    _pulseController.dispose();
+    _timerWiggleController.dispose();
     super.dispose();
   }
 
@@ -77,41 +92,107 @@ class _HeroSectionState extends State<HeroSection>
               constraints: const BoxConstraints(maxWidth: 1200),
               child: Column(
                 children: [
-                  // Glowing Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppTheme.primary.withValues(alpha: 0.2),
-                          AppTheme.secondary.withValues(alpha: 0.15),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: AppTheme.primary.withValues(alpha: 0.5), width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primary.withValues(alpha: 0.2),
-                          blurRadius: 15,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.bolt_rounded, color: AppTheme.primary, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          AppTranslations.tr('hero_badge'),
-                          style: const TextStyle(
-                            color: AppTheme.primaryDark,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
+                  // Prominent Animated Glowing 6-Hour Badge
+                  AnimatedBuilder(
+                    animation: Listenable.merge([_pulseController, _timerWiggleController]),
+                    builder: (context, child) {
+                      final pulseVal = _pulseController.value;
+                      final wiggleVal = math.sin(_timerWiggleController.value * 2 * math.pi);
+
+                      return Transform.scale(
+                        scale: 1.0 + (pulseVal * 0.03),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isMobile ? 14 : 20,
+                            vertical: isMobile ? 8 : 10,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: isDark
+                                  ? [
+                                      const Color(0xFF1E1B4B).withValues(alpha: 0.9),
+                                      const Color(0xFF312E81).withValues(alpha: 0.8),
+                                      const Color(0xFF065F46).withValues(alpha: 0.7),
+                                    ]
+                                  : [
+                                      const Color(0xFFEEF2FF),
+                                      const Color(0xFFE0E7FF),
+                                      const Color(0xFFD1FAE5),
+                                    ],
+                            ),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: const Color(0xFFF59E0B).withValues(alpha: 0.6 + (pulseVal * 0.4)),
+                              width: 2.0,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFF59E0B).withValues(alpha: 0.25 + (pulseVal * 0.3)),
+                                blurRadius: 18 + (pulseVal * 10),
+                                spreadRadius: 1 + (pulseVal * 3),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Animated Energetic Ticking Timer & Lightning Icon
+                              Transform.rotate(
+                                angle: wiggleVal * 0.22,
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFFF59E0B), Color(0xFFEF4444)],
+                                    ),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFFF59E0B).withValues(alpha: 0.6),
+                                        blurRadius: 10,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.timer_rounded,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                AppTranslations.tr('hero_badge'),
+                                style: TextStyle(
+                                  color: isDark ? const Color(0xFFFDE68A) : const Color(0xFFB45309),
+                                  fontSize: isMobile ? 12 : 14,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.4,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              // Glowing Live Radar Dot
+                              Container(
+                                width: 9,
+                                height: 9,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFF10B981),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF10B981).withValues(alpha: 0.6 + (pulseVal * 0.4)),
+                                      blurRadius: 8 + (pulseVal * 4),
+                                      spreadRadius: 1 + (pulseVal * 2),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 24),
@@ -153,7 +234,7 @@ class _HeroSectionState extends State<HeroSection>
                     alignment: WrapAlignment.center,
                     children: [
                       _buildBenefitChip(context, Icons.domain_rounded, AppTranslations.tr('chip_domain'), isDark),
-                      _buildBenefitChip(context, Icons.timer_outlined, AppTranslations.tr('chip_delivery'), isDark),
+                      _buildAnimatedDeliveryChip(context, isDark),
                       _buildBenefitChip(context, Icons.edit_note_rounded, AppTranslations.tr('chip_edits'), isDark),
                       _buildBenefitChip(context, Icons.flash_on_rounded, AppTranslations.tr('chip_tech'), isDark),
                     ],
@@ -288,6 +369,74 @@ class _HeroSectionState extends State<HeroSection>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAnimatedDeliveryChip(BuildContext context, bool isDark) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_pulseController, _timerWiggleController]),
+      builder: (context, child) {
+        final pulseVal = _pulseController.value;
+        final wiggleVal = math.sin(_timerWiggleController.value * 2 * math.pi);
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark
+                  ? [
+                      const Color(0xFF1E293B),
+                      const Color(0xFF0F172A),
+                    ]
+                  : [
+                      const Color(0xFFFFFBEB),
+                      Colors.white,
+                    ],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: const Color(0xFFF59E0B).withValues(alpha: 0.7 + (pulseVal * 0.3)),
+              width: 1.8,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFF59E0B).withValues(alpha: 0.2 + (pulseVal * 0.2)),
+                blurRadius: 10 + (pulseVal * 6),
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Transform.rotate(
+                angle: wiggleVal * 0.25,
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF59E0B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.timer_rounded,
+                    color: Colors.white,
+                    size: 15,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                AppTranslations.tr('chip_delivery'),
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: isDark ? const Color(0xFFFDE68A) : const Color(0xFFB45309),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

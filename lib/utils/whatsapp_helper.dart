@@ -19,8 +19,7 @@ class WhatsAppHelper {
       textMessage += '\n🏷️ تصنيف النشاط: $category';
     }
     if (domainChoice != null && domainChoice.isNotEmpty) {
-      textMessage += '\n🌐 الدومين المقترح: $domainChoice';
-      textMessage += '\n🔗 رابط الشراء الفوري على Spaceship: https://www.spaceship.com/domain-search/?query=$domainChoice';
+      textMessage += '\n🌐 الدومين المختار: $domainChoice';
     }
 
     final Uri url = Uri.parse(

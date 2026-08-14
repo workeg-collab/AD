@@ -76,6 +76,10 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
 
     return Dialog(
       backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 12 : 24,
+        vertical: isMobile ? 16 : 24,
+      ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(
@@ -85,7 +89,7 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 620, maxHeight: 720),
-        padding: EdgeInsets.all(isMobile ? 20 : 28),
+        padding: EdgeInsets.all(isMobile ? 16 : 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -94,46 +98,54 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.language_rounded,
-                        color: AppTheme.primary,
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'فحص واختيار اسم موقعك (مجاناً) 🌐',
-                          style: TextStyle(
-                            fontSize: isMobile ? 16 : 18,
-                            fontWeight: FontWeight.w900,
-                            color: textColor,
-                          ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(height: 2),
-                        const Text(
-                          'دومين خاص لعلامتك التجارية مشمول مجاناً بالسنة الأولى',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textMuted,
-                          ),
+                        child: const Icon(
+                          Icons.language_rounded,
+                          color: AppTheme.primary,
+                          size: 20,
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'فحص واختيار اسم موقعك (مجاناً) 🌐',
+                              style: TextStyle(
+                                fontSize: isMobile ? 14.5 : 18,
+                                fontWeight: FontWeight.w900,
+                                color: textColor,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'دومين خاص لعلامتك مشمول مجاناً بالسنة الأولى',
+                              style: TextStyle(
+                                fontSize: isMobile ? 11 : 12,
+                                color: AppTheme.textMuted,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close_rounded, color: AppTheme.textMuted),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],

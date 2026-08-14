@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     const profileId = 154004;
     const serverKey = 'SHJ9WHMT6Z-J9KRRLTHBG-2HBDZKRTWR';
     const cartId = `ORDER_${Date.now()}`;
-    let description = `تصميم صفحة لـ ${businessName} (299 SAR + 5% ضريبة = ${totalEgp} ج.م)`;
+    let description = `تصميم صفحة لـ ${businessName} (299 SAR + TAX 5% = ${totalEgp} ج.م)`;
     if (domainChoice) {
       description += ` + دومين ${domainChoice}`;
     }

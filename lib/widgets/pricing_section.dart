@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-
 import '../utils/app_translations.dart';
 
 class PricingSection extends StatelessWidget {
@@ -13,7 +12,9 @@ class PricingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.of(context).size.width < 768;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 768;
+    final isSmallMobile = screenWidth < 400;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final textColor = theme.textTheme.bodyLarge?.color;
@@ -29,7 +30,10 @@ class PricingSection extends StatelessWidget {
     ];
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 12 : 24,
+        vertical: isMobile ? 40 : 80,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 900),
@@ -37,7 +41,7 @@ class PricingSection extends StatelessWidget {
             children: [
               // Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppTheme.accentGold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
@@ -52,11 +56,11 @@ class PricingSection extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Text(
                 AppTranslations.tr('price_title'),
                 style: TextStyle(
-                  fontSize: 34,
+                  fontSize: isMobile ? 24 : 34,
                   fontWeight: FontWeight.bold,
                   color: textColor,
                 ),
@@ -65,14 +69,14 @@ class PricingSection extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 AppTranslations.tr('price_sub'),
-                style: const TextStyle(
-                  fontSize: 16,
+                style: TextStyle(
+                  fontSize: isMobile ? 13.5 : 16,
                   color: AppTheme.textMuted,
                 ),
                 textAlign: TextAlign.center,
               ),
 
-              const SizedBox(height: 40),
+              SizedBox(height: isMobile ? 24 : 40),
 
               // Pricing Card
               Container(
@@ -85,43 +89,42 @@ class PricingSection extends StatelessWidget {
                       color: isDark
                           ? AppTheme.primary.withValues(alpha: 0.1)
                           : Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 30,
-                      spreadRadius: 5,
+                      blurRadius: 24,
+                      spreadRadius: 3,
                     ),
                   ],
                 ),
                 child: Padding(
-                  padding: EdgeInsets.all(isMobile ? 24 : 40),
+                  padding: EdgeInsets.all(isMobile ? 18 : 40),
                   child: Column(
                     children: [
                       // Price Header
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 4,
                         children: [
                           Text(
                             AppTranslations.tr('price_amount'),
-                            style: const TextStyle(
-                              fontSize: 56,
+                            style: TextStyle(
+                              fontSize: isSmallMobile ? 42 : (isMobile ? 48 : 56),
                               fontWeight: FontWeight.w900,
                               color: AppTheme.primaryDark,
                             ),
                           ),
-                          const SizedBox(width: 8),
                           Text(
                             AppTranslations.tr('price_currency'),
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: isMobile ? 18 : 20,
                               fontWeight: FontWeight.bold,
                               color: textColor,
                             ),
                           ),
-                          const SizedBox(width: 12),
                           Text(
                             AppTranslations.tr('price_period'),
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: isMobile ? 12.5 : 14,
                               color: AppTheme.textMuted.withValues(alpha: 0.8),
                             ),
                           ),
@@ -132,25 +135,26 @@ class PricingSection extends StatelessWidget {
                       Text(
                         AppTranslations.tr('price_includes'),
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 13.5,
                           color: AppTheme.accentGold,
                           fontWeight: FontWeight.w600,
                         ),
+                        textAlign: TextAlign.center,
                       ),
 
-                      const SizedBox(height: 32),
+                      SizedBox(height: isMobile ? 20 : 32),
                       Divider(color: isDark ? AppTheme.borderDark : AppTheme.borderLight),
-                      const SizedBox(height: 32),
+                      SizedBox(height: isMobile ? 20 : 32),
 
                       // Included Items List
                       Column(
                         children: packageItems.map((item) {
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.only(bottom: 14),
                             child: Row(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.all(4),
+                                  padding: const EdgeInsets.all(3.5),
                                   decoration: const BoxDecoration(
                                     color: AppTheme.primaryDark,
                                     shape: BoxShape.circle,
@@ -158,15 +162,15 @@ class PricingSection extends StatelessWidget {
                                   child: const Icon(
                                     Icons.check_rounded,
                                     color: Colors.white,
-                                    size: 14,
+                                    size: 13,
                                   ),
                                 ),
-                                const SizedBox(width: 14),
+                                const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
                                     item,
                                     style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: isMobile ? 13.5 : 15,
                                       color: textColor,
                                       height: 1.4,
                                     ),
@@ -178,7 +182,7 @@ class PricingSection extends StatelessWidget {
                         }).toList(),
                       ),
 
-                      const SizedBox(height: 36),
+                      SizedBox(height: isMobile ? 24 : 36),
 
                       // Order Button
                       SizedBox(
@@ -188,18 +192,21 @@ class PricingSection extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.primary,
                             foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            padding: EdgeInsets.symmetric(vertical: isMobile ? 16 : 20),
                             elevation: 8,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.flash_on_rounded, size: 22),
+                              const Icon(Icons.flash_on_rounded, size: 20),
                               const SizedBox(width: 8),
                               Text(
                                 AppTranslations.tr('price_cta_btn'),
-                                style: const TextStyle(
-                                  fontSize: 18,
+                                style: TextStyle(
+                                  fontSize: isMobile ? 15 : 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

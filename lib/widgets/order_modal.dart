@@ -75,6 +75,7 @@ class _OrderModalState extends State<OrderModal> {
         domainChoice: _domainController.text.trim(),
         amountSar: 299.00,
         sarToEgpRate: 13.00,
+        taxPercent: 5.00,
       );
 
       if (mounted) {
@@ -113,6 +114,10 @@ class _OrderModalState extends State<OrderModal> {
 
     return Dialog(
       backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 12 : 24,
+        vertical: isMobile ? 16 : 24,
+      ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
         side: BorderSide(
@@ -121,7 +126,7 @@ class _OrderModalState extends State<OrderModal> {
         ),
       ),
       child: Container(
-        padding: EdgeInsets.all(isMobile ? 20 : 28),
+        padding: EdgeInsets.all(isMobile ? 16 : 28),
         constraints: const BoxConstraints(maxWidth: 540),
         child: SingleChildScrollView(
           child: Form(
@@ -134,33 +139,40 @@ class _OrderModalState extends State<OrderModal> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primary.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primary.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.rocket_launch_rounded,
+                              color: AppTheme.primary,
+                              size: 20,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.rocket_launch_rounded,
-                            color: AppTheme.primary,
-                            size: 22,
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: Text(
+                              AppTranslations.tr('modal_title'),
+                              style: TextStyle(
+                                fontSize: isMobile ? 15 : 18,
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          AppTranslations.tr('modal_title'),
-                          style: TextStyle(
-                            fontSize: isMobile ? 16 : 18,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close_rounded, color: AppTheme.textMuted),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                   ],
@@ -169,10 +181,10 @@ class _OrderModalState extends State<OrderModal> {
                 const SizedBox(height: 6),
                 Text(
                   AppTranslations.tr('modal_sub'),
-                  style: const TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                  style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
 
                 // Business Name Input
                 TextFormField(
@@ -180,8 +192,9 @@ class _OrderModalState extends State<OrderModal> {
                   decoration: InputDecoration(
                     labelText: AppTranslations.tr('lbl_name'),
                     hintText: 'مثال: متجر الأناقة أو شركة الفجر',
-                    prefixIcon: const Icon(Icons.store_rounded, color: AppTheme.primary),
+                    prefixIcon: const Icon(Icons.store_rounded, color: AppTheme.primary, size: 20),
                     border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -191,7 +204,7 @@ class _OrderModalState extends State<OrderModal> {
                   },
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 // Phone Input
                 TextFormField(
@@ -200,8 +213,9 @@ class _OrderModalState extends State<OrderModal> {
                   decoration: const InputDecoration(
                     labelText: 'رقم الهاتف / الواتساب للتواصل *',
                     hintText: '05xxxxxxxx أو 01xxxxxxxxx',
-                    prefixIcon: Icon(Icons.phone_rounded, color: AppTheme.secondary),
+                    prefixIcon: Icon(Icons.phone_rounded, color: AppTheme.secondary, size: 20),
                     border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -211,7 +225,7 @@ class _OrderModalState extends State<OrderModal> {
                   },
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 // Selected Domain Input
                 TextFormField(
@@ -221,29 +235,31 @@ class _OrderModalState extends State<OrderModal> {
                     labelText: 'اسم الدومين المقترح (مجاناً بالسنة الأولى)',
                     hintText: 'مثال: mybrand.site',
                     hintTextDirection: TextDirection.ltr,
-                    prefixIcon: const Icon(Icons.language_rounded, color: Color(0xFF10B981)),
+                    prefixIcon: const Icon(Icons.language_rounded, color: Color(0xFF10B981), size: 20),
                     border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                     suffixIcon: _domainController.text.isNotEmpty
-                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981))
+                        ? const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 20)
                         : null,
                   ),
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 // Category Dropdown
                 DropdownButtonFormField<String>(
                   initialValue: _selectedCategory,
                   decoration: const InputDecoration(
                     labelText: 'نوع النشاط *',
-                    prefixIcon: Icon(Icons.category_rounded, color: AppTheme.accentGold),
+                    prefixIcon: Icon(Icons.category_rounded, color: AppTheme.accentGold, size: 20),
                     border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                   ),
                   dropdownColor: isDark ? AppTheme.cardDark : Colors.white,
                   items: _categories.map((cat) {
                     return DropdownMenuItem(
                       value: cat,
-                      child: Text(cat, style: TextStyle(color: textColor)),
+                      child: Text(cat, style: TextStyle(color: textColor, fontSize: 13)),
                     );
                   }).toList(),
                   onChanged: (val) {
@@ -255,7 +271,7 @@ class _OrderModalState extends State<OrderModal> {
                   },
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 // Notes Input
                 TextFormField(
@@ -265,14 +281,15 @@ class _OrderModalState extends State<OrderModal> {
                     labelText: AppTranslations.tr('lbl_notes'),
                     hintText: 'أي تفاصيل أو رغبات خاصة بتصميم صفحتك...',
                     border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
-                // Detailed Multi-Currency & 5% Tax Invoice Breakdown
+                // Detailed Multi-Currency & TAX (5%) Invoice Breakdown Card
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(isMobile ? 12 : 16),
                   decoration: BoxDecoration(
                     color: isDark ? AppTheme.cardDark : const Color(0xFFF8FAFC),
                     borderRadius: BorderRadius.circular(16),
@@ -287,14 +304,14 @@ class _OrderModalState extends State<OrderModal> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             '🇸🇦 السعر بالريال السعودي:',
-                            style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                            style: TextStyle(fontSize: isMobile ? 12 : 13, color: AppTheme.textMuted),
                           ),
                           Text(
                             '299.00 SAR',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: isMobile ? 12 : 13,
                               fontWeight: FontWeight.bold,
                               color: textColor,
                             ),
@@ -307,14 +324,14 @@ class _OrderModalState extends State<OrderModal> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             '🇺🇸 السعر بالدولار الأمريكي:',
-                            style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                            style: TextStyle(fontSize: isMobile ? 12 : 13, color: AppTheme.textMuted),
                           ),
                           Text(
                             '\$79.73 USD',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: isMobile ? 12 : 13,
                               fontWeight: FontWeight.bold,
                               color: textColor,
                             ),
@@ -327,14 +344,14 @@ class _OrderModalState extends State<OrderModal> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             '🇪🇬 السعر بالجنيه المصري (قبل الضريبة):',
-                            style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
+                            style: TextStyle(fontSize: isMobile ? 11.5 : 13, color: AppTheme.textMuted),
                           ),
                           Text(
                             '3,887.00 ج.م',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: isMobile ? 12 : 13,
                               fontWeight: FontWeight.bold,
                               color: textColor,
                             ),
@@ -343,48 +360,52 @@ class _OrderModalState extends State<OrderModal> {
                       ),
                       const SizedBox(height: 6),
 
-                      // 4. Line 5% Tax
-                      const Row(
+                      // 4. Line TAX (5%)
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '🧾 ضريبة القيمة المضافة (5%):',
-                            style: TextStyle(fontSize: 13, color: Color(0xFFD97706)),
+                            '🧾 TAX (5%):',
+                            style: TextStyle(
+                              fontSize: isMobile ? 12 : 13,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFFD97706),
+                            ),
                           ),
                           Text(
                             '+ 194.35 ج.م',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: isMobile ? 12 : 13,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFFD97706),
+                              color: const Color(0xFFD97706),
                             ),
                           ),
                         ],
                       ),
 
                       const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
+                        padding: EdgeInsets.symmetric(vertical: 6),
                         child: Divider(height: 1),
                       ),
 
-                      // 5. Line Total EGP with Tax
+                      // 5. Line Total EGP with TAX
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             '💳 الإجمالي النهائي للدفع:',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: isMobile ? 13 : 14,
                               fontWeight: FontWeight.w900,
                               color: textColor,
                             ),
                           ),
-                          const Text(
+                          Text(
                             '4,081.35 ج.م',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: isMobile ? 15 : 16,
                               fontWeight: FontWeight.w900,
-                              color: Color(0xFF10B981),
+                              color: const Color(0xFF10B981),
                             ),
                           ),
                         ],
@@ -393,7 +414,7 @@ class _OrderModalState extends State<OrderModal> {
                   ),
                 ),
 
-                const SizedBox(height: 18),
+                const SizedBox(height: 16),
 
                 // Primary Payment Button (PayTabs)
                 SizedBox(
@@ -417,7 +438,7 @@ class _OrderModalState extends State<OrderModal> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -427,19 +448,20 @@ class _OrderModalState extends State<OrderModal> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SizedBox(
-                                  width: 20,
-                                  height: 20,
+                                  width: 18,
+                                  height: 18,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     color: Colors.white,
                                   ),
                                 ),
-                                SizedBox(width: 12),
+                                SizedBox(width: 10),
                                 Text(
                                   'جاري تجهيز بوابة الدفع...',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ],
@@ -447,12 +469,12 @@ class _OrderModalState extends State<OrderModal> {
                           : const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.credit_card_rounded, color: Colors.white, size: 22),
-                                SizedBox(width: 10),
+                                Icon(Icons.credit_card_rounded, color: Colors.white, size: 20),
+                                SizedBox(width: 8),
                                 Text(
                                   'الدفع الإلكتروني الآمن (PayTabs) 💳',
                                   style: TextStyle(
-                                    fontSize: 15,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w900,
                                     color: Colors.white,
                                   ),
@@ -470,17 +492,17 @@ class _OrderModalState extends State<OrderModal> {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: _submitWhatsAppOrder,
-                    icon: const Icon(Icons.chat_rounded, color: Color(0xFF10B981), size: 20),
+                    icon: const Icon(Icons.chat_rounded, color: Color(0xFF10B981), size: 18),
                     label: const Text(
                       'أو إتمام والطلب عبر الواتساب مباشرة 💬',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF10B981),
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
                       side: const BorderSide(color: Color(0xFF10B981), width: 1.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),

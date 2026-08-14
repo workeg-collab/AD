@@ -15,17 +15,19 @@ class PayTabsHelper {
     required String customerEmail,
     required String businessName,
     String? domainChoice,
-    double amount = 2990.00,
-    String currency = 'EGP',
+    double amountSar = 299.00,
+    double sarToEgpRate = 13.00,
   }) async {
+    final egpAmount = (amountSar * sarToEgpRate).roundToDouble();
+
     final payload = {
       'customerName': customerName.isNotEmpty ? customerName : 'عميل كريم',
       'customerPhone': customerPhone.isNotEmpty ? customerPhone : '+201093706027',
       'customerEmail': customerEmail.isNotEmpty ? customerEmail : 'customer@ad-landing.com',
       'businessName': businessName.isNotEmpty ? businessName : 'طلب جديد',
       'domainChoice': domainChoice ?? '',
-      'amount': amount,
-      'currency': currency,
+      'amountSar': amountSar,
+      'sarToEgpRate': sarToEgpRate,
     };
 
     // 1. Try Vercel Serverless Function first (Bypasses all browser CORS restrictions)
@@ -48,7 +50,7 @@ class PayTabsHelper {
     // 2. Direct Fallback
     try {
       final cartId = 'ORDER_${DateTime.now().millisecondsSinceEpoch}';
-      String description = 'تصميم صفحة تعريفية لـ $businessName';
+      String description = 'تصميم صفحة تعريفية لـ $businessName (299 ريال)';
       if (domainChoice != null && domainChoice.isNotEmpty) {
         description += ' + دومين $domainChoice';
       }
@@ -59,8 +61,8 @@ class PayTabsHelper {
         'tran_class': 'ecom',
         'cart_id': cartId,
         'cart_description': description,
-        'cart_currency': currency,
-        'cart_amount': amount,
+        'cart_currency': 'EGP',
+        'cart_amount': egpAmount,
         'customer_details': {
           'name': customerName.isNotEmpty ? customerName : 'عميل كريم',
           'email': customerEmail.isNotEmpty ? customerEmail : 'customer@ad-landing.com',
@@ -98,8 +100,8 @@ class PayTabsHelper {
     required String customerEmail,
     required String businessName,
     String? domainChoice,
-    double amount = 2990.00,
-    String currency = 'EGP',
+    double amountSar = 299.00,
+    double sarToEgpRate = 13.00,
   }) async {
     final url = await createPaymentPage(
       customerName: customerName,
@@ -107,8 +109,8 @@ class PayTabsHelper {
       customerEmail: customerEmail,
       businessName: businessName,
       domainChoice: domainChoice,
-      amount: amount,
-      currency: currency,
+      amountSar: amountSar,
+      sarToEgpRate: sarToEgpRate,
     );
 
     if (url != null && url.isNotEmpty) {

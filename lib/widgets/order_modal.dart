@@ -73,8 +73,8 @@ class _OrderModalState extends State<OrderModal> {
         customerEmail: 'customer@ad-landing.com',
         businessName: _nameController.text.trim(),
         domainChoice: _domainController.text.trim(),
-        amount: 2990.00,
-        currency: 'EGP',
+        amountSar: 299.00,
+        sarToEgpRate: 13.00,
       );
 
       if (mounted) {
@@ -268,7 +268,40 @@ class _OrderModalState extends State<OrderModal> {
                   ),
                 ),
 
-                const SizedBox(height: 22),
+                // Price & Currency Summary
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppTheme.cardDark : const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'إجمالي قيمة العرض:',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                      ),
+                      const Text(
+                        '299 ريال (3,887 ج.م)',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF10B981),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 18),
 
                 // Primary Payment Button (PayTabs)
                 SizedBox(

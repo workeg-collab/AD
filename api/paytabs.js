@@ -25,14 +25,17 @@ export default async function handler(req, res) {
       customerEmail = 'customer@ad-landing.com',
       businessName = 'طلب جديد',
       domainChoice = '',
-      amount = 2990.00,
-      currency = 'EGP',
+      amountSar = 299.00,
+      sarToEgpRate = 13.00,
     } = req.body || {};
+
+    // 299 SAR * 13.0 = 3887 EGP
+    const egpAmount = Math.round(Number(amountSar || 299) * Number(sarToEgpRate || 13));
 
     const profileId = 154004;
     const serverKey = 'SHJ9WHMT6Z-J9KRRLTHBG-2HBDZKRTWR';
     const cartId = `ORDER_${Date.now()}`;
-    let description = `تصميم صفحة تعريفية لـ ${businessName}`;
+    let description = `تصميم صفحة تعريفية لـ ${businessName} (299 ريال)`;
     if (domainChoice) {
       description += ` + دومين ${domainChoice}`;
     }
@@ -43,8 +46,8 @@ export default async function handler(req, res) {
       tran_class: 'ecom',
       cart_id: cartId,
       cart_description: description,
-      cart_currency: currency,
-      cart_amount: Number(amount) || 2990.00,
+      cart_currency: 'EGP',
+      cart_amount: egpAmount,
       customer_details: {
         name: customerName || 'عميل كريم',
         email: customerEmail || 'customer@ad-landing.com',

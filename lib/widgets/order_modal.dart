@@ -82,6 +82,15 @@ class _OrderModalState extends State<OrderModal> {
         setState(() {
           _logoFile = result;
         });
+        if (result.fileUrl != null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('تم رفع الشعار بنجاح ✅ (${result.fileName})'),
+              backgroundColor: const Color(0xFF10B981),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _isUploadingLogo = false);
@@ -97,6 +106,16 @@ class _OrderModalState extends State<OrderModal> {
         setState(() {
           _photoFiles = results;
         });
+        final uploadedCount = results.where((r) => r.fileUrl != null).length;
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('تم رفع $uploadedCount صور بنجاح إلى السيرفر ✅'),
+              backgroundColor: const Color(0xFF10B981),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _isUploadingPhotos = false);
@@ -112,6 +131,15 @@ class _OrderModalState extends State<OrderModal> {
         setState(() {
           _profileFile = result;
         });
+        if (result.fileUrl != null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('تم رفع البروفايل بنجاح ✅ (${result.fileName})'),
+              backgroundColor: const Color(0xFF10B981),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
       }
     } finally {
       if (mounted) setState(() => _isUploadingProfile = false);

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 // ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
@@ -23,27 +22,59 @@ class SupabaseStorageHelper {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmx3aGR0cG5mdWVud3JmYXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MTgwNjMsImV4cCI6MjEwMjI5NDA2M30.1jc8ahuejtrfIRMTOFO-aVYMwOd7einjtUQdou2kNBY';
   static const String bucketName = 'orders';
 
-  /// Convert any raw reader result to safe Uint8List on Flutter Web
-  static Uint8List _extractUint8List(dynamic rawResult) {
-    if (rawResult is Uint8List) {
-      return rawResult;
-    }
-    if (rawResult is ByteBuffer) {
-      return rawResult.asUint8List();
-    }
-    if (rawResult is List<int>) {
-      return Uint8List.fromList(rawResult);
-    }
+  /// Upload native browser File directly via XMLHttpRequest with 100% accuracy
+  static Future<String?> uploadHtmlFile({
+    required html.File file,
+    required String contentType,
+  }) async {
     try {
-      final buffer = (rawResult as dynamic).buffer;
-      if (buffer is ByteBuffer) {
-        return buffer.asUint8List();
-      }
-    } catch (_) {}
-    return Uint8List.view(rawResult as dynamic);
+      final cleanFileName = file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+      final uniquePath = '${DateTime.now().millisecondsSinceEpoch}_$cleanFileName';
+      final uploadUri = '$supabaseUrl/storage/v1/object/$bucketName/$uniquePath';
+      final publicUrl = '$supabaseUrl/storage/v1/object/public/$bucketName/$uniquePath';
+
+      final completer = Completer<String?>();
+      final request = html.HttpRequest();
+
+      request.open('POST', uploadUri, async: true);
+      request.setRequestHeader('apikey', supabaseAnonKey);
+      request.setRequestHeader('Authorization', 'Bearer $supabaseAnonKey');
+      request.setRequestHeader(
+        'Content-Type',
+        contentType.isNotEmpty ? contentType : _getContentType(file.name),
+      );
+
+      request.onLoad.listen((event) {
+        if (request.status == 200 || request.status == 201) {
+          debugPrint('✅ Supabase Upload SUCCESS: $publicUrl');
+          completer.complete(publicUrl);
+        } else {
+          debugPrint('❌ Supabase Upload FAILED [${request.status}]: ${request.responseText}');
+          completer.complete(null);
+        }
+      });
+
+      request.onError.listen((event) {
+        debugPrint('❌ Supabase Upload Network Error');
+        completer.complete(null);
+      });
+
+      request.send(file);
+
+      return await completer.future.timeout(
+        const Duration(seconds: 45),
+        onTimeout: () {
+          debugPrint('❌ Supabase Upload Timeout');
+          return null;
+        },
+      );
+    } catch (e) {
+      debugPrint('❌ Supabase Upload Exception: $e');
+      return null;
+    }
   }
 
-  /// Upload raw binary file bytes directly to Supabase Storage
+  /// Upload raw bytes fallback (for non-web platforms)
   static Future<String?> uploadBytes({
     required Uint8List bytes,
     required String fileName,
@@ -72,7 +103,7 @@ class SupabaseStorageHelper {
     return null;
   }
 
-  /// Pick and upload a single image (Logo) with 100% reliable DOM-attached input
+  /// Pick and upload a single image (Logo)
   static Future<UploadedFileResult?> pickAndUploadLogo({
     String accept = 'image/*',
   }) async {
@@ -87,27 +118,21 @@ class SupabaseStorageHelper {
         html.document.body?.children.add(input);
         input.click();
 
-        input.onChange.listen((event) {
+        input.onChange.listen((event) async {
           final files = input.files;
           if (files != null && files.isNotEmpty) {
             final file = files.first;
-            final reader = html.FileReader();
-            reader.readAsArrayBuffer(file);
-            reader.onLoadEnd.listen((e) async {
-              try {
-                final bytes = _extractUint8List(reader.result);
-                final fileUrl = await uploadBytes(
-                  bytes: bytes,
-                  fileName: file.name,
-                  contentType: file.type.isNotEmpty ? file.type : _getContentType(file.name),
-                );
-                completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-              } catch (_) {
-                completer.complete(UploadedFileResult(fileName: file.name));
-              } finally {
-                input.remove();
-              }
-            });
+            try {
+              final fileUrl = await uploadHtmlFile(
+                file: file,
+                contentType: file.type.isNotEmpty ? file.type : 'image/png',
+              );
+              completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+            } catch (_) {
+              completer.complete(UploadedFileResult(fileName: file.name));
+            } finally {
+              input.remove();
+            }
           } else {
             input.remove();
             completer.complete(null);
@@ -159,35 +184,23 @@ class SupabaseStorageHelper {
         html.document.body?.children.add(input);
         input.click();
 
-        input.onChange.listen((event) {
+        input.onChange.listen((event) async {
           final files = input.files;
           if (files != null && files.isNotEmpty) {
             final List<UploadedFileResult> results = [];
-            int processed = 0;
-
             for (final file in files) {
-              final reader = html.FileReader();
-              reader.readAsArrayBuffer(file);
-              reader.onLoadEnd.listen((e) async {
-                try {
-                  final bytes = _extractUint8List(reader.result);
-                  final fileUrl = await uploadBytes(
-                    bytes: bytes,
-                    fileName: file.name,
-                    contentType: file.type.isNotEmpty ? file.type : _getContentType(file.name),
-                  );
-                  results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-                } catch (_) {
-                  results.add(UploadedFileResult(fileName: file.name));
-                }
-
-                processed++;
-                if (processed == files.length) {
-                  input.remove();
-                  completer.complete(results);
-                }
-              });
+              try {
+                final fileUrl = await uploadHtmlFile(
+                  file: file,
+                  contentType: file.type.isNotEmpty ? file.type : 'image/jpeg',
+                );
+                results.add(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+              } catch (_) {
+                results.add(UploadedFileResult(fileName: file.name));
+              }
             }
+            input.remove();
+            completer.complete(results);
           } else {
             input.remove();
             completer.complete([]);
@@ -244,27 +257,21 @@ class SupabaseStorageHelper {
         html.document.body?.children.add(input);
         input.click();
 
-        input.onChange.listen((event) {
+        input.onChange.listen((event) async {
           final files = input.files;
           if (files != null && files.isNotEmpty) {
             final file = files.first;
-            final reader = html.FileReader();
-            reader.readAsArrayBuffer(file);
-            reader.onLoadEnd.listen((e) async {
-              try {
-                final bytes = _extractUint8List(reader.result);
-                final fileUrl = await uploadBytes(
-                  bytes: bytes,
-                  fileName: file.name,
-                  contentType: file.type.isNotEmpty ? file.type : _getContentType(file.name),
-                );
-                completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
-              } catch (_) {
-                completer.complete(UploadedFileResult(fileName: file.name));
-              } finally {
-                input.remove();
-              }
-            });
+            try {
+              final fileUrl = await uploadHtmlFile(
+                file: file,
+                contentType: file.type.isNotEmpty ? file.type : 'application/pdf',
+              );
+              completer.complete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
+            } catch (_) {
+              completer.complete(UploadedFileResult(fileName: file.name));
+            } finally {
+              input.remove();
+            }
           } else {
             input.remove();
             completer.complete(null);

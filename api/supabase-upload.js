@@ -41,8 +41,15 @@ export default async function handler(req, res) {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNwdmx3aGR0cG5mdWVud3JmYXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3MTgwNjMsImV4cCI6MjEwMjI5NDA2M30.1jc8ahuejtrfIRMTOFO-aVYMwOd7einjtUQdou2kNBY';
     const bucket = 'orders';
 
-    const cleanFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const uniquePath = `${Date.now()}_${cleanFileName}`;
+    let ext = '';
+    const lastDot = fileName.lastIndexOf('.');
+    if (lastDot !== -1 && lastDot < fileName.length - 1) {
+      ext = fileName.substring(lastDot).toLowerCase().replace(/[^a-z0-9.]/g, '');
+    }
+
+    const baseName = fileName.substring(0, lastDot !== -1 ? lastDot : fileName.length).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const shortBase = baseName.substring(0, 20) || 'file';
+    const uniquePath = `${Date.now()}_${Math.floor(Math.random() * 900000 + 100000)}_${shortBase}${ext}`;
     const uploadUrl = `${supabaseUrl}/storage/v1/object/${bucket}/${uniquePath}`;
 
     const uploadRes = await fetch(uploadUrl, {

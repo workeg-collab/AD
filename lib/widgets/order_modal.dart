@@ -81,15 +81,23 @@ class _OrderModalState extends State<OrderModal> {
       },
       onComplete: (result) {
         if (mounted) {
-          setState(() {
-            _logoFile = result;
-          });
-          if (result.fileUrl != null) {
+          if (result.fileUrl != null && result.fileUrl!.isNotEmpty) {
+            setState(() {
+              _logoFile = result;
+            });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('تم رفع الشعار بنجاح ✅ (${result.fileName})'),
                 backgroundColor: const Color(0xFF10B981),
                 duration: const Duration(seconds: 3),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('تعذر رفع الشعار (${result.fileName}). يمكنك وضع رابط الشعار في الحقل أدناه 🔗'),
+                backgroundColor: Colors.orange.shade800,
+                duration: const Duration(seconds: 4),
               ),
             );
           }
@@ -105,18 +113,28 @@ class _OrderModalState extends State<OrderModal> {
         if (mounted) setState(() => _isUploadingPhotos = isUploading);
       },
       onComplete: (results) {
-        if (mounted && results.isNotEmpty) {
-          setState(() {
-            _photoFiles = results;
-          });
-          final uploadedCount = results.where((r) => r.fileUrl != null).length;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('تم رفع $uploadedCount صور بنجاح إلى السيرفر ✅'),
-              backgroundColor: const Color(0xFF10B981),
-              duration: const Duration(seconds: 3),
-            ),
-          );
+        if (mounted) {
+          final successful = results.where((r) => r.fileUrl != null && r.fileUrl!.isNotEmpty).toList();
+          if (successful.isNotEmpty) {
+            setState(() {
+              _photoFiles = successful;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('تم رفع ${successful.length} صور بنجاح إلى السيرفر ✅'),
+                backgroundColor: const Color(0xFF10B981),
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          } else if (results.isNotEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('تعذر رفع بعض الصور إلى السيرفر. يمكنك استخدام رابط مجلد Drive/Dropbox 🔗'),
+                backgroundColor: Colors.orange.shade800,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          }
         }
       },
     );
@@ -130,15 +148,23 @@ class _OrderModalState extends State<OrderModal> {
       },
       onComplete: (result) {
         if (mounted) {
-          setState(() {
-            _profileFile = result;
-          });
-          if (result.fileUrl != null) {
+          if (result.fileUrl != null && result.fileUrl!.isNotEmpty) {
+            setState(() {
+              _profileFile = result;
+            });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('تم رفع البروفايل بنجاح ✅ (${result.fileName})'),
                 backgroundColor: const Color(0xFF10B981),
                 duration: const Duration(seconds: 3),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('تعذر رفع ملف البروفايل (${result.fileName}). يمكنك وضع رابط الملف أدناه 🔗'),
+                backgroundColor: Colors.orange.shade800,
+                duration: const Duration(seconds: 4),
               ),
             );
           }

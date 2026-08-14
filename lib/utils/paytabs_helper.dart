@@ -6,7 +6,7 @@ class PayTabsHelper {
   static const int profileId = 154004;
   static const String serverKey = 'SHJ9WHMT6Z-J9KRRLTHBG-2HBDZKRTWR';
   static const String clientKey = 'C7K2GR-DVBD6P-KRRB7H-G296GT';
-  static const String endpoint = 'https://secure-egypt.paytabs.com/payment/request';
+  static const String directEndpoint = 'https://secure-egypt.paytabs.com/payment/request';
 
   /// Create a PayTabs Hosted Payment Page session and return the redirect URL
   static Future<String?> createPaymentPage({
@@ -18,6 +18,34 @@ class PayTabsHelper {
     double amount = 2990.00,
     String currency = 'EGP',
   }) async {
+    final payload = {
+      'customerName': customerName.isNotEmpty ? customerName : 'عميل كريم',
+      'customerPhone': customerPhone.isNotEmpty ? customerPhone : '+201093706027',
+      'customerEmail': customerEmail.isNotEmpty ? customerEmail : 'customer@ad-landing.com',
+      'businessName': businessName.isNotEmpty ? businessName : 'طلب جديد',
+      'domainChoice': domainChoice ?? '',
+      'amount': amount,
+      'currency': currency,
+    };
+
+    // 1. Try Vercel Serverless Function first (Bypasses all browser CORS restrictions)
+    try {
+      final serverlessUri = Uri.parse('/api/paytabs');
+      final response = await http.post(
+        serverlessUri,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(payload),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['redirect_url'] != null) {
+          return data['redirect_url'] as String;
+        }
+      }
+    } catch (_) {}
+
+    // 2. Direct Fallback
     try {
       final cartId = 'ORDER_${DateTime.now().millisecondsSinceEpoch}';
       String description = 'تصميم صفحة تعريفية لـ $businessName';
@@ -25,7 +53,7 @@ class PayTabsHelper {
         description += ' + دومين $domainChoice';
       }
 
-      final payload = {
+      final directPayload = {
         'profile_id': profileId,
         'tran_type': 'sale',
         'tran_class': 'ecom',
@@ -45,12 +73,12 @@ class PayTabsHelper {
       };
 
       final response = await http.post(
-        Uri.parse(endpoint),
+        Uri.parse(directEndpoint),
         headers: {
           'Authorization': serverKey,
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(payload),
+        body: jsonEncode(directPayload),
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -59,6 +87,7 @@ class PayTabsHelper {
         return redirectUrl;
       }
     } catch (_) {}
+
     return null;
   }
 
@@ -84,9 +113,11 @@ class PayTabsHelper {
 
     if (url != null && url.isNotEmpty) {
       final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        return await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
+      return await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+        webOnlyWindowName: '_blank',
+      );
     }
     return false;
   }

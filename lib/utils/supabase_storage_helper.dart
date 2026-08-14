@@ -38,7 +38,7 @@ class SupabaseStorageHelper {
   }
 
   /// Generates a clean, unique file name using timestamp + random suffix + clean extension
-  static String _generateCleanFileName(String fileName) {
+  static String _generateCleanFileName(String fileName, {String prefixTag = ''}) {
     String ext = '';
     if (fileName.contains('.')) {
       ext = fileName.split('.').last.toLowerCase().replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
@@ -48,10 +48,11 @@ class SupabaseStorageHelper {
     }
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final randomSuffix = Random().nextInt(900000) + 100000;
-    return '${timestamp}_$randomSuffix.$ext';
+    final prefix = prefixTag.isNotEmpty ? '${prefixTag}_' : '';
+    return '$prefix${timestamp}_$randomSuffix.$ext';
   }
 
-  /// Read an html.File as Uint8List via DataUrl Base64 decoding (100% reliable)
+  /// Read an html.File as Uint8List via DataUrl Base64 decoding
   static Future<Uint8List?> _readHtmlFileBytes(html.File file) {
     final completer = Completer<Uint8List?>();
     final reader = html.FileReader();
@@ -75,19 +76,29 @@ class SupabaseStorageHelper {
     return completer.future.timeout(const Duration(seconds: 40), onTimeout: () => null);
   }
 
-  /// Uploads binary bytes directly to Supabase Storage via official SDK uploadBinary
+  /// Uploads binary bytes directly to Supabase Storage inside the designated Customer Folder
   static Future<String?> uploadBytes({
     required Uint8List bytes,
     required String originalFileName,
+    String? folderName,
+    String prefixTag = '',
   }) async {
     try {
       await ensureInitialized();
-      final uniqueName = _generateCleanFileName(originalFileName);
+      final uniqueName = _generateCleanFileName(originalFileName, prefixTag: prefixTag);
       final contentType = _getContentType(uniqueName);
+
+      // Clean folder name to remove invalid URL characters while keeping Arabic & alphanumeric
+      String cleanFolder = '';
+      if (folderName != null && folderName.trim().isNotEmpty) {
+        cleanFolder = folderName.trim().replaceAll(RegExp(r'[^\w\u0600-\u06FF-]'), '_').replaceAll(RegExp(r'_+'), '_');
+      }
+
+      final fullPath = cleanFolder.isNotEmpty ? '$cleanFolder/$uniqueName' : uniqueName;
 
       final client = Supabase.instance.client;
       await client.storage.from(bucketName).uploadBinary(
-            uniqueName,
+            fullPath,
             bytes,
             fileOptions: FileOptions(
               contentType: contentType,
@@ -95,8 +106,8 @@ class SupabaseStorageHelper {
             ),
           );
 
-      final publicUrl = client.storage.from(bucketName).getPublicUrl(uniqueName);
-      debugPrint('✅ Supabase uploadBinary SUCCESS: $publicUrl');
+      final publicUrl = client.storage.from(bucketName).getPublicUrl(fullPath);
+      debugPrint('✅ Supabase uploadBinary SUCCESS in folder ($cleanFolder): $publicUrl');
       return publicUrl;
     } catch (e) {
       debugPrint('❌ Supabase uploadBinary Exception: $e');
@@ -104,8 +115,9 @@ class SupabaseStorageHelper {
     }
   }
 
-  /// Pick Logo synchronously on Web (bypasses browser popup blocking) & Native
+  /// Pick Logo inside Customer Folder
   static void pickLogo({
+    String? folderName,
     required Function(bool isUploading) onUploadStatusChanged,
     required Function(UploadedFileResult result) onComplete,
   }) {
@@ -126,7 +138,12 @@ class SupabaseStorageHelper {
             try {
               final bytes = await _readHtmlFileBytes(file);
               if (bytes != null && bytes.isNotEmpty) {
-                final fileUrl = await uploadBytes(bytes: bytes, originalFileName: file.name);
+                final fileUrl = await uploadBytes(
+                  bytes: bytes,
+                  originalFileName: file.name,
+                  folderName: folderName,
+                  prefixTag: 'logo',
+                );
                 onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
               } else {
                 onComplete(UploadedFileResult(fileName: file.name, fileUrl: null));
@@ -142,7 +159,6 @@ class SupabaseStorageHelper {
           }
         });
 
-        // Synchronous trigger in user click tick
         uploadInput.click();
         return;
       } catch (err) {
@@ -156,7 +172,12 @@ class SupabaseStorageHelper {
         final file = result.files.first;
         if (file.bytes != null) {
           onUploadStatusChanged(true);
-          final fileUrl = await uploadBytes(bytes: file.bytes!, originalFileName: file.name);
+          final fileUrl = await uploadBytes(
+            bytes: file.bytes!,
+            originalFileName: file.name,
+            folderName: folderName,
+            prefixTag: 'logo',
+          );
           onUploadStatusChanged(false);
           onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
         } else {
@@ -166,8 +187,9 @@ class SupabaseStorageHelper {
     });
   }
 
-  /// Pick Photos synchronously on Web (concurrent uploads) & Native
+  /// Pick Photos inside Customer Folder (concurrent uploads)
   static void pickPhotos({
+    String? folderName,
     required Function(bool isUploading) onUploadStatusChanged,
     required Function(List<UploadedFileResult> results) onComplete,
   }) {
@@ -185,10 +207,17 @@ class SupabaseStorageHelper {
           if (files != null && files.isNotEmpty) {
             onUploadStatusChanged(true);
             try {
+              int index = 1;
               final uploadTasks = files.map((file) async {
+                final currentIndex = index++;
                 final bytes = await _readHtmlFileBytes(file);
                 if (bytes != null && bytes.isNotEmpty) {
-                  final fileUrl = await uploadBytes(bytes: bytes, originalFileName: file.name);
+                  final fileUrl = await uploadBytes(
+                    bytes: bytes,
+                    originalFileName: file.name,
+                    folderName: folderName,
+                    prefixTag: 'photo_$currentIndex',
+                  );
                   return UploadedFileResult(fileName: file.name, fileUrl: fileUrl);
                 }
                 return UploadedFileResult(fileName: file.name, fileUrl: null);
@@ -208,7 +237,6 @@ class SupabaseStorageHelper {
           }
         });
 
-        // Synchronous trigger in user click tick
         uploadInput.click();
         return;
       } catch (err) {
@@ -221,9 +249,16 @@ class SupabaseStorageHelper {
       if (result != null && result.files.isNotEmpty) {
         onUploadStatusChanged(true);
         try {
+          int index = 1;
           final uploadTasks = result.files.map((file) async {
+            final currentIndex = index++;
             if (file.bytes != null) {
-              final fileUrl = await uploadBytes(bytes: file.bytes!, originalFileName: file.name);
+              final fileUrl = await uploadBytes(
+                bytes: file.bytes!,
+                originalFileName: file.name,
+                folderName: folderName,
+                prefixTag: 'photo_$currentIndex',
+              );
               return UploadedFileResult(fileName: file.name, fileUrl: fileUrl);
             }
             return UploadedFileResult(fileName: file.name, fileUrl: null);
@@ -240,8 +275,9 @@ class SupabaseStorageHelper {
     });
   }
 
-  /// Pick Profile Document synchronously on Web & Native
+  /// Pick Profile Document inside Customer Folder
   static void pickProfileDocument({
+    String? folderName,
     required Function(bool isUploading) onUploadStatusChanged,
     required Function(UploadedFileResult result) onComplete,
   }) {
@@ -262,7 +298,12 @@ class SupabaseStorageHelper {
             try {
               final bytes = await _readHtmlFileBytes(file);
               if (bytes != null && bytes.isNotEmpty) {
-                final fileUrl = await uploadBytes(bytes: bytes, originalFileName: file.name);
+                final fileUrl = await uploadBytes(
+                  bytes: bytes,
+                  originalFileName: file.name,
+                  folderName: folderName,
+                  prefixTag: 'profile',
+                );
                 onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
               } else {
                 onComplete(UploadedFileResult(fileName: file.name, fileUrl: null));
@@ -278,7 +319,6 @@ class SupabaseStorageHelper {
           }
         });
 
-        // Synchronous trigger in user click tick
         uploadInput.click();
         return;
       } catch (err) {
@@ -292,7 +332,12 @@ class SupabaseStorageHelper {
         final file = result.files.first;
         if (file.bytes != null) {
           onUploadStatusChanged(true);
-          final fileUrl = await uploadBytes(bytes: file.bytes!, originalFileName: file.name);
+          final fileUrl = await uploadBytes(
+            bytes: file.bytes!,
+            originalFileName: file.name,
+            folderName: folderName,
+            prefixTag: 'profile',
+          );
           onUploadStatusChanged(false);
           onComplete(UploadedFileResult(fileName: file.name, fileUrl: fileUrl));
         } else {

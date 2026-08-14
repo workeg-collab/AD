@@ -51,11 +51,31 @@ class _OrderModalState extends State<OrderModal> {
     'خدمة أخرى',
   ];
 
+  late String _orderSessionId;
+
   @override
   void initState() {
     super.initState();
+    _orderSessionId = 'order_${DateTime.now().millisecondsSinceEpoch}';
     if (widget.initialDomain != null && widget.initialDomain!.isNotEmpty) {
       _domainController.text = widget.initialDomain!;
+    }
+  }
+
+  String _getCustomerFolderName() {
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final cleanName = name.replaceAll(RegExp(r'[^\w\u0600-\u06FF-]'), '_').replaceAll(RegExp(r'_+'), '_').trim();
+    final cleanPhone = phone.replaceAll(RegExp(r'[^\d+]'), '');
+
+    if (cleanName.isNotEmpty && cleanPhone.isNotEmpty) {
+      return '${cleanName}_$cleanPhone';
+    } else if (cleanName.isNotEmpty) {
+      return cleanName;
+    } else if (cleanPhone.isNotEmpty) {
+      return 'customer_$cleanPhone';
+    } else {
+      return _orderSessionId;
     }
   }
 
@@ -76,6 +96,7 @@ class _OrderModalState extends State<OrderModal> {
   // Pick Logo File
   void _pickLogoFile() {
     SupabaseStorageHelper.pickLogo(
+      folderName: _getCustomerFolderName(),
       onUploadStatusChanged: (isUploading) {
         if (mounted) setState(() => _isUploadingLogo = isUploading);
       },
@@ -109,6 +130,7 @@ class _OrderModalState extends State<OrderModal> {
   // Pick Photos
   void _pickPhotos() {
     SupabaseStorageHelper.pickPhotos(
+      folderName: _getCustomerFolderName(),
       onUploadStatusChanged: (isUploading) {
         if (mounted) setState(() => _isUploadingPhotos = isUploading);
       },
@@ -143,6 +165,7 @@ class _OrderModalState extends State<OrderModal> {
   // Pick Company Profile File
   void _pickProfileFile() {
     SupabaseStorageHelper.pickProfileDocument(
+      folderName: _getCustomerFolderName(),
       onUploadStatusChanged: (isUploading) {
         if (mounted) setState(() => _isUploadingProfile = isUploading);
       },

@@ -355,29 +355,57 @@ class _DemoSwitcherState extends State<DemoSwitcher> {
 
                       SizedBox(height: isMobile ? 20 : 32),
 
-                      // Action Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            WhatsAppHelper.launchWhatsApp(
-                              category: currentCategory.category,
-                              customMessage:
-                                  'أرغب في طلب (${currentVariant.name}) لـ (${currentCategory.category}) بسعر 299 ريال شامل الدومين!',
-                            );
-                          },
-                          icon: const Icon(Icons.chat_bubble_rounded, size: 18),
-                          label: Text(AppTranslations.tr('demo_order_btn')),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: currentVariant.themeColor,
-                            foregroundColor: Colors.black,
-                            padding: EdgeInsets.symmetric(vertical: isMobile ? 14 : 18),
-                            textStyle: TextStyle(
-                              fontSize: isMobile ? 14 : 16,
-                              fontWeight: FontWeight.bold,
+                      // Action Buttons Row (Order Modal + WhatsApp)
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: ElevatedButton.icon(
+                              onPressed: widget.onSelectTemplate,
+                              icon: const Icon(Icons.rocket_launch_rounded, size: 18, color: Colors.black),
+                              label: Text(
+                                isMobile ? 'طلب هذا التصميم بـ 299 ريال 🚀' : 'طلب وتخصيص هذا التصميم فوراً بـ 299 ريال 🚀',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: isMobile ? 13 : 14.5,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: currentVariant.themeColor,
+                                padding: EdgeInsets.symmetric(vertical: isMobile ? 14 : 18),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                elevation: 0,
+                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                WhatsAppHelper.launchWhatsApp(
+                                  category: currentCategory.category,
+                                  customMessage:
+                                      'أهلاً POM Agency، أرغب في طلب (${currentVariant.name}) لـ (${currentCategory.category}) بسعر 299 ريال شامل الدومين والتسليم خلال 6 ساعات!',
+                                );
+                              },
+                              icon: const Icon(Icons.chat_rounded, size: 18, color: Color(0xFF25D366)),
+                              label: Text(
+                                isMobile ? 'واتساب' : 'محادثة واتساب 💬',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13.5,
+                                  color: Color(0xFF25D366),
+                                ),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Color(0xFF25D366), width: 1.5),
+                                padding: EdgeInsets.symmetric(vertical: isMobile ? 14 : 18),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

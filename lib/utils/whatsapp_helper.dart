@@ -7,6 +7,7 @@ class WhatsAppHelper {
   static Future<void> launchWhatsApp({
     String? customMessage,
     String? businessName,
+    String? customerEmail,
     String? category,
     String? domainChoice,
     String? logoInfo,
@@ -22,6 +23,9 @@ class WhatsAppHelper {
 
     if (businessName != null && businessName.trim().isNotEmpty) {
       textMessage += '\n📌 *اسم النشاط:* ${businessName.trim()}';
+    }
+    if (customerEmail != null && customerEmail.trim().isNotEmpty) {
+      textMessage += '\n📧 *البريد الإلكتروني:* ${customerEmail.trim()}';
     }
     if (category != null && category.trim().isNotEmpty) {
       textMessage += '\n🏷️ *تصنيف النشاط:* ${category.trim()}';

@@ -36,7 +36,7 @@ class PayTabsHelper {
 
     // 1. Try Vercel Serverless Function first (Bypasses all browser CORS restrictions)
     try {
-      final serverlessUri = Uri.parse('/api/paytabs');
+      final serverlessUri = Uri.base.resolve('/api/paytabs');
       final response = await http.post(
         serverlessUri,
         headers: {'Content-Type': 'application/json'},

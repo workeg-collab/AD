@@ -21,6 +21,7 @@ class _OrderModalState extends State<OrderModal> {
   // Required Fields
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
 
   // Optional Fields
   final _domainController = TextEditingController();
@@ -83,6 +84,7 @@ class _OrderModalState extends State<OrderModal> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
+    _emailController.dispose();
     _domainController.dispose();
     _logoLinkController.dispose();
     _photosLinkController.dispose();
@@ -242,6 +244,124 @@ class _OrderModalState extends State<OrderModal> {
     return parts.join(' | ');
   }
 
+  Future<void> _showEmailSuccessDialog({
+    required BuildContext context,
+    required String email,
+    required VoidCallback onProceed,
+  }) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: isDark ? AppTheme.surfaceDark : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(
+              color: Color(0xFF10B981),
+              width: 1.5,
+            ),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 26),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.mark_email_read_rounded,
+                  color: Color(0xFF10B981),
+                  size: 48,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'تم استلام طلبك بنجاح! 🎉',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isDark ? AppTheme.cardDark : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark ? AppTheme.borderDark : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Text(
+                  'تم استلام طلبك بنجاح وإرسال تفاصيل الطلب إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد ومجلد الرسائل غير المرغوب فيها (Junk/Spam).',
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    height: 1.6,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.grey.shade200 : const Color(0xFF334155),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.email_rounded, size: 16, color: AppTheme.primary),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      email,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 22),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    onProceed();
+                  },
+                  icon: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
+                  label: const Text(
+                    'متابعة الطلب الآن 🚀',
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _submitWhatsAppOrder() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -249,6 +369,7 @@ class _OrderModalState extends State<OrderModal> {
 
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
+    final email = _emailController.text.trim();
     final domain = _domainController.text.trim();
     final aboutContent = _aboutContentController.text.trim();
     final contactInfo = _contactInfoController.text.trim();
@@ -263,7 +384,7 @@ class _OrderModalState extends State<OrderModal> {
       final paymentUrl = await PayTabsHelper.createPaymentPage(
         customerName: name,
         customerPhone: phone,
-        customerEmail: 'customer@ad-landing.com',
+        customerEmail: email,
         businessName: name,
         domainChoice: domain,
         amountSar: 299.00,
@@ -271,9 +392,10 @@ class _OrderModalState extends State<OrderModal> {
         taxPercent: 5.00,
       );
 
-      // 2. Send complete background email notification to company email (sales@pom-agency.online)
+      // 2. Invoke Supabase Edge Function to send client & admin emails via Resend
       await OrderNotifier.sendAdminNotification(
         customerName: name,
+        customerEmail: email,
         customerPhone: phone,
         businessName: name,
         category: _selectedCategory,
@@ -290,20 +412,27 @@ class _OrderModalState extends State<OrderModal> {
 
       if (mounted) {
         setState(() => _isProcessing = false);
-        Navigator.of(context).pop();
 
-        // 3. Open WhatsApp chat with full order summary, attachments & direct PayTabs payment link
-        await WhatsAppHelper.launchWhatsApp(
-          businessName: name,
-          category: _selectedCategory,
-          domainChoice: domain,
-          logoInfo: logoInfo,
-          photosInfo: photosInfo,
-          profileInfo: profileInfo,
-          aboutContent: aboutContent,
-          contactInfo: contactInfo,
-          notes: notes,
-          paymentUrl: paymentUrl,
+        // 3. Show prominent success Dialog with the mandatory message, then redirect
+        await _showEmailSuccessDialog(
+          context: context,
+          email: email,
+          onProceed: () async {
+            Navigator.of(context).pop();
+            await WhatsAppHelper.launchWhatsApp(
+              businessName: name,
+              customerEmail: email,
+              category: _selectedCategory,
+              domainChoice: domain,
+              logoInfo: logoInfo,
+              photosInfo: photosInfo,
+              profileInfo: profileInfo,
+              aboutContent: aboutContent,
+              contactInfo: contactInfo,
+              notes: notes,
+              paymentUrl: paymentUrl,
+            );
+          },
         );
       }
     } catch (_) {
@@ -312,6 +441,7 @@ class _OrderModalState extends State<OrderModal> {
         Navigator.of(context).pop();
         await WhatsAppHelper.launchWhatsApp(
           businessName: name,
+          customerEmail: email,
           category: _selectedCategory,
           domainChoice: domain,
           logoInfo: logoInfo,
@@ -332,6 +462,7 @@ class _OrderModalState extends State<OrderModal> {
 
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
+    final email = _emailController.text.trim();
     final domain = _domainController.text.trim();
     final aboutContent = _aboutContentController.text.trim();
     final contactInfo = _contactInfoController.text.trim();
@@ -346,7 +477,7 @@ class _OrderModalState extends State<OrderModal> {
       final paymentUrl = await PayTabsHelper.createPaymentPage(
         customerName: name,
         customerPhone: phone,
-        customerEmail: 'customer@ad-landing.com',
+        customerEmail: email,
         businessName: name,
         domainChoice: domain,
         amountSar: 299.00,
@@ -354,9 +485,10 @@ class _OrderModalState extends State<OrderModal> {
         taxPercent: 5.00,
       );
 
-      // 2. Send complete background email notification to company email (sales@pom-agency.online)
+      // 2. Invoke Supabase Edge Function to send client & admin emails via Resend
       await OrderNotifier.sendAdminNotification(
         customerName: name,
+        customerEmail: email,
         customerPhone: phone,
         businessName: name,
         category: _selectedCategory,
@@ -374,16 +506,22 @@ class _OrderModalState extends State<OrderModal> {
       if (mounted) {
         setState(() => _isProcessing = false);
         if (paymentUrl != null && paymentUrl.isNotEmpty) {
-          Navigator.of(context).pop();
-          await PayTabsHelper.launchPayment(
-            customerName: name,
-            customerPhone: phone,
-            customerEmail: 'customer@ad-landing.com',
-            businessName: name,
-            domainChoice: domain,
-            amountSar: 299.00,
-            sarToEgpRate: 13.00,
-            taxPercent: 5.00,
+          await _showEmailSuccessDialog(
+            context: context,
+            email: email,
+            onProceed: () async {
+              Navigator.of(context).pop();
+              await PayTabsHelper.launchPayment(
+                customerName: name,
+                customerPhone: phone,
+                customerEmail: email,
+                businessName: name,
+                domainChoice: domain,
+                amountSar: 299.00,
+                sarToEgpRate: 13.00,
+                taxPercent: 5.00,
+              );
+            },
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -537,6 +675,34 @@ class _OrderModalState extends State<OrderModal> {
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
                       return 'يرجى كتابة رقم الواتساب الخاص بك';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 12),
+
+                // Field 3: Client Email (REQUIRED)
+                Text(
+                  'البريد الإلكتروني للعميل (لاستلام تفاصيل وتأكيد الطلب) *',
+                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: textColor),
+                ),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: _buildInputDecoration(
+                    hint: 'مثال: client@example.com',
+                    icon: Icons.email_outlined,
+                    isDark: isDark,
+                  ),
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'يرجى كتابة البريد الإلكتروني لاستلام تفاصيل الطلب';
+                    }
+                    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                    if (!emailRegex.hasMatch(val.trim())) {
+                      return 'يرجى كتابة بريد إلكتروني صالح';
                     }
                     return null;
                   },

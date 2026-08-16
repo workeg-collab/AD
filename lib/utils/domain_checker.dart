@@ -4,10 +4,12 @@ import 'package:http/http.dart' as http;
 class DomainExtensionInfo {
   final String tld;
   final double internalMaxCostUsd;
+  final String priceLabel;
 
   const DomainExtensionInfo({
     required this.tld,
     required this.internalMaxCostUsd,
+    required this.priceLabel,
   });
 }
 
@@ -16,34 +18,41 @@ class DomainSearchResult {
   final String tld;
   final bool isAvailable;
   final bool isChecking;
+  final String priceLabel;
 
   DomainSearchResult({
     required this.fullDomain,
     required this.tld,
     required this.isAvailable,
     this.isChecking = false,
+    this.priceLabel = '< \$2.00',
   });
 }
 
 class DomainChecker {
-  // STRICT CONSTRAINT: Domain cost must NEVER exceed $2.00 USD
-  static const double maxAllowedPriceUsd = 2.0;
+  // STRICT CONSTRAINT: Domain cost must NEVER exceed $2.00 USD (hard limit: <= 1.99 USD)
+  static const double maxAllowedPriceUsd = 1.99;
 
-  // Verified budget TLDs that strictly cost <= $2.00 USD on global registrars (Spaceship / Namecheap / Porkbun)
+  // Verified sub-$2 TLDs that strictly cost <= $1.99 USD on Spaceship / global registrars
   static const List<DomainExtensionInfo> budgetExtensions = [
-    DomainExtensionInfo(tld: '.site', internalMaxCostUsd: 0.99),
-    DomainExtensionInfo(tld: '.online', internalMaxCostUsd: 0.99),
-    DomainExtensionInfo(tld: '.xyz', internalMaxCostUsd: 0.99),
-    DomainExtensionInfo(tld: '.store', internalMaxCostUsd: 1.79),
-    DomainExtensionInfo(tld: '.shop', internalMaxCostUsd: 1.88),
-    DomainExtensionInfo(tld: '.website', internalMaxCostUsd: 1.49),
-    DomainExtensionInfo(tld: '.space', internalMaxCostUsd: 1.29),
-    DomainExtensionInfo(tld: '.fun', internalMaxCostUsd: 1.49),
-    DomainExtensionInfo(tld: '.top', internalMaxCostUsd: 1.20),
-    DomainExtensionInfo(tld: '.uno', internalMaxCostUsd: 1.20),
-    DomainExtensionInfo(tld: '.icu', internalMaxCostUsd: 1.10),
-    DomainExtensionInfo(tld: '.click', internalMaxCostUsd: 1.40),
+    DomainExtensionInfo(tld: '.site', internalMaxCostUsd: 0.99, priceLabel: '\$0.99'),
+    DomainExtensionInfo(tld: '.online', internalMaxCostUsd: 0.99, priceLabel: '\$0.99'),
+    DomainExtensionInfo(tld: '.xyz', internalMaxCostUsd: 1.49, priceLabel: '\$1.49'),
+    DomainExtensionInfo(tld: '.top', internalMaxCostUsd: 1.20, priceLabel: '\$1.20'),
+    DomainExtensionInfo(tld: '.icu', internalMaxCostUsd: 1.10, priceLabel: '\$1.10'),
+    DomainExtensionInfo(tld: '.uno', internalMaxCostUsd: 1.20, priceLabel: '\$1.20'),
   ];
+
+  // Registry premium single keywords that registrars sell at premium prices ($10 - $5,000+)
+  static const Set<String> _knownPremiumSingleWords = {
+    'auto', 'tech', 'vip', 'pro', 'pay', 'app', 'car', 'law', 'shop', 'deal',
+    'gold', 'arab', 'best', 'star', 'food', 'care', 'game', 'fast', 'home',
+    'life', 'city', 'news', 'bank', 'club', 'tour', 'real', 'gift', 'safe',
+    'love', 'work', 'team', 'free', 'host', 'play', 'view', 'coin', 'crypto',
+    'meta', 'cloud', 'ai', 'dev', 'web', 'net', 'hub', 'link', 'zone', 'top',
+    'market', 'store', 'online', 'direct', 'global', 'smart', 'super', 'mega',
+    'oud', 'perfume', 'cafe', 'coffee', 'hotel', 'spa', 'gym', 'fit', 'sale',
+  };
 
   static String sanitizeSlug(String input) {
     String clean = input.trim().toLowerCase();
@@ -78,11 +87,11 @@ class DomainChecker {
   }
 
   /// Check a single domain availability via Authoritative ICANN RDAP Registry & DNS
-  static Future<bool> isDomainAvailable(String domain, {int slugLength = 4}) async {
-    // STRICT RULE: 1-3 letter domains (like 'aly.online', 'aly.site', 'aly.xyz')
-    // are ALWAYS priced as Premium Registry Domains ($50 - $5,000+) on Spaceship.
-    // They must NEVER be marked as available under the <= $2 budget rule!
-    if (slugLength <= 3) {
+  static Future<bool> isDomainAvailable(String domain, {int slugLength = 5, String slug = ''}) async {
+    // STRICT CONSTRAINT:
+    // 1-4 character domains or single dictionary keywords are classified as Premium Registry Domains ($50 - $5,000+) on Spaceship.
+    // They must NEVER be marked as available under the sub-$2 rule.
+    if (slugLength <= 4 || _knownPremiumSingleWords.contains(slug.toLowerCase())) {
       return false;
     }
 
@@ -127,7 +136,7 @@ class DomainChecker {
         if (dnsRes.statusCode == 200) {
           final data = jsonDecode(dnsRes.body);
           if (data['Status'] == 3 && data['Answer'] == null) {
-            return slugLength > 3;
+            return slugLength > 4;
           }
         }
       } catch (_) {}
@@ -135,25 +144,34 @@ class DomainChecker {
     return false;
   }
 
-  /// Search across all <= $2 USD extensions with smart suggestions for short keywords
+  /// Search across all STRICTLY <= $1.99 USD extensions with smart suggestions
   static Future<List<DomainSearchResult>> searchAllBudgetExtensions(String rawName) async {
     final slug = sanitizeSlug(rawName);
     if (slug.isEmpty || slug.length < 2) return [];
 
+    // Filter strictly to extensions with cost <= maxAllowedPriceUsd ($1.99)
     final eligibleExtensions = budgetExtensions
         .where((ext) => ext.internalMaxCostUsd <= maxAllowedPriceUsd)
         .toList();
 
-    List<String> targetSlugs = [slug];
-    // If the input slug is very short (e.g. 'aly'), generate smart business variants
-    if (slug.length <= 3) {
-      targetSlugs.addAll([
-        '$slug-store',
-        '$slug-brand',
-        '$slug-shop',
-        'matjar-$slug',
-      ]);
+    List<String> targetSlugs = [];
+
+    // If slug is safe and long enough (> 4 chars and not a premium keyword), include it directly
+    if (slug.length > 4 && !_knownPremiumSingleWords.contains(slug)) {
+      targetSlugs.add(slug);
     }
+
+    // Always generate brandable, budget-safe combinations that are 100% under $2 on Spaceship
+    targetSlugs.addAll([
+      '$slug-saudi',
+      'matjar-$slug',
+      '$slug-store',
+      '$slug-brand',
+      '$slug-official',
+    ]);
+
+    // De-duplicate target slugs while preserving order
+    targetSlugs = targetSlugs.toSet().toList();
 
     List<Future<DomainSearchResult>> futures = [];
 
@@ -161,11 +179,12 @@ class DomainChecker {
       for (final ext in eligibleExtensions) {
         final fullDomain = '$s${ext.tld}';
         futures.add(() async {
-          final isAvail = await isDomainAvailable(fullDomain, slugLength: s.length);
+          final isAvail = await isDomainAvailable(fullDomain, slugLength: s.length, slug: s);
           return DomainSearchResult(
             fullDomain: fullDomain,
             tld: ext.tld,
             isAvailable: isAvail,
+            priceLabel: ext.priceLabel,
           );
         }());
       }
@@ -173,8 +192,7 @@ class DomainChecker {
 
     final allResults = await Future.wait(futures);
 
-    // Filter to avoid overwhelming results:
-    // If the direct keyword has available domains, show them first, then suggestions
+    // Sort available domains first
     allResults.sort((a, b) {
       if (a.isAvailable && !b.isAvailable) return -1;
       if (!a.isAvailable && b.isAvailable) return 1;

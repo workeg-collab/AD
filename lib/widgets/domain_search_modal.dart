@@ -417,7 +417,7 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
                           border: Border.all(color: const Color(0xFF10B981), width: 1),
                         ),
                         child: Text(
-                          AppTranslations.tr('domain_free_included_badge'),
+                          'مجاناً بالباقة 🎁 (${item.priceLabel})',
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -438,12 +438,12 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
                     const SizedBox(width: 4),
                     Text(
                       isAvail
-                          ? AppTranslations.tr('domain_available_text')
-                          : (item.fullDomain.split('.').first.length <= 3
-                              ? AppTranslations.tr('domain_short_premium_text')
+                          ? 'متاح للحجز الفوري (أقل من \$2 ومشمول بالباقة) ✅'
+                          : (item.fullDomain.split('.').first.length <= 4
+                              ? 'غير مشمول (اسم بريميوم مرتفع السعر > \$2) ❌'
                               : AppTranslations.tr('domain_taken_text')),
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11.5,
                         fontWeight: FontWeight.w600,
                         color: isAvail ? const Color(0xFF10B981) : Colors.red.shade400,
                       ),

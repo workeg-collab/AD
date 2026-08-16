@@ -4,12 +4,10 @@ import 'package:http/http.dart' as http;
 class DomainExtensionInfo {
   final String tld;
   final double internalMaxCostUsd;
-  final String priceLabel;
 
   const DomainExtensionInfo({
     required this.tld,
     required this.internalMaxCostUsd,
-    required this.priceLabel,
   });
 }
 
@@ -18,29 +16,27 @@ class DomainSearchResult {
   final String tld;
   final bool isAvailable;
   final bool isChecking;
-  final String priceLabel;
 
   DomainSearchResult({
     required this.fullDomain,
     required this.tld,
     required this.isAvailable,
     this.isChecking = false,
-    this.priceLabel = '< \$2.00',
   });
 }
 
 class DomainChecker {
-  // STRICT CONSTRAINT: Domain cost must NEVER exceed $2.00 USD (hard limit: <= 1.99 USD)
+  // STRICT CONSTRAINT: Spaceship sub-$2 domain limit (<= $1.99 USD)
   static const double maxAllowedPriceUsd = 1.99;
 
-  // Verified sub-$2 TLDs that strictly cost <= $1.99 USD on Spaceship / global registrars
+  // Verified Spaceship TLDs that strictly cost <= $1.99 USD on Spaceship.com
   static const List<DomainExtensionInfo> budgetExtensions = [
-    DomainExtensionInfo(tld: '.site', internalMaxCostUsd: 0.99, priceLabel: '\$0.99'),
-    DomainExtensionInfo(tld: '.online', internalMaxCostUsd: 0.99, priceLabel: '\$0.99'),
-    DomainExtensionInfo(tld: '.xyz', internalMaxCostUsd: 1.49, priceLabel: '\$1.49'),
-    DomainExtensionInfo(tld: '.top', internalMaxCostUsd: 1.20, priceLabel: '\$1.20'),
-    DomainExtensionInfo(tld: '.icu', internalMaxCostUsd: 1.10, priceLabel: '\$1.10'),
-    DomainExtensionInfo(tld: '.uno', internalMaxCostUsd: 1.20, priceLabel: '\$1.20'),
+    DomainExtensionInfo(tld: '.site', internalMaxCostUsd: 0.99),
+    DomainExtensionInfo(tld: '.online', internalMaxCostUsd: 0.99),
+    DomainExtensionInfo(tld: '.xyz', internalMaxCostUsd: 1.49),
+    DomainExtensionInfo(tld: '.top', internalMaxCostUsd: 1.20),
+    DomainExtensionInfo(tld: '.icu', internalMaxCostUsd: 1.10),
+    DomainExtensionInfo(tld: '.uno', internalMaxCostUsd: 1.20),
   ];
 
   // Registry premium single keywords that registrars sell at premium prices ($10 - $5,000+)
@@ -144,12 +140,11 @@ class DomainChecker {
     return false;
   }
 
-  /// Search across all STRICTLY <= $1.99 USD extensions with smart suggestions
+  /// Search across all Spaceship <= $1.99 USD extensions with smart suggestions
   static Future<List<DomainSearchResult>> searchAllBudgetExtensions(String rawName) async {
     final slug = sanitizeSlug(rawName);
     if (slug.isEmpty || slug.length < 2) return [];
 
-    // Filter strictly to extensions with cost <= maxAllowedPriceUsd ($1.99)
     final eligibleExtensions = budgetExtensions
         .where((ext) => ext.internalMaxCostUsd <= maxAllowedPriceUsd)
         .toList();
@@ -184,7 +179,6 @@ class DomainChecker {
             fullDomain: fullDomain,
             tld: ext.tld,
             isAvailable: isAvail,
-            priceLabel: ext.priceLabel,
           );
         }());
       }

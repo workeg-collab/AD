@@ -416,9 +416,9 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: const Color(0xFF10B981), width: 1),
                         ),
-                        child: Text(
-                          'مجاناً بالباقة 🎁 (${item.priceLabel})',
-                          style: const TextStyle(
+                        child: const Text(
+                          'شامل الباقة 🎁',
+                          style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF10B981),
@@ -438,12 +438,12 @@ class _DomainSearchModalState extends State<DomainSearchModal> {
                     const SizedBox(width: 4),
                     Text(
                       isAvail
-                          ? 'متاح للحجز الفوري (أقل من \$2 ومشمول بالباقة) ✅'
+                          ? 'متاح ومجاني (شامل الباقة) ✅'
                           : (item.fullDomain.split('.').first.length <= 4
-                              ? 'غير مشمول (اسم بريميوم مرتفع السعر > \$2) ❌'
+                              ? 'غير متاح بالباقة ❌'
                               : AppTranslations.tr('domain_taken_text')),
                       style: TextStyle(
-                        fontSize: 11.5,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: isAvail ? const Color(0xFF10B981) : Colors.red.shade400,
                       ),

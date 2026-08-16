@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../utils/app_translations.dart';
 import '../widgets/navbar.dart';
 import '../widgets/hero_section.dart';
+import '../widgets/trust_stats_section.dart';
 import '../widgets/features_section.dart';
 import '../widgets/demo_switcher.dart';
 import '../widgets/pricing_section.dart';
@@ -70,6 +71,8 @@ class _HomePageState extends State<HomePage> {
                     onOrderTap: _openOrderModal,
                     onDemosTap: () => _scrollToKey(_demosKey),
                   ),
+
+                  const TrustStatsSection(),
 
                   FeaturesSection(key: _featuresKey),
 

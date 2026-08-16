@@ -17,14 +17,14 @@ class LanguageSelectorButton extends StatelessWidget {
       builder: (context, currentLang, child) {
         return PopupMenuButton<AppLanguage>(
           tooltip: 'اختر اللغة / Language: ${currentLang.name}',
-          offset: const Offset(0, 36),
+          offset: const Offset(0, 40),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppTheme.radiusMd,
             side: BorderSide(
               color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
             ),
           ),
-          color: isDark ? AppTheme.cardDark : Colors.white,
+          color: isDark ? AppTheme.surfaceDark : Colors.white,
           onSelected: (AppLanguage newLang) {
             currentLanguageNotifier.value = newLang;
           },
@@ -41,8 +41,8 @@ class LanguageSelectorButton extends StatelessWidget {
                       child: Text(
                         lang.name,
                         style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontSize: 13,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                           color: isSelected
                               ? AppTheme.primary
                               : (isDark ? AppTheme.textWhite : AppTheme.textDark),
@@ -57,19 +57,19 @@ class LanguageSelectorButton extends StatelessWidget {
             }).toList();
           },
           child: Container(
-            padding: EdgeInsets.all(isMobile ? 5 : 7),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isDark ? AppTheme.cardDark : Colors.grey.shade200,
-              shape: BoxShape.circle,
+              color: isDark ? AppTheme.cardDark : AppTheme.bgLight,
+              borderRadius: AppTheme.radiusSm,
               border: Border.all(
-                color: AppTheme.primary.withValues(alpha: 0.4),
+                color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
                 width: 1,
               ),
             ),
             child: Icon(
               Icons.translate_rounded,
-              color: isDark ? AppTheme.accentGold : AppTheme.primary,
-              size: isMobile ? 12.5 : 15,
+              color: isDark ? const Color(0xFF6EE7B7) : AppTheme.primary,
+              size: isMobile ? 14 : 16,
             ),
           ),
         );

@@ -1085,7 +1085,7 @@ class _OrderModalState extends State<OrderModal> {
                         shadowColor: Colors.transparent,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppTheme.radiusMd,
                         ),
                       ),
                       child: (_isUploadingLogo || _isUploadingPhotos || _isUploadingProfile)
@@ -1137,13 +1137,13 @@ class _OrderModalState extends State<OrderModal> {
                               : const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.chat_rounded, color: Colors.white, size: 20),
+                                    Icon(Icons.chat_rounded, color: Colors.white, size: 19),
                                     SizedBox(width: 8),
                                     Text(
                                       'تأكيد الطلب واستلام رابط الدفع عبر الواتساب 💬',
                                       style: TextStyle(
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w900,
+                                        fontWeight: FontWeight.w700,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -1162,20 +1162,20 @@ class _OrderModalState extends State<OrderModal> {
                     onPressed: (_isProcessing || _isUploadingLogo || _isUploadingPhotos || _isUploadingProfile)
                         ? null
                         : _payWithPayTabs,
-                    icon: const Icon(Icons.credit_card_rounded, color: Color(0xFF2563EB), size: 18),
+                    icon: const Icon(Icons.credit_card_rounded, color: AppTheme.primary, size: 18),
                     label: const Text(
                       'أو الدفع الفوري بالفيزا/الماستركارد (PayTabs) 💳',
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2563EB),
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.primary,
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 13),
-                      side: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: AppTheme.primary, width: 1.2),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: AppTheme.radiusMd,
                       ),
                     ),
                   ),
@@ -1197,7 +1197,7 @@ class _OrderModalState extends State<OrderModal> {
           title,
           style: const TextStyle(
             fontSize: 13.5,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
             color: AppTheme.primary,
           ),
         ),
@@ -1215,15 +1215,15 @@ class _OrderModalState extends State<OrderModal> {
   }) {
     return InkWell(
       onTap: (isUploading || isSelected) ? null : onPick,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: AppTheme.radiusSm,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: isDark ? AppTheme.cardDark : Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(12),
+          color: isDark ? AppTheme.cardDark : AppTheme.bgLight,
+          borderRadius: AppTheme.radiusSm,
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF10B981)
+                ? AppTheme.primary
                 : (isUploading
                     ? AppTheme.primary
                     : (isDark ? AppTheme.borderDark : AppTheme.borderLight)),
@@ -1240,8 +1240,8 @@ class _OrderModalState extends State<OrderModal> {
               )
             else
               Icon(
-                isSelected ? Icons.check_circle_rounded : Icons.cloud_upload_rounded,
-                color: isSelected ? const Color(0xFF10B981) : AppTheme.primary,
+                isSelected ? Icons.check_circle_rounded : Icons.cloud_upload_outlined,
+                color: isSelected ? AppTheme.primary : AppTheme.primary,
                 size: 22,
               ),
             const SizedBox(width: 10),
@@ -1250,9 +1250,9 @@ class _OrderModalState extends State<OrderModal> {
                 label,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                   color: isSelected
-                      ? const Color(0xFF10B981)
+                      ? AppTheme.primary
                       : (isUploading ? AppTheme.primary : textColor(isDark)),
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -1263,22 +1263,22 @@ class _OrderModalState extends State<OrderModal> {
               const SizedBox.shrink()
             else if (isSelected)
               IconButton(
-                icon: const Icon(Icons.cancel_rounded, size: 22, color: Colors.redAccent),
+                icon: const Icon(Icons.cancel_rounded, size: 20, color: AppTheme.error),
                 onPressed: onClear,
                 tooltip: 'إلغاء الملف',
               )
             else
               ElevatedButton.icon(
                 onPressed: onPick,
-                icon: const Icon(Icons.folder_open_rounded, size: 16, color: Colors.white),
+                icon: const Icon(Icons.folder_open_rounded, size: 15, color: Colors.white),
                 label: const Text(
                   'اختيار ملف',
-                  style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusSm),
                   elevation: 0,
                 ),
               ),
@@ -1288,7 +1288,7 @@ class _OrderModalState extends State<OrderModal> {
     );
   }
 
-  Color textColor(bool isDark) => isDark ? Colors.white70 : Colors.black87;
+  Color textColor(bool isDark) => isDark ? AppTheme.textWhite : AppTheme.textDark;
 
   InputDecoration _buildInputDecoration({
     required String hint,
@@ -1300,22 +1300,22 @@ class _OrderModalState extends State<OrderModal> {
       hintStyle: const TextStyle(fontSize: 12.5, color: AppTheme.textMuted),
       prefixIcon: Icon(icon, size: 18, color: AppTheme.primary),
       filled: true,
-      fillColor: isDark ? AppTheme.cardDark : Colors.grey.shade50,
+      fillColor: isDark ? AppTheme.cardDark : AppTheme.bgLight,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppTheme.radiusSm,
         borderSide: BorderSide(
           color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
         ),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppTheme.radiusSm,
         borderSide: BorderSide(
           color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppTheme.radiusSm,
         borderSide: const BorderSide(color: AppTheme.primary, width: 1.5),
       ),
     );

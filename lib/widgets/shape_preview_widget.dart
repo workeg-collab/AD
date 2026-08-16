@@ -73,35 +73,28 @@ class _ShapePreviewWidgetState extends State<ShapePreviewWidget> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final cardBg = isDark ? AppTheme.cardDark : Colors.white;
-    final textMain = isDark ? Colors.white : AppTheme.textDark;
+    final textMain = isDark ? AppTheme.textWhite : AppTheme.textDark;
     final borderCol = isDark ? AppTheme.borderDark : AppTheme.borderLight;
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(20),
+        color: isDark ? AppTheme.surfaceDark : AppTheme.bgLight,
+        borderRadius: AppTheme.radiusLg,
         border: Border.all(
-          color: isDark ? widget.themeColor.withValues(alpha: 0.35) : AppTheme.borderLight,
-          width: 1.5,
+          color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+          width: 1.0,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: widget.themeColor.withValues(alpha: isDark ? 0.08 : 0.05),
-            blurRadius: 24,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        boxShadow: AppTheme.softShadow(isDark: isDark, elevation: 1),
       ),
       child: Column(
         children: [
           // Top Browser / Device Controller Bar
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(19)),
+              color: isDark ? AppTheme.cardDark : const Color(0xFFF1F5F9),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
               border: Border(bottom: BorderSide(color: borderCol)),
             ),
             child: Row(
@@ -109,14 +102,14 @@ class _ShapePreviewWidgetState extends State<ShapePreviewWidget> {
                 // Traffic light dots
                 Row(
                   children: [
-                    Container(width: 11, height: 11, decoration: const BoxDecoration(color: Color(0xFFFF5F56), shape: BoxShape.circle)),
-                    const SizedBox(width: 6),
-                    Container(width: 11, height: 11, decoration: const BoxDecoration(color: Color(0xFFFFBD2E), shape: BoxShape.circle)),
-                    const SizedBox(width: 6),
-                    Container(width: 11, height: 11, decoration: const BoxDecoration(color: Color(0xFF27C93F), shape: BoxShape.circle)),
+                    Container(width: 9, height: 9, decoration: const BoxDecoration(color: Color(0xFFFF5F56), shape: BoxShape.circle)),
+                    const SizedBox(width: 5),
+                    Container(width: 9, height: 9, decoration: const BoxDecoration(color: Color(0xFFFFBD2E), shape: BoxShape.circle)),
+                    const SizedBox(width: 5),
+                    Container(width: 9, height: 9, decoration: const BoxDecoration(color: Color(0xFF27C93F), shape: BoxShape.circle)),
                   ],
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 12),
 
                 // URL Address Pill
                 Expanded(
@@ -124,13 +117,13 @@ class _ShapePreviewWidgetState extends State<ShapePreviewWidget> {
                     height: 28,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                      borderRadius: BorderRadius.circular(14),
+                      color: isDark ? AppTheme.surfaceDark : Colors.white,
+                      borderRadius: AppTheme.radiusSm,
                       border: Border.all(color: borderCol),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.lock_rounded, size: 12, color: widget.themeColor),
+                        const Icon(Icons.lock_rounded, size: 12, color: AppTheme.primary),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
@@ -138,7 +131,7 @@ class _ShapePreviewWidgetState extends State<ShapePreviewWidget> {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
-                              color: isDark ? AppTheme.textMuted : AppTheme.textDark,
+                              color: isDark ? AppTheme.textMutedDark : AppTheme.textMuted,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -146,12 +139,14 @@ class _ShapePreviewWidgetState extends State<ShapePreviewWidget> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: widget.themeColor.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(6),
+                            color: isDark
+                                ? AppTheme.primaryContainerDark
+                                : AppTheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(
+                          child: const Text(
                             'معاينة حية ⚡',
-                            style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: widget.themeColor),
+                            style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: AppTheme.primary),
                           ),
                         ),
                       ],

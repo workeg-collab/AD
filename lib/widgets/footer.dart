@@ -12,17 +12,17 @@ class Footer extends StatelessWidget {
     final isMobile = screenWidth < 768;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final textColor = theme.textTheme.bodyLarge?.color;
+    final textColor = isDark ? AppTheme.textWhite : AppTheme.textDark;
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 14 : 24,
-        vertical: isMobile ? 30 : 40,
+        horizontal: isMobile ? 16 : 28,
+        vertical: isMobile ? 36 : 48,
       ),
-      color: isDark ? AppTheme.bgDark : Colors.grey.shade100,
+      color: isDark ? AppTheme.surfaceDark : const Color(0xFFF4F6F8),
       child: Center(
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
+          constraints: const BoxConstraints(maxWidth: 1140),
           child: Column(
             children: [
               Wrap(
@@ -38,11 +38,14 @@ class Footer extends StatelessWidget {
                     children: [
                       Container(
                         height: 38,
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                         decoration: BoxDecoration(
                           color: isDark ? AppTheme.cardDark : Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4), width: 1),
+                          borderRadius: AppTheme.radiusSm,
+                          border: Border.all(
+                            color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+                            width: 1,
+                          ),
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
@@ -52,8 +55,8 @@ class Footer extends StatelessWidget {
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) {
                               return const Icon(
-                                Icons.rocket_launch_rounded,
-                                color: AppTheme.primaryDark,
+                                Icons.verified_rounded,
+                                color: AppTheme.primary,
                                 size: 20,
                               );
                             },
@@ -65,7 +68,7 @@ class Footer extends StatelessWidget {
                         'POM Agency | SA Web Solutions',
                         style: TextStyle(
                           fontSize: isMobile ? 14.5 : 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                           color: textColor,
                         ),
                       ),
@@ -75,19 +78,26 @@ class Footer extends StatelessWidget {
                   // WhatsApp quick link
                   InkWell(
                     onTap: () => WhatsAppHelper.launchWhatsApp(),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                    borderRadius: AppTheme.radiusSm,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: isDark ? AppTheme.cardDark : Colors.white,
+                        borderRadius: AppTheme.radiusSm,
+                        border: Border.all(
+                          color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+                        ),
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.chat_rounded, color: AppTheme.primaryDark, size: 18),
-                          const SizedBox(width: 6),
+                          const Icon(Icons.chat_bubble_rounded, color: Color(0xFF25D366), size: 16),
+                          const SizedBox(width: 8),
                           Text(
                             '00201093706027 (${AppTranslations.tr('whatsapp_sales_label')})',
                             style: TextStyle(
                               color: textColor,
-                              fontSize: isMobile ? 13 : 14,
+                              fontSize: isMobile ? 12.5 : 13.5,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -98,27 +108,29 @@ class Footer extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Divider(color: isDark ? AppTheme.borderDark : AppTheme.borderLight),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               Text(
                 AppTranslations.tr('footer_sub'),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppTheme.textMuted,
+                style: TextStyle(
+                  color: isDark ? AppTheme.textMutedDark : AppTheme.textMuted,
                   fontSize: 12.5,
                   height: 1.5,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
 
-              const SizedBox(height: 10),
-              const Text(
+              const SizedBox(height: 8),
+              Text(
                 '© 2026 POM Agency - SA Web Solutions. جميع الحقوق محفوظة.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: AppTheme.textMuted,
+                  color: isDark ? AppTheme.textMutedDark : AppTheme.textMuted,
                   fontSize: 11.5,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ],

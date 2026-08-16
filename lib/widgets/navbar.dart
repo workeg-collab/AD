@@ -28,8 +28,8 @@ class Navbar extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 8 : 24,
-        vertical: isMobile ? 8 : 14,
+        horizontal: isMobile ? 12 : 28,
+        vertical: isMobile ? 10 : 14,
       ),
       decoration: BoxDecoration(
         color: isDark ? AppTheme.surfaceDark : Colors.white,
@@ -43,9 +43,9 @@ class Navbar extends StatelessWidget {
             ? []
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 10,
-                  spreadRadius: 1,
+                  offset: const Offset(0, 2),
                 ),
               ],
       ),
@@ -55,42 +55,41 @@ class Navbar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Brand Logo with POM Agency Logo Image
-              Flexible(
+              // Brand Logo Area
+              InkWell(
+                onTap: () {},
+                borderRadius: AppTheme.radiusMd,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      height: isMobile ? 32 : 48,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 4 : 5,
-                        vertical: isMobile ? 2 : 3,
-                      ),
+                      height: isMobile ? 36 : 44,
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                       decoration: BoxDecoration(
-                        color: isDark ? AppTheme.cardDark : Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(8),
+                        color: isDark ? AppTheme.cardDark : AppTheme.bgLight,
+                        borderRadius: AppTheme.radiusSm,
                         border: Border.all(
-                          color: AppTheme.primary.withValues(alpha: 0.4),
-                          width: 1.2,
+                          color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+                          width: 1,
                         ),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(6),
                         child: Image.asset(
                           isDark ? 'assets/images/xxx.png' : 'assets/images/xxx_dark.png',
-                          height: isMobile ? 26 : 40,
+                          height: isMobile ? 26 : 34,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              Icons.rocket_launch_rounded,
-                              color: AppTheme.primaryDark,
-                              size: isMobile ? 16 : 24,
+                            return const Icon(
+                              Icons.verified_rounded,
+                              color: AppTheme.primary,
+                              size: 24,
                             );
                           },
                         ),
                       ),
                     ),
-                    SizedBox(width: isMobile ? 6 : 8),
+                    const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -101,29 +100,31 @@ class Navbar extends StatelessWidget {
                             Text(
                               'POM SA',
                               style: TextStyle(
-                                fontSize: isMobile ? 14.5 : 20,
-                                fontWeight: FontWeight.w900,
-                                color: AppTheme.primaryDark,
-                                letterSpacing: 0.6,
+                                fontSize: isMobile ? 15 : 18,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? AppTheme.textWhite : AppTheme.textDark,
+                                letterSpacing: 0.2,
                               ),
                             ),
-                            SizedBox(width: isMobile ? 4 : 6),
+                            const SizedBox(width: 6),
                             Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: isMobile ? 5 : 6,
-                                vertical: isMobile ? 1.5 : 2,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: AppTheme.accentGold.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: AppTheme.accentGold, width: 1),
+                                color: isDark
+                                    ? AppTheme.primaryContainerDark
+                                    : AppTheme.primaryContainer,
+                                borderRadius: AppTheme.radiusSm,
+                                border: Border.all(
+                                  color: AppTheme.primary.withValues(alpha: 0.25),
+                                  width: 1,
+                                ),
                               ),
-                              child: Text(
+                              child: const Text(
                                 'السعودية 🇸🇦',
                                 style: TextStyle(
-                                  fontSize: isMobile ? 9 : 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.accentGold,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.primary,
                                 ),
                               ),
                             ),
@@ -131,10 +132,11 @@ class Navbar extends StatelessWidget {
                         ),
                         if (!isMobile)
                           const Text(
-                            'POM Agency | حلول ويب سريعة',
+                            'حلول الويب والصفحات التعريفية السريعة',
                             style: TextStyle(
                               fontSize: 11,
                               color: AppTheme.textMuted,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                       ],
@@ -143,34 +145,29 @@ class Navbar extends StatelessWidget {
                 ),
               ),
 
-              // Desktop Nav Items
+              // Desktop Navigation Links
               if (!isMobile)
                 Row(
                   children: [
-                    TextButton(
-                      onPressed: onFeaturesTap,
-                      child: Text(
-                        AppTranslations.tr('nav_features'),
-                        style: TextStyle(color: navTextColor, fontSize: 15),
-                      ),
+                    _buildNavLink(
+                      title: AppTranslations.tr('nav_features'),
+                      onTap: onFeaturesTap,
+                      color: navTextColor,
                     ),
-                    const SizedBox(width: 12),
-                    TextButton(
-                      onPressed: onDemosTap,
-                      child: Text(
-                        AppTranslations.tr('nav_demos'),
-                        style: TextStyle(color: navTextColor, fontSize: 15),
-                      ),
+                    const SizedBox(width: 8),
+                    _buildNavLink(
+                      title: AppTranslations.tr('nav_demos'),
+                      onTap: onDemosTap,
+                      color: navTextColor,
                     ),
-                    const SizedBox(width: 12),
-                    TextButton(
-                      onPressed: onOrderTap,
-                      child: Text(
-                        AppTranslations.tr('nav_pricing'),
-                        style: const TextStyle(color: AppTheme.accentGold, fontSize: 15, fontWeight: FontWeight.bold),
-                      ),
+                    const SizedBox(width: 8),
+                    _buildNavLink(
+                      title: AppTranslations.tr('nav_pricing'),
+                      onTap: onOrderTap,
+                      color: isDark ? const Color(0xFFFBBF24) : AppTheme.accentGold,
+                      isBold: true,
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     TextButton.icon(
                       onPressed: () {
                         showDialog(
@@ -178,79 +175,85 @@ class Navbar extends StatelessWidget {
                           builder: (context) => const DomainSearchModal(),
                         );
                       },
-                      icon: const Icon(Icons.language_rounded, size: 16, color: Color(0xFF10B981)),
+                      icon: const Icon(Icons.language_rounded, size: 16, color: AppTheme.primary),
                       label: Text(
                         AppTranslations.tr('nav_domain_check'),
-                        style: const TextStyle(color: Color(0xFF10B981), fontSize: 14, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: AppTheme.primary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusSm),
                       ),
                     ),
                   ],
                 ),
 
-              // Action CTA, Language Selector & Theme Toggle Icon
+              // Actions (Language, Theme Toggle, Primary CTA)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Small Language Selector Button
                   const LanguageSelectorButton(),
+                  const SizedBox(width: 8),
 
-                  SizedBox(width: isMobile ? 4 : 8),
-
-                  // Theme Mode Toggle Icon Button
+                  // Theme Mode Toggle
                   ValueListenableBuilder<ThemeMode>(
                     valueListenable: themeNotifier,
                     builder: (context, mode, child) {
-                      final isDark = mode == ThemeMode.dark;
-                      return Tooltip(
-                        message: isDark ? 'التحويل للوضع الساطع الأبيض ☀️' : 'التحويل للوضع المظلم 🌙',
-                        child: InkWell(
-                          onTap: () {
-                            themeNotifier.value = isDark ? ThemeMode.light : ThemeMode.dark;
-                          },
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: EdgeInsets.all(isMobile ? 5 : 7),
-                            decoration: BoxDecoration(
-                              color: isDark ? AppTheme.cardDark : Colors.grey.shade200,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: AppTheme.primary.withValues(alpha: 0.4),
-                                width: 1,
-                              ),
-                            ),
-                            child: Icon(
-                              isDark ? Icons.wb_sunny_rounded : Icons.dark_mode_rounded,
-                              color: isDark ? Colors.amber : AppTheme.primary,
-                              size: isMobile ? 12.5 : 15,
+                      final isCurrentDark = mode == ThemeMode.dark;
+                      return IconButton(
+                        tooltip: isCurrentDark ? 'التحويل للوضع النهاري ☀️' : 'التحويل للوضع الليلي 🌙',
+                        onPressed: () {
+                          themeNotifier.value = isCurrentDark ? ThemeMode.light : ThemeMode.dark;
+                        },
+                        icon: Icon(
+                          isCurrentDark ? Icons.wb_sunny_rounded : Icons.dark_mode_outlined,
+                          size: 18,
+                          color: isCurrentDark ? const Color(0xFFFBBF24) : AppTheme.textMuted,
+                        ),
+                        style: IconButton.styleFrom(
+                          backgroundColor: isDark ? AppTheme.cardDark : AppTheme.bgLight,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppTheme.radiusSm,
+                            side: BorderSide(
+                              color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
                             ),
                           ),
+                          padding: const EdgeInsets.all(8),
+                          minimumSize: const Size(36, 36),
                         ),
                       );
                     },
                   ),
 
-                  SizedBox(width: isMobile ? 4 : 10),
+                  const SizedBox(width: 10),
 
-                  // Action CTA
+                  // Top Action CTA Button
                   ElevatedButton.icon(
                     onPressed: () => WhatsAppHelper.launchWhatsApp(),
-                    icon: Icon(Icons.chat_bubble_outline_rounded, size: isMobile ? 13 : 18),
+                    icon: Icon(Icons.chat_bubble_outline_rounded, size: isMobile ? 14 : 16),
                     label: Text(
                       isMobile
                           ? AppTranslations.tr('nav_order')
                           : AppTranslations.tr('whatsapp_btn_top'),
                       style: TextStyle(
-                        fontSize: isMobile ? 11.5 : 14,
-                        fontWeight: FontWeight.bold,
+                        fontSize: isMobile ? 12 : 13.5,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
                       padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 8 : 20,
-                        vertical: isMobile ? 8 : 14,
+                        horizontal: isMobile ? 12 : 18,
+                        vertical: isMobile ? 10 : 13,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(isMobile ? 10 : 14),
+                        borderRadius: AppTheme.radiusSm,
                       ),
                     ),
                   ),
@@ -258,6 +261,29 @@ class Navbar extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavLink({
+    required String title,
+    required VoidCallback onTap,
+    Color? color,
+    bool isBold = false,
+  }) {
+    return TextButton(
+      onPressed: onTap,
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusSm),
+      ),
+      child: Text(
+        title,
+        style: TextStyle(
+          color: color,
+          fontSize: 14.5,
+          fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
         ),
       ),
     );

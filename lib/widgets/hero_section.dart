@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_translations.dart';
@@ -18,36 +17,18 @@ class HeroSection extends StatefulWidget {
   State<HeroSection> createState() => _HeroSectionState();
 }
 
-class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin {
+class _HeroSectionState extends State<HeroSection> with SingleTickerProviderStateMixin {
   late AnimationController _animController;
-  late AnimationController _pulseController;
-  late AnimationController _timerWiggleController;
-
   late Animation<double> _fadeAnim;
   late Animation<Offset> _slideAnim;
-
-  bool _isOrderHovered = false;
-  bool _isDemosHovered = false;
-  bool _isDomainHovered = false;
 
   @override
   void initState() {
     super.initState();
-
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 700),
     );
-
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
-
-    _timerWiggleController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat(reverse: true);
 
     _fadeAnim = CurvedAnimation(
       parent: _animController,
@@ -55,7 +36,7 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
     );
 
     _slideAnim = Tween<Offset>(
-      begin: const Offset(0, 0.12),
+      begin: const Offset(0, 0.08),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animController,
@@ -68,8 +49,6 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
   @override
   void dispose() {
     _animController.dispose();
-    _pulseController.dispose();
-    _timerWiggleController.dispose();
     super.dispose();
   }
 
@@ -77,10 +56,10 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 768;
-    final isSmallMobile = screenWidth < 420;
+    final isSmallMobile = screenWidth < 400;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final textColor = theme.textTheme.bodyLarge?.color;
+    final textColor = isDark ? AppTheme.textWhite : AppTheme.textDark;
 
     return FadeTransition(
       opacity: _fadeAnim,
@@ -88,162 +67,103 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
         position: _slideAnim,
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 12 : 24,
-            vertical: isMobile ? 24 : 70,
+            horizontal: isMobile ? 16 : 28,
+            vertical: isMobile ? 32 : 64,
           ),
           child: Center(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 1200),
+              constraints: const BoxConstraints(maxWidth: 1080),
               child: Column(
                 children: [
-                  // Prominent Animated Glowing 6-Hour Badge
-                  AnimatedBuilder(
-                    animation: Listenable.merge([_pulseController, _timerWiggleController]),
-                    builder: (context, child) {
-                      final pulseVal = _pulseController.value;
-                      final wiggleVal = math.sin(_timerWiggleController.value * 2 * math.pi);
-
-                      return Transform.scale(
-                        scale: 1.0 + (pulseVal * 0.02),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: isMobile ? 12 : 20,
-                            vertical: isMobile ? 7 : 10,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isDark
-                                  ? [
-                                      const Color(0xFF1E1B4B).withValues(alpha: 0.9),
-                                      const Color(0xFF312E81).withValues(alpha: 0.8),
-                                      const Color(0xFF065F46).withValues(alpha: 0.7),
-                                    ]
-                                  : [
-                                      const Color(0xFFEEF2FF),
-                                      const Color(0xFFE0E7FF),
-                                      const Color(0xFFD1FAE5),
-                                    ],
-                            ),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: const Color(0xFFF59E0B).withValues(alpha: 0.6 + (pulseVal * 0.4)),
-                              width: 2.0,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFF59E0B).withValues(alpha: 0.25 + (pulseVal * 0.3)),
-                                blurRadius: 16 + (pulseVal * 8),
-                                spreadRadius: 1 + (pulseVal * 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Animated Energetic Ticking Timer
-                              Transform.rotate(
-                                angle: wiggleVal * 0.22,
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [Color(0xFFF59E0B), Color(0xFFEF4444)],
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.timer_rounded,
-                                    color: Colors.white,
-                                    size: isMobile ? 15 : 18,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  AppTranslations.tr('hero_badge'),
-                                  style: TextStyle(
-                                    color: isDark ? const Color(0xFFFDE68A) : const Color(0xFFB45309),
-                                    fontSize: isSmallMobile ? 11 : (isMobile ? 12 : 14),
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 0.3,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              // Glowing Live Radar Dot
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: const Color(0xFF10B981),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF10B981).withValues(alpha: 0.6 + (pulseVal * 0.4)),
-                                      blurRadius: 6 + (pulseVal * 4),
-                                      spreadRadius: 1,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                  // 1. Sleek Top Supporting Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? AppTheme.primaryContainerDark
+                          : AppTheme.primaryContainer,
+                      borderRadius: AppTheme.radiusFull,
+                      border: Border.all(
+                        color: AppTheme.primary.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTheme.primary,
                           ),
                         ),
-                      );
-                    },
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            AppTranslations.tr('hero_badge'),
+                            style: TextStyle(
+                              color: isDark ? const Color(0xFF6EE7B7) : AppTheme.primary,
+                              fontSize: isSmallMobile ? 11.5 : 13,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.1,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
 
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 20),
 
-                  // Main Headline
+                  // 2. Main Headline
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: Text(
                       AppTranslations.tr('hero_title'),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: isSmallMobile ? 22 : (isMobile ? 26 : 46),
-                        fontWeight: FontWeight.w900,
-                        height: 1.3,
+                        fontSize: isSmallMobile ? 24 : (isMobile ? 28 : 44),
+                        fontWeight: FontWeight.w800,
+                        height: 1.35,
                         color: textColor,
+                        letterSpacing: -0.3,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
-                  // Subtitle
+                  // 3. Supporting Description
                   ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 750),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        AppTranslations.tr('hero_sub'),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: isSmallMobile ? 13.5 : (isMobile ? 15 : 18),
-                          color: AppTheme.textMuted,
-                          height: 1.5,
-                        ),
+                    constraints: const BoxConstraints(maxWidth: 760),
+                    child: Text(
+                      AppTranslations.tr('hero_sub'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: isSmallMobile ? 14 : (isMobile ? 15 : 17),
+                        color: isDark ? AppTheme.textMutedDark : AppTheme.textMuted,
+                        height: 1.65,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
 
-                  // Highlight Cards / Benefits
+                  // 4. Value Pillars / Highlight Badges
                   Wrap(
-                    spacing: isMobile ? 6 : 16,
-                    runSpacing: isMobile ? 6 : 16,
+                    spacing: isMobile ? 8 : 12,
+                    runSpacing: isMobile ? 8 : 12,
                     alignment: WrapAlignment.center,
                     children: [
-                      _buildBenefitChip(
+                      _buildPillarChip(
                         context,
-                        Icons.domain_rounded,
-                        AppTranslations.tr('chip_domain'),
-                        isDark,
+                        icon: Icons.language_rounded,
+                        label: AppTranslations.tr('chip_domain'),
+                        isDark: isDark,
                         isMobile: isMobile,
                         onTap: () {
                           showDialog(
@@ -252,27 +172,34 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
                           );
                         },
                       ),
-                      _buildAnimatedDeliveryChip(context, isDark, isMobile: isMobile),
-                      _buildBenefitChip(
+                      _buildPillarChip(
                         context,
-                        Icons.edit_note_rounded,
-                        AppTranslations.tr('chip_edits'),
-                        isDark,
+                        icon: Icons.schedule_rounded,
+                        label: AppTranslations.tr('chip_delivery'),
+                        isDark: isDark,
+                        isMobile: isMobile,
+                        isHighlight: true,
+                      ),
+                      _buildPillarChip(
+                        context,
+                        icon: Icons.edit_note_rounded,
+                        label: AppTranslations.tr('chip_edits'),
+                        isDark: isDark,
                         isMobile: isMobile,
                       ),
-                      _buildBenefitChip(
+                      _buildPillarChip(
                         context,
-                        Icons.flash_on_rounded,
-                        AppTranslations.tr('chip_tech'),
-                        isDark,
+                        icon: Icons.speed_rounded,
+                        label: AppTranslations.tr('chip_tech'),
+                        isDark: isDark,
                         isMobile: isMobile,
                       ),
                     ],
                   ),
 
-                  SizedBox(height: isMobile ? 20 : 28),
+                  const SizedBox(height: 36),
 
-                  // Interactive 3D Call to Action Buttons
+                  // 5. Action Buttons (Primary, Domain, Demos)
                   if (isMobile)
                     Column(
                       children: [
@@ -281,26 +208,41 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: widget.onOrderTap,
-                            icon: const Icon(Icons.rocket_launch_rounded, size: 17, color: Colors.white),
+                            icon: const Icon(Icons.rocket_launch_rounded, size: 18, color: Colors.white),
                             label: Text(
                               AppTranslations.tr('btn_order'),
-                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: Colors.white),
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
                             ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.primary,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              elevation: 4,
+                            style: AppTheme.primaryButtonStyle(isMobile: true),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        // Free Domain Finder Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => const DomainSearchModal(),
+                              );
+                            },
+                            icon: const Icon(Icons.travel_explore_rounded, size: 18, color: AppTheme.primary),
+                            label: Text(
+                              AppTranslations.tr('btn_choose_domain'),
+                              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppTheme.primary),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: AppTheme.primary, width: 1.2),
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMd),
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 8),
-
-                        // Domain Search Button
-                        _buildDomainSearchButton(isMobile: true),
-
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
 
                         // Secondary Demos Button
                         SizedBox(
@@ -310,106 +252,97 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
                             icon: Icon(Icons.grid_view_rounded, size: 16, color: textColor),
                             label: Text(
                               AppTranslations.tr('btn_demos'),
-                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: textColor),
+                              style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: textColor),
                             ),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              side: BorderSide(
-                                color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
-                                width: 1.2,
-                              ),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
+                            style: AppTheme.secondaryButtonStyle(isDark: isDark, isMobile: true),
                           ),
                         ),
                       ],
                     )
                   else
                     Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
+                      spacing: 14,
+                      runSpacing: 14,
                       alignment: WrapAlignment.center,
                       children: [
-                        // Primary Animated Button
-                        MouseRegion(
-                          onEnter: (_) => setState(() => _isOrderHovered = true),
-                          onExit: (_) => setState(() => _isOrderHovered = false),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            transform: Matrix4.translationValues(0, _isOrderHovered ? -3 : 0, 0),
-                            child: ElevatedButton(
-                              onPressed: widget.onOrderTap,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primary,
-                                elevation: _isOrderHovered ? 12 : 4,
-                                shadowColor: AppTheme.primary.withValues(alpha: 0.5),
-                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.rocket_launch_rounded, size: 22, color: Colors.white),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    AppTranslations.tr('btn_order'),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                        // Primary Order CTA
+                        ElevatedButton.icon(
+                          onPressed: widget.onOrderTap,
+                          icon: const Icon(Icons.rocket_launch_rounded, size: 19, color: Colors.white),
+                          label: Text(
+                            AppTranslations.tr('btn_order'),
+                            style: const TextStyle(
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
                             ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primary,
+                            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+                            shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMd),
+                            elevation: 0,
                           ),
                         ),
 
-                        // Domain Search Button
-                        _buildDomainSearchButton(isMobile: false),
+                        // Domain Finder Button
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => const DomainSearchModal(),
+                            );
+                          },
+                          icon: const Icon(Icons.travel_explore_rounded, size: 19, color: AppTheme.primary),
+                          label: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                AppTranslations.tr('btn_choose_domain'),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryContainer,
+                                  borderRadius: AppTheme.radiusSm,
+                                ),
+                                child: Text(
+                                  AppTranslations.tr('badge_free'),
+                                  style: const TextStyle(
+                                    color: AppTheme.primary,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: AppTheme.primary, width: 1.5),
+                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+                            shape: RoundedRectangleBorder(borderRadius: AppTheme.radiusMd),
+                          ),
+                        ),
 
-                        // Secondary Animated Button
-                        MouseRegion(
-                          onEnter: (_) => setState(() => _isDemosHovered = true),
-                          onExit: (_) => setState(() => _isDemosHovered = false),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 180),
-                            transform: Matrix4.translationValues(0, _isDemosHovered ? -3 : 0, 0),
-                            child: OutlinedButton(
-                              onPressed: widget.onDemosTap,
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(
-                                  color: _isDemosHovered ? AppTheme.primary : (isDark ? AppTheme.borderDark : AppTheme.borderLight),
-                                  width: 2,
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.grid_view_rounded,
-                                    size: 20,
-                                    color: _isDemosHovered ? AppTheme.primary : textColor,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    AppTranslations.tr('btn_demos'),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: _isDemosHovered ? AppTheme.primary : textColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                        // Demos Outlined Button
+                        OutlinedButton.icon(
+                          onPressed: widget.onDemosTap,
+                          icon: Icon(Icons.grid_view_rounded, size: 18, color: textColor),
+                          label: Text(
+                            AppTranslations.tr('btn_demos'),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
                             ),
                           ),
+                          style: AppTheme.secondaryButtonStyle(isDark: isDark, isMobile: false),
                         ),
                       ],
                     ),
@@ -422,159 +355,46 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
     );
   }
 
-  Widget _buildDomainSearchButton({required bool isMobile}) {
-    return AnimatedBuilder(
-      animation: Listenable.merge([_pulseController, _timerWiggleController]),
-      builder: (context, child) {
-        final wiggleVal = math.sin(_timerWiggleController.value * 2 * math.pi);
-        final pulseVal = _pulseController.value;
-
-        final buttonContent = Container(
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF059669), Color(0xFF10B981), Color(0xFF0D9488)],
-            ),
-            borderRadius: BorderRadius.circular(isMobile ? 12 : 16),
-            border: Border.all(
-              color: const Color(0xFF34D399).withValues(alpha: 0.8),
-              width: isMobile ? 1.2 : 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF10B981).withValues(alpha: _isDomainHovered ? 0.6 : (0.3 + pulseVal * 0.2)),
-                blurRadius: _isDomainHovered ? 20 : (10 + pulseVal * 5),
-                spreadRadius: _isDomainHovered ? 2 : (pulseVal * 1.5),
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const DomainSearchModal(),
-                );
-              },
-              borderRadius: BorderRadius.circular(isMobile ? 12 : 16),
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isMobile ? 12 : 24,
-                  vertical: isMobile ? 10 : 19,
-                ),
-                child: Row(
-                  mainAxisAlignment: isMobile ? MainAxisAlignment.center : MainAxisAlignment.start,
-                  mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
-                  children: [
-                    Transform.rotate(
-                      angle: wiggleVal * 0.22,
-                      child: Container(
-                        padding: EdgeInsets.all(isMobile ? 3 : 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.25),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.travel_explore_rounded,
-                          size: isMobile ? 15 : 20,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      AppTranslations.tr('btn_choose_domain'),
-                      style: TextStyle(
-                        fontSize: isMobile ? 13 : 16,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 5 : 6,
-                        vertical: isMobile ? 1.5 : 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFDE68A),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        AppTranslations.tr('badge_free'),
-                        style: TextStyle(
-                          color: const Color(0xFF78350F),
-                          fontSize: isMobile ? 8.5 : 10,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-
-        if (isMobile) {
-          return SizedBox(
-            width: double.infinity,
-            child: buttonContent,
-          );
-        }
-
-        return MouseRegion(
-          onEnter: (_) => setState(() => _isDomainHovered = true),
-          onExit: (_) => setState(() => _isDomainHovered = false),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            transform: Matrix4.translationValues(0, _isDomainHovered ? -4 : 0, 0),
-            child: buttonContent,
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildBenefitChip(
-    BuildContext context,
-    IconData icon,
-    String label,
-    bool isDark, {
+  Widget _buildPillarChip(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required bool isDark,
     required bool isMobile,
+    bool isHighlight = false,
     VoidCallback? onTap,
   }) {
     final chip = Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 8 : 14,
-        vertical: isMobile ? 5 : 10,
+        horizontal: isMobile ? 10 : 14,
+        vertical: isMobile ? 7 : 9,
       ),
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(isMobile ? 9 : 12),
+        color: isHighlight
+            ? (isDark ? AppTheme.primaryContainerDark : AppTheme.primaryContainer)
+            : (isDark ? AppTheme.cardDark : Colors.white),
+        borderRadius: AppTheme.radiusSm,
         border: Border.all(
-          color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+          color: isHighlight
+              ? AppTheme.primary.withValues(alpha: 0.35)
+              : (isDark ? AppTheme.borderDark : AppTheme.borderLight),
+          width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 4,
-            spreadRadius: 1,
-          ),
-        ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: AppTheme.primary, size: isMobile ? 13 : 18),
-          SizedBox(width: isMobile ? 4 : 6),
+          Icon(
+            icon,
+            color: AppTheme.primary,
+            size: isMobile ? 15 : 18,
+          ),
+          const SizedBox(width: 7),
           Text(
             label,
             style: TextStyle(
-              fontSize: isMobile ? 10.5 : 13,
-              fontWeight: FontWeight.w600,
+              fontSize: isMobile ? 12 : 13.5,
+              fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w600,
               color: isDark ? AppTheme.textWhite : AppTheme.textDark,
             ),
           ),
@@ -583,87 +403,12 @@ class _HeroSectionState extends State<HeroSection> with TickerProviderStateMixin
     );
 
     if (onTap != null) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(isMobile ? 9 : 12),
-          child: chip,
-        ),
+      return InkWell(
+        onTap: onTap,
+        borderRadius: AppTheme.radiusSm,
+        child: chip,
       );
     }
     return chip;
   }
-
-  Widget _buildAnimatedDeliveryChip(BuildContext context, bool isDark, {required bool isMobile}) {
-    return AnimatedBuilder(
-      animation: Listenable.merge([_pulseController, _timerWiggleController]),
-      builder: (context, child) {
-        final pulseVal = _pulseController.value;
-        final wiggleVal = math.sin(_timerWiggleController.value * 2 * math.pi);
-
-        return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 8 : 15,
-            vertical: isMobile ? 5 : 10,
-          ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isDark
-                  ? [
-                      const Color(0xFF1E293B),
-                      const Color(0xFF0F172A),
-                    ]
-                  : [
-                      const Color(0xFFFFFBEB),
-                      Colors.white,
-                    ],
-            ),
-            borderRadius: BorderRadius.circular(isMobile ? 9 : 12),
-            border: Border.all(
-              color: const Color(0xFFF59E0B).withValues(alpha: 0.7 + (pulseVal * 0.3)),
-              width: isMobile ? 1.2 : 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFFF59E0B).withValues(alpha: 0.2 + (pulseVal * 0.2)),
-                blurRadius: 6 + (pulseVal * 3),
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Transform.rotate(
-                angle: wiggleVal * 0.25,
-                child: Container(
-                  padding: EdgeInsets.all(isMobile ? 2 : 2.5),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF59E0B),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.timer_rounded,
-                    color: Colors.white,
-                    size: isMobile ? 11 : 15,
-                  ),
-                ),
-              ),
-              SizedBox(width: isMobile ? 4 : 6),
-              Text(
-                AppTranslations.tr('chip_delivery'),
-                style: TextStyle(
-                  fontSize: isMobile ? 10.5 : 13,
-                  fontWeight: FontWeight.w800,
-                  color: isDark ? const Color(0xFFFDE68A) : const Color(0xFFB45309),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
-

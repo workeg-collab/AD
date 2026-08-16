@@ -39,17 +39,6 @@ class DomainChecker {
     DomainExtensionInfo(tld: '.uno', internalMaxCostUsd: 1.20),
   ];
 
-  // Registry premium single keywords that registrars sell at premium prices ($10 - $5,000+)
-  static const Set<String> _knownPremiumSingleWords = {
-    'auto', 'tech', 'vip', 'pro', 'pay', 'app', 'car', 'law', 'shop', 'deal',
-    'gold', 'arab', 'best', 'star', 'food', 'care', 'game', 'fast', 'home',
-    'life', 'city', 'news', 'bank', 'club', 'tour', 'real', 'gift', 'safe',
-    'love', 'work', 'team', 'free', 'host', 'play', 'view', 'coin', 'crypto',
-    'meta', 'cloud', 'ai', 'dev', 'web', 'net', 'hub', 'link', 'zone', 'top',
-    'market', 'store', 'online', 'direct', 'global', 'smart', 'super', 'mega',
-    'oud', 'perfume', 'cafe', 'coffee', 'hotel', 'spa', 'gym', 'fit', 'sale',
-  };
-
   static String sanitizeSlug(String input) {
     String clean = input.trim().toLowerCase();
     clean = clean.replaceAll(RegExp(r'^https?:\/\/'), '');
@@ -83,11 +72,13 @@ class DomainChecker {
   }
 
   /// Check a single domain availability via Authoritative ICANN RDAP Registry & DNS
-  static Future<bool> isDomainAvailable(String domain, {int slugLength = 5, String slug = ''}) async {
-    // STRICT CONSTRAINT:
-    // 1-4 character domains or single dictionary keywords are classified as Premium Registry Domains ($50 - $5,000+) on Spaceship.
-    // They must NEVER be marked as available under the sub-$2 rule.
-    if (slugLength <= 4 || _knownPremiumSingleWords.contains(slug.toLowerCase())) {
+  static Future<bool> isDomainAvailable(String domain, {required String slug}) async {
+    // STRICT REGISTRY ANTI-PREMIUM RULE:
+    // Single-word names without hyphens (like 'bella', 'rose', 'gold', 'sarah', etc.)
+    // are priced as Premium Registry Domains ($50 - $5,000+) on Spaceship.
+    // Standard $0.68 - $0.98 registration prices apply strictly to compound brandable domains
+    // (e.g. 'bella-store', 'bella-saudi', 'matjar-bella', 'bella-official').
+    if (!slug.contains('-') && slug.length < 9) {
       return false;
     }
 
@@ -132,7 +123,7 @@ class DomainChecker {
         if (dnsRes.statusCode == 200) {
           final data = jsonDecode(dnsRes.body);
           if (data['Status'] == 3 && data['Answer'] == null) {
-            return slugLength > 4;
+            return slug.contains('-') || slug.length >= 9;
           }
         }
       } catch (_) {}
@@ -151,8 +142,8 @@ class DomainChecker {
 
     List<String> targetSlugs = [];
 
-    // If slug is safe and long enough (> 4 chars and not a premium keyword), include it directly
-    if (slug.length > 4 && !_knownPremiumSingleWords.contains(slug)) {
+    // If slug already contains a hyphen (e.g. 'bella-store' or 'al-amal-shop') or is long enough, include it
+    if (slug.contains('-') || slug.length >= 9) {
       targetSlugs.add(slug);
     }
 
@@ -163,6 +154,8 @@ class DomainChecker {
       '$slug-store',
       '$slug-brand',
       '$slug-official',
+      '$slug-shop',
+      'dar-$slug',
     ]);
 
     // De-duplicate target slugs while preserving order
@@ -174,7 +167,7 @@ class DomainChecker {
       for (final ext in eligibleExtensions) {
         final fullDomain = '$s${ext.tld}';
         futures.add(() async {
-          final isAvail = await isDomainAvailable(fullDomain, slugLength: s.length, slug: s);
+          final isAvail = await isDomainAvailable(fullDomain, slug: s);
           return DomainSearchResult(
             fullDomain: fullDomain,
             tld: ext.tld,

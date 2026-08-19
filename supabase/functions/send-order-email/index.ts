@@ -179,12 +179,12 @@ Deno.serve(async (req) => {
           : ""
       }
 
-      <a href="https://wa.me/201093706027" target="_blank" class="btn">💬 التواصل المباشر عبر الواتساب مع فريق العمل</a>
+      <a href="https://wa.me/201500682755" target="_blank" class="btn">💬 التواصل المباشر عبر الواتساب مع فريق العمل</a>
     </div>
 
     <div class="footer">
       <p style="margin: 0;">POM Agency • حلول الويب والتسويق الرقمي بالسعودية</p>
-      <p style="margin: 4px 0 0 0;">البريد الرسمي: sales@pom-agency.online • هاتف: +201093706027</p>
+      <p style="margin: 4px 0 0 0;">البريد الرسمي: sales@pom-agency.online • هاتف: +201500682755</p>
     </div>
   </div>
 </body>

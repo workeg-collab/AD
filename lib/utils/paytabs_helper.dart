@@ -25,7 +25,7 @@ class PayTabsHelper {
 
     final payload = {
       'customerName': customerName.isNotEmpty ? customerName : 'عميل كريم',
-      'customerPhone': customerPhone.isNotEmpty ? customerPhone : '+201093706027',
+      'customerPhone': customerPhone.isNotEmpty ? customerPhone : '+201500682755',
       'customerEmail': customerEmail.isNotEmpty ? customerEmail : 'customer@ad-landing.com',
       'businessName': businessName.isNotEmpty ? businessName : 'طلب جديد',
       'domainChoice': domainChoice ?? '',
@@ -70,7 +70,7 @@ class PayTabsHelper {
         'customer_details': {
           'name': customerName.isNotEmpty ? customerName : 'عميل كريم',
           'email': customerEmail.isNotEmpty ? customerEmail : 'customer@ad-landing.com',
-          'phone': customerPhone.isNotEmpty ? customerPhone : '+201093706027',
+          'phone': customerPhone.isNotEmpty ? customerPhone : '+201500682755',
           'street1': 'Online Order',
           'city': 'Cairo',
           'state': 'Cairo',

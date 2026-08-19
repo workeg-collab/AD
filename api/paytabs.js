@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   try {
     const {
       customerName = 'عميل كريم',
-      customerPhone = '+201093706027',
+      customerPhone = '+201500682755',
       customerEmail = 'customer@ad-landing.com',
       businessName = 'طلب جديد',
       domainChoice = '',
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
       customer_details: {
         name: customerName || 'عميل كريم',
         email: customerEmail || 'customer@ad-landing.com',
-        phone: customerPhone || '+201093706027',
+        phone: customerPhone || '+201500682755',
         street1: 'Online Order',
         city: 'Cairo',
         state: 'Cairo',

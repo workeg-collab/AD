@@ -94,7 +94,7 @@ class Footer extends StatelessWidget {
                           const Icon(Icons.chat_bubble_rounded, color: Color(0xFF25D366), size: 16),
                           const SizedBox(width: 8),
                           Text(
-                            '00201093706027 (${AppTranslations.tr('whatsapp_sales_label')})',
+                            '00201500682755 (${AppTranslations.tr('whatsapp_sales_label')})',
                             style: TextStyle(
                               color: textColor,
                               fontSize: isMobile ? 12.5 : 13.5,

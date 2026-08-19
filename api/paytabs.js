@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     const taxEgp = Number((baseEgp * (Number(taxPercent || 5.0) / 100)).toFixed(2));
     const totalEgp = Number((baseEgp + taxEgp).toFixed(2));
 
-    const merchantId = '67fbac5d-49d7-4615-9eab-2b00f7c211db';
+    const merchantId = 'MID-49511-925';
     const apiKey =
       'e52fac37d9b4237a55fa1b9ca745e8c3$57813ce0ee96d77d421e225a35032b347380c1c507a86c2230283bfa189b8a9d9cc952af190c71b3fc10d50dffd1b34f';
     const orderId = `ORDER_${Date.now()}`;
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       domainChoice,
     });
 
-    const redirectUrl = `https://checkout.kashier.io/?merchantId=${merchantId}&orderId=${orderId}&amount=${amount}&currency=${currency}&hash=${hash}&mode=live&metaData=${encodeURIComponent(metaData)}&merchantRedirect=${encodeURIComponent('https://sa.pom-agency.online')}&allowedMethods=card,wallet&display=ar`;
+    const redirectUrl = `https://checkout.kashier.io/?merchantId=${merchantId}&orderId=${orderId}&amount=${amount}&currency=${currency}&hash=${hash}&mode=live&metaData=${encodeURIComponent(metaData)}&merchantRedirect=${encodeURIComponent('https://sa.pom-agency.online')}&display=ar`;
 
     res.status(200).json({
       success: true,

@@ -30615,13 +30615,13 @@ break
 case 6:try{k="ORDER_"+Date.now()
 e=B.d.ac(a,2)
 d=B.aF.bX("e52fac37d9b4237a55fa1b9ca745e8c3$57813ce0ee96d77d421e225a35032b347380c1c507a86c2230283bfa189b8a9d9cc952af190c71b3fc10d50dffd1b34f")
-c=B.aF.bX("/?payment=67fbac5d-49d7-4615-9eab-2b00f7c211db."+k+"."+e+".EGP")
+c=B.aF.bX("/?payment=MID-49511-925."+k+"."+e+".EGP")
 a0=new Uint8Array(64)
 if(d.length>64)d=B.kr.bX(d).a
 B.D.fj(a0,0,d.length,d)
 j=A.aIx(new A.OJ(B.kr,a0).bX(c).a)
 i=B.ad.no(A.a8(["customerName",b0,"customerPhone",b1,"customerEmail",a9,"businessName",a8,"domainChoice",b2],a4,a4),null)
-h=A.a8(["merchantId","67fbac5d-49d7-4615-9eab-2b00f7c211db","orderId",k,"amount",J.aVb(a,2),"currency","EGP","hash",j,"mode","live","metaData",i,"merchantRedirect","https://sa.pom-agency.online","allowedMethods","card,wallet","display","ar"],a4,a4)
+h=A.a8(["merchantId","MID-49511-925","orderId",k,"amount",J.aVb(a,2),"currency","EGP","hash",j,"mode","live","metaData",i,"merchantRedirect","https://sa.pom-agency.online","display","ar"],a4,a4)
 g=A.d_("https://checkout.kashier.io",0,null).tt(0,h)
 a0=g.glO()
 q=a0

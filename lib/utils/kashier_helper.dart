@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class KashierHelper {
-  static const String merchantId = '67fbac5d-49d7-4615-9eab-2b00f7c211db';
+  static const String merchantId = 'MID-49511-925';
   static const String apiKey =
       'e52fac37d9b4237a55fa1b9ca745e8c3\$57813ce0ee96d77d421e225a35032b347380c1c507a86c2230283bfa189b8a9d9cc952af190c71b3fc10d50dffd1b34f';
   static const String checkoutBaseUrl = 'https://checkout.kashier.io';
@@ -99,7 +99,6 @@ class KashierHelper {
         'mode': 'live',
         'metaData': metaData,
         'merchantRedirect': 'https://sa.pom-agency.online',
-        'allowedMethods': 'card,wallet',
         'display': 'ar',
       };
 

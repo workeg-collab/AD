@@ -5,6 +5,7 @@ import '../utils/order_notifier.dart';
 import '../utils/paytabs_helper.dart';
 import '../utils/supabase_storage_helper.dart';
 import '../utils/whatsapp_helper.dart';
+import 'legal_policy_modal.dart';
 
 class OrderModal extends StatefulWidget {
   final String? initialDomain;
@@ -1179,6 +1180,55 @@ class _OrderModalState extends State<OrderModal> {
                       ),
                     ),
                   ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Policy & Terms Notice
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4,
+                  children: [
+                    const Text(
+                      'بإتمامك للطلب، أنت توافق على ',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => LegalPolicyModal.show(context, initialTabIndex: 0),
+                      child: const Text(
+                        'سياسة الخصوصية',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primary,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      ' و ',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.textMuted,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => LegalPolicyModal.show(context, initialTabIndex: 1),
+                      child: const Text(
+                        'سياسة التعديل والاسترجاع',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primary,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

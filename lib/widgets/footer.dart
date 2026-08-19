@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_translations.dart';
 import '../utils/whatsapp_helper.dart';
+import 'legal_policy_modal.dart';
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
@@ -111,6 +112,73 @@ class Footer extends StatelessWidget {
               const SizedBox(height: 24),
               Divider(color: isDark ? AppTheme.borderDark : AppTheme.borderLight),
               const SizedBox(height: 24),
+
+              // Legal Policy Links
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 20,
+                runSpacing: 10,
+                children: [
+                  InkWell(
+                    onTap: () => LegalPolicyModal.show(context, initialTabIndex: 0),
+                    borderRadius: BorderRadius.circular(6),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.shield_outlined,
+                            size: 15,
+                            color: isDark ? AppTheme.primaryLight : AppTheme.primary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'سياسة الخصوصية وسرية البيانات',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? AppTheme.textWhite : AppTheme.textDark,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppTheme.primary.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () => LegalPolicyModal.show(context, initialTabIndex: 1),
+                    borderRadius: BorderRadius.circular(6),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.published_with_changes_rounded,
+                            size: 15,
+                            color: isDark ? AppTheme.primaryLight : AppTheme.primary,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'سياسة التعديل والاسترجاع والإلغاء',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: isDark ? AppTheme.textWhite : AppTheme.textDark,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppTheme.primary.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
 
               Text(
                 AppTranslations.tr('footer_sub'),

@@ -44,6 +44,8 @@ export default async function handler(req, res) {
     const currency = 'EGP';
     const amount = totalEgp.toFixed(2);
 
+    // Kashier standard payment path for HMAC SHA256:
+    // /?payment=merchantId.orderId.amount.currency
     const path = `/?payment=${merchantId}.${orderId}.${amount}.${currency}`;
     const hash = crypto.createHmac('sha256', apiKey).update(path).digest('hex');
 

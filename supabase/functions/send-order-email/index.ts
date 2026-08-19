@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
 
       ${
         paymentUrl
-          ? `<a href="${paymentUrl}" target="_blank" class="btn" style="background: #10B981;">💳 اضغط هنا للدفع الإلكتروني الفوري (PayTabs)</a>`
+          ? `<a href="${paymentUrl}" target="_blank" class="btn" style="background: #10B981;">💳 اضغط هنا للدفع الإلكتروني الفوري (Kashier)</a>`
           : ""
       }
 
@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
     ${aboutContent ? `<p><strong>المحتوى المطلوب:</strong><br/>${aboutContent}</p>` : ""}
     ${contactInfo ? `<p><strong>بيانات التواصل:</strong><br/>${contactInfo}</p>` : ""}
     ${notes ? `<p><strong>ملاحظات:</strong><br/>${notes}</p>` : ""}
-    ${paymentUrl ? `<p><strong>رابط PayTabs للعميل:</strong><br/><a href="${paymentUrl}">${paymentUrl}</a></p>` : ""}
+    ${paymentUrl ? `<p><strong>رابط كاشير (Kashier) للعميل:</strong><br/><a href="${paymentUrl}">${paymentUrl}</a></p>` : ""}
   </div>
 </body>
 </html>

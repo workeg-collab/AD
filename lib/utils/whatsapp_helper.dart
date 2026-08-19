@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 class WhatsAppHelper {
   static const String phoneNumber = '201500682755';
 
-  /// Launch WhatsApp with comprehensive client message including attachments, content & PayTabs payment link
+  /// Launch WhatsApp with comprehensive client message including attachments, content & Kashier payment link
   static Future<void> launchWhatsApp({
     String? customMessage,
     String? businessName,
@@ -66,7 +66,7 @@ class WhatsAppHelper {
     }
 
     if (paymentUrl != null && paymentUrl.trim().isNotEmpty) {
-      textMessage += '\n\n💳 *رابط الدفع الإلكتروني (PayTabs):*\n${paymentUrl.trim()}';
+      textMessage += '\n\n💳 *رابط الدفع الإلكتروني (Kashier):*\n${paymentUrl.trim()}';
     }
 
     textMessage += '\n\n💰 *قيمة العرض:* 299 ريال (4,247.74 ج.م شامل TAX 5%)';

@@ -151,7 +151,7 @@ export default async function handler(req, res) {
 
       ${
         paymentUrl
-          ? `<a href="${paymentUrl}" target="_blank" class="btn" style="background: #10B981;">💳 اضغط هنا للدفع الإلكتروني الفوري (PayTabs)</a>`
+          ? `<a href="${paymentUrl}" target="_blank" class="btn" style="background: #10B981;">💳 اضغط هنا للدفع الإلكتروني الفوري (Kashier)</a>`
           : ''
       }
 
@@ -199,7 +199,7 @@ export default async function handler(req, res) {
     ${aboutContent ? `<p><strong>المحتوى المطلوب:</strong><br/>${aboutContent}</p>` : ''}
     ${contactInfo ? `<p><strong>بيانات التواصل:</strong><br/>${contactInfo}</p>` : ''}
     ${notes ? `<p><strong>ملاحظات:</strong><br/>${notes}</p>` : ''}
-    ${paymentUrl ? `<p><strong>رابط PayTabs للعميل:</strong><br/><a href="${paymentUrl}">${paymentUrl}</a></p>` : ''}
+    ${paymentUrl ? `<p><strong>رابط كاشير (Kashier) للعميل:</strong><br/><a href="${paymentUrl}">${paymentUrl}</a></p>` : ''}
   </div>
 </body>
 </html>
@@ -264,7 +264,7 @@ export default async function handler(req, res) {
           'صور النشاط والمنتجات': photosInfo || 'بالواتساب',
           'بروفايل الشركة': profileInfo || 'بالواتساب',
           'المبلغ الإجمالي': orderAmount,
-          'رابط الدفع PayTabs': paymentUrl || 'لم ينشأ',
+          'رابط الدفع Kashier': paymentUrl || 'لم ينشأ',
           'وقت الطلب': orderTime,
         }),
       });

@@ -1,14 +1,33 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
-class PayTabsHelper {
-  static const int profileId = 154004;
-  static const String serverKey = 'SHJ9WHMT6Z-J9KRRLTHBG-2HBDZKRTWR';
-  static const String clientKey = 'C7K2GR-DVBD6P-KRRB7H-G296GT';
-  static const String directEndpoint = 'https://secure-egypt.paytabs.com/payment/request';
+class KashierHelper {
+  static const String merchantId = '67fbac5d-49d7-4615-9eab-2b00f7c211db';
+  static const String apiKey =
+      'e52fac37d9b4237a55fa1b9ca745e8c3\$57813ce0ee96d77d421e225a35032b347380c1c507a86c2230283bfa189b8a9d9cc952af190c71b3fc10d50dffd1b34f';
+  static const String checkoutBaseUrl = 'https://checkout.kashier.io';
 
-  /// Create a PayTabs Hosted Payment Page session and return the redirect URL
+  /// Generate Kashier HMAC-SHA256 hash for secure checkout
+  static String generateHash({
+    required String mid,
+    required String orderId,
+    required double amount,
+    required String currency,
+    required String secret,
+  }) {
+    // Kashier standard payment path format: /?payment=mid.orderId.amount.currency
+    final String amountStr = amount.toStringAsFixed(2);
+    final String path = '/?payment=$mid.$orderId.$amountStr.$currency';
+    final key = utf8.encode(secret);
+    final bytes = utf8.encode(path);
+    final hmac = Hmac(sha256, key);
+    final digest = hmac.convert(bytes);
+    return digest.toString();
+  }
+
+  /// Create a Kashier Hosted Checkout URL
   static Future<String?> createPaymentPage({
     required String customerName,
     required String customerPhone,
@@ -34,14 +53,14 @@ class PayTabsHelper {
       'taxPercent': taxPercent,
     };
 
-    // 1. Try Vercel Serverless Function first (Bypasses all browser CORS restrictions)
+    // 1. Try Vercel Serverless Function first
     try {
-      final serverlessUri = Uri.base.resolve('/api/paytabs');
+      final serverlessUri = Uri.base.resolve('/api/kashier');
       final response = await http.post(
         serverlessUri,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 8));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -51,53 +70,47 @@ class PayTabsHelper {
       }
     } catch (_) {}
 
-    // 2. Direct Fallback
+    // 2. Direct HMAC-SHA256 URL Generation Fallback
     try {
-      final cartId = 'ORDER_${DateTime.now().millisecondsSinceEpoch}';
-      String description = 'تصميم صفحة لـ $businessName (299 SAR + TAX 5% = $totalEgp ج.م)';
-      if (domainChoice != null && domainChoice.isNotEmpty) {
-        description += ' + دومين $domainChoice';
-      }
+      final orderId = 'ORDER_${DateTime.now().millisecondsSinceEpoch}';
+      const currency = 'EGP';
+      final hash = generateHash(
+        mid: merchantId,
+        orderId: orderId,
+        amount: totalEgp,
+        currency: currency,
+        secret: apiKey,
+      );
 
-      final directPayload = {
-        'profile_id': profileId,
-        'tran_type': 'sale',
-        'tran_class': 'ecom',
-        'cart_id': cartId,
-        'cart_description': description,
-        'cart_currency': 'EGP',
-        'cart_amount': totalEgp,
-        'customer_details': {
-          'name': customerName.isNotEmpty ? customerName : 'عميل كريم',
-          'email': customerEmail.isNotEmpty ? customerEmail : 'customer@ad-landing.com',
-          'phone': customerPhone.isNotEmpty ? customerPhone : '+201500682755',
-          'street1': 'Online Order',
-          'city': 'Cairo',
-          'state': 'Cairo',
-          'country': 'EG',
-        },
+      final metaData = jsonEncode({
+        'customerName': customerName,
+        'customerPhone': customerPhone,
+        'customerEmail': customerEmail,
+        'businessName': businessName,
+        'domainChoice': domainChoice ?? '',
+      });
+
+      final queryParams = {
+        'merchantId': merchantId,
+        'orderId': orderId,
+        'amount': totalEgp.toStringAsFixed(2),
+        'currency': currency,
+        'hash': hash,
+        'mode': 'live',
+        'metaData': metaData,
+        'merchantRedirect': 'https://sa.pom-agency.online',
+        'allowedMethods': 'card,wallet',
+        'display': 'ar',
       };
 
-      final response = await http.post(
-        Uri.parse(directEndpoint),
-        headers: {
-          'Authorization': serverKey,
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(directPayload),
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final redirectUrl = data['redirect_url'] as String?;
-        return redirectUrl;
-      }
+      final uri = Uri.parse(checkoutBaseUrl).replace(queryParameters: queryParams);
+      return uri.toString();
     } catch (_) {}
 
     return null;
   }
 
-  /// Launch PayTabs payment page in external browser tab/window
+  /// Launch Kashier payment page in external browser tab/window
   static Future<bool> launchPayment({
     required String customerName,
     required String customerPhone,

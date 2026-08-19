@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_translations.dart';
 import '../utils/order_notifier.dart';
-import '../utils/paytabs_helper.dart';
+import '../utils/kashier_helper.dart';
 import '../utils/supabase_storage_helper.dart';
 import '../utils/whatsapp_helper.dart';
 import 'legal_policy_modal.dart';
@@ -381,8 +381,8 @@ class _OrderModalState extends State<OrderModal> {
     final profileInfo = _getCombinedProfileInfo();
 
     try {
-      // 1. Generate direct PayTabs payment page URL for this order
-      final paymentUrl = await PayTabsHelper.createPaymentPage(
+      // 1. Generate direct Kashier payment page URL for this order
+      final paymentUrl = await KashierHelper.createPaymentPage(
         customerName: name,
         customerPhone: phone,
         customerEmail: email,
@@ -407,7 +407,7 @@ class _OrderModalState extends State<OrderModal> {
         aboutContent: aboutContent,
         contactInfo: contactInfo,
         notes: notes,
-        paymentMethod: 'طلب وتأكيد عبر الواتساب + رابط PayTabs 💬',
+        paymentMethod: 'طلب وتأكيد عبر الواتساب + رابط كاشير (Kashier) 💬',
         paymentUrl: paymentUrl,
       );
 
@@ -456,7 +456,7 @@ class _OrderModalState extends State<OrderModal> {
     }
   }
 
-  Future<void> _payWithPayTabs() async {
+  Future<void> _payWithKashier() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isProcessing = true);
@@ -474,8 +474,8 @@ class _OrderModalState extends State<OrderModal> {
     final profileInfo = _getCombinedProfileInfo();
 
     try {
-      // 1. Launch PayTabs hosted checkout
-      final paymentUrl = await PayTabsHelper.createPaymentPage(
+      // 1. Launch Kashier hosted checkout
+      final paymentUrl = await KashierHelper.createPaymentPage(
         customerName: name,
         customerPhone: phone,
         customerEmail: email,
@@ -500,7 +500,7 @@ class _OrderModalState extends State<OrderModal> {
         aboutContent: aboutContent,
         contactInfo: contactInfo,
         notes: notes,
-        paymentMethod: 'دفع فوري بالبطاقة عبر PayTabs 💳',
+        paymentMethod: 'دفع فوري بالبطاقة عبر كاشير (Kashier) 💳',
         paymentUrl: paymentUrl,
       );
 
@@ -512,7 +512,7 @@ class _OrderModalState extends State<OrderModal> {
             email: email,
             onProceed: () async {
               Navigator.of(context).pop();
-              await PayTabsHelper.launchPayment(
+              await KashierHelper.launchPayment(
                 customerName: name,
                 customerPhone: phone,
                 customerEmail: email,
@@ -1162,10 +1162,10 @@ class _OrderModalState extends State<OrderModal> {
                   child: OutlinedButton.icon(
                     onPressed: (_isProcessing || _isUploadingLogo || _isUploadingPhotos || _isUploadingProfile)
                         ? null
-                        : _payWithPayTabs,
+                        : _payWithKashier,
                     icon: const Icon(Icons.credit_card_rounded, color: AppTheme.primary, size: 18),
                     label: const Text(
-                      'أو الدفع الفوري بالفيزا/الماستركارد (PayTabs) 💳',
+                      'أو الدفع الفوري بالفيزا/الماستركارد/المحافظ (Kashier) 💳',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,

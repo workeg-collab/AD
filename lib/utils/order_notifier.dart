@@ -38,7 +38,7 @@ class OrderNotifier {
       'notes': notes ?? '',
       'paymentMethod': paymentMethod,
       'paymentUrl': paymentUrl ?? '',
-      'orderAmount': '299.00 SAR (4,081.35 EGP شامل الضريبة 5%)',
+      'orderAmount': '299.00 SAR (4,247.74 EGP شامل الضريبة 5%)',
     };
 
     bool isSuccess = false;

@@ -16,7 +16,7 @@ class PayTabsHelper {
     required String businessName,
     String? domainChoice,
     double amountSar = 299.00,
-    double sarToEgpRate = 13.00,
+    double sarToEgpRate = 13.53,
     double taxPercent = 5.00,
   }) async {
     final baseEgp = amountSar * sarToEgpRate;
@@ -105,7 +105,7 @@ class PayTabsHelper {
     required String businessName,
     String? domainChoice,
     double amountSar = 299.00,
-    double sarToEgpRate = 13.00,
+    double sarToEgpRate = 13.53,
     double taxPercent = 5.00,
   }) async {
     final url = await createPaymentPage(

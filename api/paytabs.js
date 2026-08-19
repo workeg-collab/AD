@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       businessName = 'طلب جديد',
       domainChoice = '',
       amountSar = 299.00,
-      sarToEgpRate = 13.00,
+      sarToEgpRate = 13.53,
       taxPercent = 5.0,
     } = req.body || {};
 
@@ -34,11 +34,11 @@ export default async function handler(req, res) {
     const sar = Number(amountSar || 299.00);
     // 2. USD: ~ $79.73 USD
     const usd = Number((sar / 3.75).toFixed(2));
-    // 3. EGP Base (قبل الضريبة): 299 * 13.00 = 3,887.00 EGP
-    const baseEgp = Number((sar * Number(sarToEgpRate || 13.00)).toFixed(2));
-    // 4. Tax 5%: 3,887 * 0.05 = 194.35 EGP
+    // 3. EGP Base (قبل الضريبة): 299 * 13.53 = 4,045.47 EGP
+    const baseEgp = Number((sar * Number(sarToEgpRate || 13.53)).toFixed(2));
+    // 4. Tax 5%: 4,045.47 * 0.05 = 202.27 EGP
     const taxEgp = Number((baseEgp * (Number(taxPercent || 5.0) / 100)).toFixed(2));
-    // 5. Total with Tax: 3,887 + 194.35 = 4,081.35 EGP
+    // 5. Total with Tax: 4,045.47 + 202.27 = 4,247.74 EGP
     const totalEgp = Number((baseEgp + taxEgp).toFixed(2));
 
     const profileId = 154004;

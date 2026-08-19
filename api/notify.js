@@ -35,7 +35,7 @@ export default async function handler(req, res) {
       contactInfo = '',
       paymentMethod = 'طلب عبر الموقع',
       paymentUrl = '',
-      orderAmount = '299.00 SAR (4,081.35 EGP شامل الضريبة 5%)',
+      orderAmount = '299.00 SAR (4,247.74 EGP شامل الضريبة 5%)',
     } = req.body || {};
 
     const targetClientEmail = (customerEmail || client_email || '').trim();

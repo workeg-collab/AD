@@ -388,7 +388,7 @@ class _OrderModalState extends State<OrderModal> {
         businessName: name,
         domainChoice: domain,
         amountSar: 299.00,
-        sarToEgpRate: 13.00,
+        sarToEgpRate: 13.53,
         taxPercent: 5.00,
       );
 
@@ -481,7 +481,7 @@ class _OrderModalState extends State<OrderModal> {
         businessName: name,
         domainChoice: domain,
         amountSar: 299.00,
-        sarToEgpRate: 13.00,
+        sarToEgpRate: 13.53,
         taxPercent: 5.00,
       );
 
@@ -518,7 +518,7 @@ class _OrderModalState extends State<OrderModal> {
                 businessName: name,
                 domainChoice: domain,
                 amountSar: 299.00,
-                sarToEgpRate: 13.00,
+                sarToEgpRate: 13.53,
                 taxPercent: 5.00,
               );
             },
@@ -992,11 +992,11 @@ class _OrderModalState extends State<OrderModal> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '🇪🇬 السعر بالمصري (سعر الصرف 13.00):',
+                            '🇪🇬 السعر بالمصري (سعر الصرف 13.53):',
                             style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                           ),
                           Text(
-                            '3,887.00 ج.م',
+                            '4,045.47 ج.م',
                             style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
                           ),
                         ],
@@ -1016,7 +1016,7 @@ class _OrderModalState extends State<OrderModal> {
                             ),
                           ),
                           Text(
-                            '+ 194.35 ج.م',
+                            '+ 202.27 ج.م',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -1044,7 +1044,7 @@ class _OrderModalState extends State<OrderModal> {
                             ),
                           ),
                           const Text(
-                            '4,081.35 ج.م',
+                            '4,247.74 ج.م',
                             style: TextStyle(
                               fontSize: 15.5,
                               fontWeight: FontWeight.w900,

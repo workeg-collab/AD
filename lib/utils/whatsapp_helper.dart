@@ -69,7 +69,7 @@ class WhatsAppHelper {
       textMessage += '\n\n💳 *رابط الدفع الإلكتروني (PayTabs):*\n${paymentUrl.trim()}';
     }
 
-    textMessage += '\n\n💰 *قيمة العرض:* 299 ريال (4,081.35 ج.م شامل TAX 5%)';
+    textMessage += '\n\n💰 *قيمة العرض:* 299 ريال (4,247.74 ج.م شامل TAX 5%)';
 
     final Uri url = Uri.parse(
       'https://wa.me/$phoneNumber?text=${Uri.encodeComponent(textMessage)}',

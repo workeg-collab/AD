@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
     const aboutContent = (payload.aboutContent || "").trim();
     const contactInfo = (payload.contactInfo || "").trim();
     const notes = (payload.notes || "").trim();
-    const orderAmount = payload.orderAmount || "299.00 SAR (4,081.35 EGP شامل الضريبة 5%)";
+    const orderAmount = payload.orderAmount || "299.00 SAR (4,247.74 EGP شامل الضريبة 5%)";
 
     const resendApiKey = Deno.env.get("RESEND_API_KEY") || "";
     const sender = "POM Agency <sales@pom-agency.online>";
